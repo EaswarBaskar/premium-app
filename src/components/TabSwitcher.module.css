@@ -1,0 +1,46 @@
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin: 30px 0 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.tab {
+  background: none;
+  border: none;
+  color: rgba(247, 239, 227, 0.55);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 0 2px 12px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.tab.active {
+  color: var(--ivory);
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--gold-light);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.tab.active::after {
+  transform: scaleX(1);
+}

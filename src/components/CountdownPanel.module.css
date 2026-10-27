@@ -1,0 +1,122 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.eventDate {
+  margin-top: 22px;
+  font-size: 0.85rem;
+  color: var(--gold-light);
+  letter-spacing: 0.3px;
+}
+
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.unit {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 14px 4px 12px;
+}
+
+.num {
+  font-family: var(--font-cormorant-garamond), serif;
+  font-size: 2.1rem;
+  font-weight: 600;
+  color: var(--ivory);
+  display: block;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.lbl {
+  font-size: 0.65rem;
+  color: rgba(247, 239, 227, 0.6);
+  margin-top: 6px;
+  display: block;
+}
+
+.progressWrap {
+  margin-top: 26px;
+  text-align: left;
+}
+
+.progressNote {
+  font-size: 0.8rem;
+  color: rgba(247, 239, 227, 0.75);
+  margin-bottom: 8px;
+}
+
+.progressTrack {
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  width: 0%;
+  transition: width 1s ease;
+}
+
+.actions {
+  margin-top: 26px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--plum);
+  background: var(--gold-light);
+  border: none;
+  padding: 11px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--gold);
+  transform: translateY(-1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--ivory);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.arrived {
+  font-family: var(--font-cormorant-garamond), serif;
+  font-size: 1.6rem;
+  color: var(--gold-light);
+  margin-top: 18px;
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 380px) {
+  .num {
+    font-size: 1.7rem;
+  }
+}
