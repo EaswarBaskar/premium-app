@@ -1,0 +1,223 @@
+.brandWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  user-select: none;
+  max-width: 100%;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.logoLink:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.traxvaLogo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.byLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.byDivider {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: #d8d0c2;
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.byText {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: #8c8274;
+  text-transform: uppercase;
+  font-family: var(--font-dm-sans, -apple-system, BlinkMacSystemFont, sans-serif);
+}
+
+.eantraxLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.eantraxLink:hover {
+  opacity: 0.8;
+}
+
+.eantraxLogo {
+  height: 14px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Variant: nav */
+.nav .traxvaLogo {
+  height: 34px;
+}
+
+/* Variant: footer */
+.footer {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.footer .traxvaLogo {
+  height: 38px;
+}
+
+.footer .byDivider {
+  display: none;
+}
+
+.footer .byLockup {
+  gap: 7px;
+}
+
+/* Variant: dashboard */
+.dashboard .traxvaLogo {
+  height: 32px;
+}
+
+/* Variant: admin */
+.admin .traxvaLogo {
+  height: 30px;
+}
+
+.adminBadge {
+  background: #f4ede4;
+  color: #a7553f;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #dfcfc2;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+/* Variant: login */
+.login {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login .traxvaLogo {
+  height: 44px;
+}
+
+.login .byDivider {
+  display: none;
+}
+
+/* Variant: invite */
+.invite {
+  align-items: center;
+  gap: 10px;
+}
+
+.invite .traxvaLogo {
+  height: 26px;
+}
+
+.invite .byDivider {
+  height: 16px;
+}
+
+.invite .byText {
+  font-size: 9px;
+}
+
+.invite .eantraxLogo {
+  height: 11px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .brandWrapper {
+    gap: 8px;
+  }
+  .nav .traxvaLogo {
+    height: 28px;
+  }
+  .nav .byDivider {
+    display: none;
+  }
+  .nav .byLockup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
+  .nav .byText {
+    font-size: 8px;
+  }
+  .nav .eantraxLogo {
+    height: 10px;
+  }
+  .dashboard .traxvaLogo {
+    height: 26px;
+  }
+  .dashboard .byDivider {
+    display: none;
+  }
+  .dashboard .byLockup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
+  .dashboard .byText {
+    font-size: 8px;
+  }
+  .dashboard .eantraxLogo {
+    height: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav .traxvaLogo {
+    height: 24px;
+  }
+  .dashboard .traxvaLogo {
+    height: 23px;
+  }
+  .login .traxvaLogo {
+    height: 36px;
+  }
+  .footer {
+    align-items: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav .byLockup,
+  .dashboard .byLockup {
+    display: none;
+  }
+}

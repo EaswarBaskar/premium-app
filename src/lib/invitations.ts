@@ -14,6 +14,7 @@ export type InvitationRecord = {
   template: string;
   plan: string;
   expires_at: string | null;
+  contact?: string | null;
   cover_photo_url?: string | null;
   gallery_urls?: string[] | null;
   events?: Array<{ name: string; date: string; time: string; venue: string; address?: string }> | null;
@@ -33,6 +34,7 @@ export function invitationToClient(value: InvitationRecord) {
     venue: value.venue,
     address: value.address,
     maps: value.maps || "",
+    contact: value.contact || "",
     message: value.message,
     template: value.template,
     coverPhotoUrl: value.cover_photo_url || "",
@@ -43,5 +45,7 @@ export function invitationToClient(value: InvitationRecord) {
     musicUrl: value.music_url || "",
     plan: value.plan,
     expiresAt: value.expires_at ? new Date(value.expires_at).getTime() : undefined,
+    views: (value as any).views || 0,
+    viewsByPlace: (value as any).viewsByPlace || {},
   };
 }

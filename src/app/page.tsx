@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
+  BarChart3,
+  LockKeyhole,
   Bell,
   CalendarDays,
   Check,
@@ -24,6 +26,8 @@ import {
 } from "lucide-react";
 import styles from "./page.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
+import BrandLogo from "@/components/BrandLogo";
 
 type EventType = "Wedding" | "Engagement" | "Birthday" | "Reception" | "Baby Shower" | "Other";
 type FormData = { eventType: EventType; firstName: string; secondName: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact: string; age: string; template: string; coverPhotoUrl: string; galleryUrls: string[]; events: { name: string; date: string; time: string; venue: string; address: string; maps?: string }[]; dressCode: string; travelInfo: string; musicUrl: string };
@@ -37,7 +41,7 @@ const eventTypes: { name: EventType; icon: string; copy: string }[] = [
   { name: "Other", icon: "✧", copy: "Your moment, your way" },
 ];
 
-const initialForm: FormData = { eventType: "Wedding", firstName: "Arjun", secondName: "Priya", date: "2026-12-12", time: "19:00", venue: "The Courtyard, Jaipur", address: "12 Palace Road, Jaipur", maps: "https://maps.google.com", message: "We would love to celebrate this special day with you.", contact: "+91 98765 43210", age: "", template: "Elegant Gold", coverPhotoUrl: "", galleryUrls: [], events: [], dressCode: "", travelInfo: "", musicUrl: "" };
+const initialForm: FormData = { eventType: "Wedding", firstName: "Arjun", secondName: "Priya", date: "2026-12-12", time: "19:00", venue: "The Courtyard, Jaipur", address: "12 Palace Road, Jaipur", maps: "https://maps.google.com", message: "We would love to celebrate this special day with you.", contact: "9876543210", age: "", template: "Elegant Gold", coverPhotoUrl: "", galleryUrls: [], events: [], dressCode: "", travelInfo: "", musicUrl: "" };
 
 function prettyDate(value: string) {
   if (!value) return "12 December 2026";
@@ -53,16 +57,36 @@ function invitationSlug(firstName: string, secondName: string) {
   return `${clean(firstName)}${clean(secondName)}` || "INVITATION";
 }
 
+const templateDescriptions: Record<string, string> = {
+  "Elegant Gold": "Warm, timeless & golden",
+  "Royal Indian": "Rich, regal & unforgettable",
+  "Modern Ivory": "Quiet, minimal & refined",
+  "Garden Floral": "Fresh, botanical & romantic",
+  "Fun & Bright": "Joyful, energetic & vivid",
+  "Midnight Luxe": "Dark, sleek & mysterious",
+  "Minimal Joy": "Soft, modern & understated",
+};
+
 function InvitationMock({ form, compact = false, onPhotoUpload }: { form: FormData; compact?: boolean; onPhotoUpload?: (file: File) => void }) {
-  return <div className={`${styles.invitationMock} ${compact ? styles.compact : ""}`} data-theme={form.template.replace(/\s+/g, "").toLowerCase()}>
+  const normalizedTheme = (form.template || "Elegant Gold").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+  const ornament = ({
+    royalindian: "❖",
+    modernivory: "·",
+    gardenfloral: "❀",
+    funbright: "★",
+    midnightluxe: "✧",
+    minimaljoy: "✦",
+  } as Record<string, string>)[normalizedTheme] || "✦";
+
+  return <div className={`${styles.invitationMock} ${compact ? styles.compact : ""}`} data-theme={normalizedTheme}>
     <div className={styles.mockGlow} />
     <div className={styles.mockTopline}>INVITE7 · YOUR MOMENT, BEAUTIFULLY TOLD</div>
-    <div className={styles.mockOrnament}>✦</div>
+    <div className={styles.mockOrnament}>{ornament}</div>
     <p className={styles.mockEyebrow}>You&apos;re invited</p>
     <p className={styles.mockTogether}>Together with their families</p>
     <h3>{form.firstName} <i>&amp;</i> {form.secondName}</h3>
     <p className={styles.mockCopy}>{form.eventType === "Wedding" ? "joyfully invite you to celebrate their wedding" : `invite you to celebrate their ${form.eventType.toLowerCase()}`}</p>
-    <div className={styles.mockDivider}><span>✦</span></div>
+    <div className={styles.mockDivider}><span>{ornament}</span></div>
     <strong>{prettyDate(form.date)}</strong>
     <span>{timeLabel(form.time)} · {form.venue}</span>
     {!compact && <div className={styles.mockActions}><button>Get directions</button><button>RSVP</button></div>}{onPhotoUpload && <label className={styles.photoUpload}>Add cover photo<input type="file" accept="image/*" onChange={(event) => { const file = event.target.files?.[0]; if (file) onPhotoUpload(file); }} /></label>}
@@ -97,7 +121,28 @@ export default function Home() {
     createSupabaseBrowserClient().auth.getUser().then(({ data }) => {
       setIsLoggedIn(Boolean(data.user));
     }).catch(() => setIsLoggedIn(false));
-    try { localStorage.removeItem("invite7-pending-invitation"); } catch {}
+
+    // Scroll reveal observer for fluid, staggered animations on scroll
+    if (typeof window !== "undefined") {
+      const revealCallback: IntersectionObserverCallback = (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(styles.revealed);
+            observer.unobserve(entry.target);
+          }
+        });
+      };
+
+      const observer = new IntersectionObserver(revealCallback, {
+        threshold: 0.08,
+        rootMargin: "0px 0px -30px 0px",
+      });
+
+      const elements = document.querySelectorAll(`.${styles.scrollReveal}`);
+      elements.forEach((el) => observer.observe(el));
+
+      return () => observer.disconnect();
+    }
   }, []);
 
   function selectTemplate(newTemplate: string) {
@@ -117,7 +162,7 @@ export default function Home() {
   const generatedSlug = useMemo(() => invitationSlug(form.firstName, form.secondName), [form.firstName, form.secondName]);
   const slug = publishedSlug || generatedSlug;
   const activeSlug = slug;
-  const shareUrl = typeof window === "undefined" ? `https://invite7.in/invite/${activeSlug}` : `${window.location.origin}/invite/${activeSlug}`;
+  const shareUrl = typeof window === "undefined" ? `https://traxva.in/invite/${activeSlug}` : `${window.location.origin}/invite/${activeSlug}`;
   const title = useMemo(() => form.eventType === "Birthday" ? `${form.firstName}'s birthday` : `${form.firstName} & ${form.secondName}'s ${form.eventType.toLowerCase()}`, [form]);
 
   async function publish() {
@@ -140,6 +185,10 @@ export default function Home() {
     setPublishError("");
     setPublishedSlug(result.slug);
     setPublished(true);
+    try {
+      localStorage.setItem("invite7-active-invitation-slug", result.slug);
+      localStorage.removeItem("invite7-pending-invitation");
+    } catch {}
   }
 
   function copyLink() {
@@ -150,37 +199,326 @@ export default function Home() {
 
   return <main className={styles.siteShell}>{publishError && <p role="alert" className={styles.inlineError}>{publishError}</p>}
     <header className={styles.navbar}>
-      <Link href="#top" className={styles.brand}><span>7</span> invite<span className={styles.brandDot}>.</span></Link>
+      <BrandLogo href="#top" variant="nav" />
       <nav className={`${styles.navLinks} ${mobileMenu ? styles.navOpen : ""}`}>
-        <a href="#how-it-works" onClick={() => setMobileMenu(false)}>How it works</a><a href="#templates" onClick={() => setMobileMenu(false)}>Templates</a><a href="#pricing" onClick={() => setMobileMenu(false)}>Pricing</a><a href="#faq" onClick={() => setMobileMenu(false)}>FAQ</a>
+        <a href="#how-it-works" onClick={() => setMobileMenu(false)}>How it works</a>
+        <a href="#templates" onClick={() => setMobileMenu(false)}>Templates</a>
+        <a href="#pricing" onClick={() => setMobileMenu(false)}>Pricing</a>
+        <a href="#faq" onClick={() => setMobileMenu(false)}>FAQ</a>
+        <div className={styles.mobileNavActions}>
+          <button
+            type="button"
+            className={styles.mobileLoginBtn}
+            onClick={() => { setMobileMenu(false); router.push(isLoggedIn ? "/dashboard" : "/login?next=/"); }}
+          >
+            {isLoggedIn ? "Host Dashboard" : "Log in"}
+          </button>
+          <button
+            type="button"
+            className={styles.mobileCtaBtn}
+            onClick={() => { setMobileMenu(false); setShowWizard(true); }}
+          >
+            Create invitation <ArrowRight size={15} />
+          </button>
+        </div>
       </nav>
       <div className={styles.navActions}><button className={styles.login} onClick={() => router.push(isLoggedIn ? "/dashboard" : "/login?next=/")}>{isLoggedIn ? "Dashboard" : "Log in"}</button><button className={styles.smallCta} onClick={() => setShowWizard(true)}>Create invitation <ArrowRight size={15} /></button></div>
       <button className={styles.menuButton} onClick={() => setMobileMenu(!mobileMenu)} aria-label="Toggle menu">{mobileMenu ? <X /> : <Menu />}</button>
     </header>
 
     <section className={styles.hero} id="top">
-      <div className={styles.heroCopy}><div className={styles.kicker}><Sparkles size={14} /> DIGITAL INVITATIONS, ELEVATED</div><h1>Your special day deserves <em>more</em> than a message.</h1><p>Create a beautiful digital invitation in minutes. Share one simple link with everyone who matters.</p><div className={styles.heroButtons}><button className={styles.primaryCta} onClick={() => setShowWizard(true)}>Create your invitation <ArrowRight size={17} /></button><a className={styles.watchLink} href="#templates"><span><Play size={13} fill="currentColor" /></span> See the experience</a></div><div className={styles.trust}><div className={styles.avatarStack}><i /><i /><i /><i /></div><span><strong>Made for meaningful moments</strong><small>Make your moment memorable</small></span></div></div>
-      <div className={styles.heroVisual}><div className={styles.visualNote}><span>✦</span><p>Designed for<br /><strong>your story</strong></p></div><InvitationMock form={initialForm} /><div className={styles.visualBadge}><Heart size={15} fill="currentColor" /> Made with feeling</div></div>
+      <ThreeCelebrationScene variant="hero" showBadge speed={1.1} />
+      <div className={styles.heroCopy}>
+        <div className={styles.kicker}>
+          <Sparkles size={14} className={styles.kickerSparkle} /> DIGITAL INVITATIONS, ELEVATED
+        </div>
+        <h1>Your special day deserves <em>more</em> than a message.</h1>
+        <p>Create a beautiful digital invitation in minutes. Share one simple link with everyone who matters.</p>
+        <div className={styles.heroButtons}>
+          <button className={styles.primaryCta} onClick={() => setShowWizard(true)}>
+            Create your invitation <ArrowRight size={17} />
+          </button>
+          <a className={styles.watchLink} href="#templates">
+            <span><Play size={13} fill="currentColor" /></span> See the experience
+          </a>
+        </div>
+        <div className={styles.trust}>
+          <div className={styles.avatarStack}><i /><i /><i /><i /></div>
+          <span><strong>Made for meaningful moments</strong><small>Make your moment memorable</small></span>
+        </div>
+      </div>
+      <div className={styles.heroVisual}>
+        <div className={styles.visualNote}><span>✦</span><p>Designed for<br /><strong>your story</strong></p></div>
+        <InvitationMock form={initialForm} />
+        <div className={styles.visualBadge}><Heart size={15} fill="currentColor" /> Made with feeling</div>
+      </div>
     </section>
 
-    <section className={styles.eyebrowStrip}><span>WEDDINGS</span><i>✦</i><span>ENGAGEMENTS</span><i>✦</i><span>BIRTHDAYS</span><i>✦</i><span>EVERYTHING WORTH CELEBRATING</span></section>
+    {/* Continuous Infinite Editorial Marquee */}
+    <section className={styles.eyebrowStrip} aria-label="Celebration themes">
+      <div className={styles.marqueeTrack}>
+        <span>WEDDINGS</span><i>✦</i><span>ENGAGEMENTS</span><i>✦</i><span>BIRTHDAYS</span><i>✦</i><span>RECEPTIONS</span><i>✦</i><span>BABY SHOWERS</span><i>✦</i><span>REAL-TIME RSVP</span><i>✦</i><span>WHATSAPP SHARING</span><i>✦</i><span>INTERACTIVE MAPS</span><i>✦</i><span>EVERYTHING WORTH CELEBRATING</span><i>✦</i>
+        <span>WEDDINGS</span><i>✦</i><span>ENGAGEMENTS</span><i>✦</i><span>BIRTHDAYS</span><i>✦</i><span>RECEPTIONS</span><i>✦</i><span>BABY SHOWERS</span><i>✦</i><span>REAL-TIME RSVP</span><i>✦</i><span>WHATSAPP SHARING</span><i>✦</i><span>INTERACTIVE MAPS</span><i>✦</i><span>EVERYTHING WORTH CELEBRATING</span><i>✦</i>
+      </div>
+    </section>
 
-    <section className={styles.section} id="how-it-works"><div className={styles.sectionHeading}><div><div className={styles.kicker}>FROM IDEA TO INVITED</div><h2>Make an entrance<br /><em>before they arrive.</em></h2></div><p>All the warmth of a beautifully printed invitation, with the ease of a link you can send anywhere.</p></div><div className={styles.steps}><div className={styles.step}><span>01</span><div className={styles.stepIcon}>✧</div><h3>Choose your moment</h3><p>Wedding, engagement, birthday or something wonderfully yours.</p></div><div className={styles.step}><span>02</span><div className={styles.stepIcon}>✎</div><h3>Make it personal</h3><p>Add your names, details, photos and the feeling you want to share.</p></div><div className={styles.step}><span>03</span><div className={styles.stepIcon}>↗</div><h3>Send the feeling</h3><p>Get one beautiful link. Share it with everyone, everywhere.</p></div></div></section>
+    <section className={styles.section} id="how-it-works">
+      <div className={`${styles.sectionHeading} ${styles.scrollReveal}`}>
+        <div>
+          <div className={styles.kicker}>FROM IDEA TO INVITED</div>
+          <h2>Make an entrance<br /><em>before they arrive.</em></h2>
+        </div>
+        <p>All the warmth of a beautifully printed invitation, with the ease of a link you can send anywhere.</p>
+      </div>
+      <div className={styles.steps}>
+        <div className={`${styles.step} ${styles.scrollReveal} ${styles.delay1}`}>
+          <span>01</span>
+          <div className={styles.stepIcon}>✧</div>
+          <h3>Choose your moment</h3>
+          <p>Wedding, engagement, birthday or something wonderfully yours.</p>
+        </div>
+        <div className={`${styles.step} ${styles.scrollReveal} ${styles.delay2}`}>
+          <span>02</span>
+          <div className={styles.stepIcon}>✎</div>
+          <h3>Make it personal</h3>
+          <p>Add your names, details, photos and the feeling you want to share.</p>
+        </div>
+        <div className={`${styles.step} ${styles.scrollReveal} ${styles.delay3}`}>
+          <span>03</span>
+          <div className={styles.stepIcon}>↗</div>
+          <h3>Send the feeling</h3>
+          <p>Get one beautiful link. Share it with everyone, everywhere.</p>
+        </div>
+      </div>
+    </section>
 
-    <section className={`${styles.section} ${styles.templateSection}`} id="templates"><div className={styles.sectionHeading}><div><div className={styles.kicker}>THE INVITE7 EDIT</div><h2>Made for milestones<br /><em>that matter.</em></h2></div><a className={styles.textLink} href="#pricing">Explore all designs <ArrowRight size={15} /></a></div><div className={styles.templateGrid}><div className={styles.templateCard}><div className={`${styles.templateImage} ${styles.weddingImage}`}><span>THE WEDDING OF</span><strong>Arjun &amp; Priya</strong><small>12 · 12 · 2026</small></div><div><p>Elegant Gold</p><span>Wedding · Premium</span></div></div><div className={styles.templateCard}><div className={`${styles.templateImage} ${styles.engagementImage}`}><span>A BEAUTIFUL PROMISE</span><strong>Riya &amp; Adi</strong><small>Save the date</small></div><div><p>Modern Romance</p><span>Engagement · Premium</span></div></div><div className={styles.templateCard}><div className={`${styles.templateImage} ${styles.birthdayImage}`}><span>LET&apos;S CELEBRATE</span><strong>Meera turns 30</strong><small>Saturday evening</small></div><div><p>Midnight Luxe</p><span>Birthday · Premium</span></div></div></div></section>
+    <section className={`${styles.section} ${styles.templateSection}`} id="templates">
+      <div className={`${styles.sectionHeading} ${styles.scrollReveal}`}>
+        <div>
+          <div className={styles.kicker}>THE TRAXVA EDIT</div>
+          <h2>Made for milestones<br /><em>that matter.</em></h2>
+        </div>
+        <a className={styles.textLink} href="#pricing">Explore all designs <ArrowRight size={15} /></a>
+      </div>
+      <div className={styles.templateGrid}>
+        <div className={`${styles.templateCard} ${styles.scrollReveal} ${styles.delay1}`}>
+          <div className={`${styles.templateImage} ${styles.weddingImage}`}>
+            <span>THE WEDDING OF</span>
+            <strong>Arjun &amp; Priya</strong>
+            <small>12 · 12 · 2026</small>
+          </div>
+          <div><p>Elegant Gold</p><span>Wedding · Premium</span></div>
+        </div>
+        <div className={`${styles.templateCard} ${styles.scrollReveal} ${styles.delay2}`}>
+          <div className={`${styles.templateImage} ${styles.engagementImage}`}>
+            <span>A BEAUTIFUL PROMISE</span>
+            <strong>Riya &amp; Adi</strong>
+            <small>Save the date</small>
+          </div>
+          <div><p>Modern Romance</p><span>Engagement · Premium</span></div>
+        </div>
+        <div className={`${styles.templateCard} ${styles.scrollReveal} ${styles.delay3}`}>
+          <div className={`${styles.templateImage} ${styles.birthdayImage}`}>
+            <span>LET&apos;S CELEBRATE</span>
+            <strong>Meera turns 30</strong>
+            <small>Saturday evening</small>
+          </div>
+          <div><p>Midnight Luxe</p><span>Birthday · Premium</span></div>
+        </div>
+      </div>
+    </section>
 
-    <section className={styles.guestSection} id="guest-list"><div className={styles.guestIntro}><h2>Smart Guest List Creation</h2><p>Ditch the chaos of Excel and paper lists. Keep all guest contacts organized with real time updates.</p></div><div className={styles.guestLayout}><div className={styles.guestVisual}><div className={styles.guestBoard}><div className={styles.guestBoardTop}><span><Users size={14} /> Guest list</span><strong>3,562 Guests</strong></div><div className={styles.guestBoardGrid}><div className={styles.guestStat}><small>Mehndi</small><b>260</b></div><div className={styles.guestStat}><small>Reception</small><b>865</b></div><div className={styles.guestStat}><small>Haldi</small><b>307</b></div><div className={`${styles.guestStat} ${styles.guestStatWarm}`}><small>Baraat</small><b>346</b></div></div></div><div className={`${styles.guestFloat} ${styles.guestFloatGroup}`}><span>Smart Grouping using AI</span><small>Close Friends</small><small>Family</small><small>Office Friends</small><small>Neighbors</small></div><div className={`${styles.guestFloat} ${styles.guestFloatImport}`}><span>Import Contacts</span><small>Android / iOS / CSV</small><div className={styles.guestProgress}><i /></div></div><div className={`${styles.guestFloat} ${styles.guestFloatEvent}`}><span>Easy contact event mapping</span><small>Guests matched to each event</small><div className={styles.guestPeople}>● ● ● ●</div></div></div><div className={styles.guestFeatures}><div><Users size={28} /><div><h3>Collaborative Contact Import</h3><p>Both families can import and manage their contacts together without the hassle of removing duplicates or incomplete information.</p></div></div><div><Sparkles size={28} /><div><h3>AI Grouping</h3><p>Invite7 automatically organizes guests into relevant groups like &quot;Delhi Friends&quot; or &quot;Work Colleagues&quot;.</p></div></div><div><CalendarDays size={28} /><div><h3>Event-Wise Distribution</h3><p>Easily assign guest groups to different wedding events and send targeted reminders to guests.</p></div></div></div></div></section>
+    <section className={styles.guestSection} id="guest-list">
+      <div className={`${styles.guestIntro} ${styles.scrollReveal}`}>
+        <h2>Smart Guest List Creation</h2>
+        <p>Ditch the chaos of Excel and paper lists. Keep all guest contacts organized with real time updates.</p>
+      </div>
+      <div className={styles.guestLayout}>
+        <div className={`${styles.guestVisual} ${styles.scrollReveal} ${styles.delay1}`}>
+          <div className={styles.guestBoard}>
+            <div className={styles.guestBoardTop}>
+              <span><Users size={14} /> Guest list</span>
+              <strong>3,562 Guests</strong>
+            </div>
+            <div className={styles.guestBoardGrid}>
+              <div className={styles.guestStat}><small>Mehndi</small><b>260</b></div>
+              <div className={styles.guestStat}><small>Reception</small><b>865</b></div>
+              <div className={styles.guestStat}><small>Haldi</small><b>307</b></div>
+              <div className={`${styles.guestStat} ${styles.guestStatWarm}`}><small>Baraat</small><b>346</b></div>
+            </div>
+          </div>
+          <div className={`${styles.guestFloat} ${styles.guestFloatGroup}`}>
+            <span>Smart Grouping using AI</span>
+            <small>Close Friends</small><small>Family</small><small>Office Friends</small><small>Neighbors</small>
+          </div>
+          <div className={`${styles.guestFloat} ${styles.guestFloatImport}`}>
+            <span>Import Contacts</span>
+            <small>Android / iOS / CSV</small>
+            <div className={styles.guestProgress}><i /></div>
+          </div>
+          <div className={`${styles.guestFloat} ${styles.guestFloatEvent}`}>
+            <span>Easy contact event mapping</span>
+            <small>Guests matched to each event</small>
+            <div className={styles.guestPeople}>● ● ● ●</div>
+          </div>
+        </div>
+        <div className={`${styles.guestFeatures} ${styles.scrollReveal} ${styles.delay2}`}>
+          <div><Users size={28} /><div><h3>Collaborative Contact Import</h3><p>Both families can import and manage their contacts together without the hassle of removing duplicates or incomplete information.</p></div></div>
+          <div><Sparkles size={28} /><div><h3>AI Grouping</h3><p>TRAXVA automatically organizes guests into relevant groups like &quot;Delhi Friends&quot; or &quot;Work Colleagues&quot;.</p></div></div>
+          <div><CalendarDays size={28} /><div><h3>Event-Wise Distribution</h3><p>Easily assign guest groups to different wedding events and send targeted reminders to guests.</p></div></div>
+        </div>
+      </div>
+    </section>
 
-    <section className={styles.manageSection}><div className={styles.manageIntro}><h2>Instant Guest Management</h2><p>No more endless phone calls and manual reminders. Save countless hours and let Invite7 do the manual work for you.</p></div><div className={styles.manageLayout}><div className={styles.phoneVisual}><div className={styles.phone}><div className={styles.phoneNotch} /><div className={styles.phoneHeader}>✦ invite7 <small>online</small></div><div className={styles.phoneMessage}>You are invited!! <i /></div><div className={styles.phoneLines}><span /><span /><span /><span /></div><div className={styles.phoneRsvp}><small>RSVP</small><button>Yes</button><button>Maybe</button><button>No</button></div></div><div className={styles.insightCard}><strong>Quick Insights!</strong><div><span>Accepted<br /><b>12</b></span><span>Tentative<br /><b>08</b></span><span>Pending<br /><b>12</b></span><span>Not attending<br /><b>03</b></span></div></div><div className={styles.manageFloat}><ClipboardList size={14} /> Collect +1 Details<br /><ClipboardList size={14} /> Send Reminders<br /><ClipboardList size={14} /> RSVP Data</div></div><div className={styles.manageFeatures}><div><MessageCircle size={28} /><div><h3>WhatsApp Integrated</h3><p>Automated WhatsApp RSVP reminders that guests can&apos;t miss.</p></div></div><div><Sparkles size={28} /><div><h3>One Click Data Collection</h3><p>Secure collection of guest details — from addresses to hotel check-in requirements.</p></div></div><div><Bell size={28} /><div><h3>Invite7 Admin Reminders</h3><p>Real-time RSVP tracking and reminders for offline collections.</p></div></div><div><ClipboardList size={28} /><div><h3>Automated Guest Portal</h3><p>Self-service portal for guests to update their information anytime.</p></div></div></div></div></section>
+    <section className={styles.manageSection}>
+      <div className={`${styles.manageIntro} ${styles.scrollReveal}`}>
+        <h2>Instant Guest Management</h2>
+        <p>No more endless phone calls and manual reminders. Save countless hours and let TRAXVA do the manual work for you.</p>
+      </div>
+      <div className={styles.manageLayout}>
+        <div className={`${styles.phoneVisual} ${styles.scrollReveal} ${styles.delay1}`}>
+          <div className={styles.phone}>
+            <div className={styles.phoneNotch} />
+            <div className={styles.phoneHeader}>✦ traxva <small>online</small></div>
+            <div className={styles.phoneMessage}>You are invited!! <i /></div>
+            <div className={styles.phoneLines}><span /><span /><span /><span /></div>
+            <div className={styles.phoneRsvp}><small>RSVP</small><button>Yes</button><button>Maybe</button><button>No</button></div>
+          </div>
+          <div className={styles.insightCard}>
+            <strong>Quick Insights!</strong>
+            <div><span>Accepted<br /><b>12</b></span><span>Tentative<br /><b>08</b></span><span>Pending<br /><b>12</b></span><span>Not attending<br /><b>03</b></span></div>
+          </div>
+          <div className={styles.manageFloat}>
+            <ClipboardList size={14} /> Collect +1 Details<br />
+            <ClipboardList size={14} /> Send Reminders<br />
+            <ClipboardList size={14} /> RSVP Data
+          </div>
+        </div>
+        <div className={`${styles.manageFeatures} ${styles.scrollReveal} ${styles.delay2}`}>
+          <div><MessageCircle size={28} /><div><h3>WhatsApp Integrated</h3><p>Automated WhatsApp RSVP reminders that guests can&apos;t miss.</p></div></div>
+          <div><Sparkles size={28} /><div><h3>One Click Data Collection</h3><p>Secure collection of guest details — from addresses to hotel check-in requirements.</p></div></div>
+          <div><Bell size={28} /><div><h3>TRAXVA Admin Reminders</h3><p>Real-time RSVP tracking and reminders for offline collections.</p></div></div>
+          <div><ClipboardList size={28} /><div><h3>Automated Guest Portal</h3><p>Self-service portal for guests to update their information anytime.</p></div></div>
+        </div>
+      </div>
+    </section>
 
-    <section className={styles.quoteSection}><div className={styles.quoteMark}>“</div><blockquote>The best invitations don&apos;t just share the details.<br /><em>They set the feeling.</em></blockquote><div className={styles.quoteByline}><span>✦</span> EVERY LITTLE DETAIL, CONSIDERED</div></section>
+    <section className={`${styles.quoteSection} ${styles.scrollReveal}`}>
+      <div className={styles.quoteMark}>“</div>
+      <blockquote>The best invitations don&apos;t just share the details.<br /><em>They set the feeling.</em></blockquote>
+      <div className={styles.quoteByline}><span>✦</span> EVERY LITTLE DETAIL, CONSIDERED</div>
+    </section>
 
-    <section className={`${styles.section} ${styles.pricingSection}`} id="pricing"><div className={styles.centerHeading}><div className={styles.kicker}>SIMPLE, THOUGHTFUL PRICING</div><h2>Good things, made <em>easy.</em></h2><p>Start free, upgrade when your moment calls for a little more.</p></div><div className={styles.pricingGrid}><div className={styles.priceCard}><span className={styles.priceLabel}>STARTER</span><h3>Free</h3><p>For trying something lovely</p><strong>₹0 <small>forever</small></strong><ul><li><Check size={14} /> 1 invitation</li><li><Check size={14} /> Basic templates</li><li><Check size={14} /> 3-day validity</li></ul><button onClick={() => setShowWizard(true)}>Start creating <ArrowRight size={15} /></button></div><div className={`${styles.priceCard} ${styles.featuredPrice}`}><div className={styles.popular}>MOST LOVED</div><span className={styles.priceLabel}>SIGNATURE</span><h3>Beautifully yours</h3><p>For moments worth keeping</p><strong>₹199 <small>one time</small></strong><ul><li><Check size={14} /> Premium templates</li><li><Check size={14} /> 7-day validity</li><li><Check size={14} /> No watermark</li></ul><button onClick={() => setShowWizard(true)}>Create signature invite <ArrowRight size={15} /></button></div><div className={styles.priceCard}><span className={styles.priceLabel}>KEEPSAKE</span><h3>Every detail</h3><p>For celebrations in full bloom</p><strong>₹399 <small>one time</small></strong><ul><li><Check size={14} /> 30-day validity</li><li><Check size={14} /> RSVP &amp; countdown</li><li><Check size={14} /> Advanced customization</li></ul><button onClick={() => setShowWizard(true)}>Choose keepsake <ArrowRight size={15} /></button></div></div></section>
+    <section className={`${styles.section} ${styles.pricingSection}`} id="pricing">
+      <div className={`${styles.centerHeading} ${styles.scrollReveal}`}>
+        <div className={styles.kicker}>SIMPLE, THOUGHTFUL PRICING</div>
+        <h2>Good things, made <em>easy.</em></h2>
+        <p>Start free today. Premium paid plans coming soon!</p>
+      </div>
+      <div className={styles.pricingGrid}>
+        <div className={`${styles.priceCard} ${styles.activePlanCard} ${styles.scrollReveal} ${styles.delay1}`}>
+          <span className={styles.priceLabel}>STARTER</span>
+          <h3>Free</h3>
+          <p>For trying something lovely</p>
+          <strong>₹0 <small>forever</small></strong>
+          <ul><li><Check size={14} /> 1 invitation</li><li><Check size={14} /> Basic templates</li><li><Check size={14} /> 3-day validity</li></ul>
+          <button onClick={() => setShowWizard(true)}>Start creating <ArrowRight size={15} /></button>
+        </div>
+        <div className={`${styles.priceCard} ${styles.comingSoonCard} ${styles.scrollReveal} ${styles.delay2}`}>
+          <div className={styles.comingSoonTag}>COMING SOON</div>
+          <span className={styles.priceLabel}>SIGNATURE</span>
+          <h3>Beautifully yours</h3>
+          <p>For moments worth keeping</p>
+          <strong>₹199 <small>one time</small></strong>
+          <ul><li><Check size={14} /> Premium templates</li><li><Check size={14} /> 7-day validity</li><li><Check size={14} /> No watermark</li></ul>
+          <button disabled className={styles.comingSoonButton}>Coming soon</button>
+        </div>
+        <div className={`${styles.priceCard} ${styles.comingSoonCard} ${styles.scrollReveal} ${styles.delay3}`}>
+          <div className={styles.comingSoonTag}>COMING SOON</div>
+          <span className={styles.priceLabel}>KEEPSAKE</span>
+          <h3>Every detail</h3>
+          <p>For celebrations in full bloom</p>
+          <strong>₹399 <small>one time</small></strong>
+          <ul><li><Check size={14} /> 30-day validity</li><li><Check size={14} /> RSVP &amp; countdown</li><li><Check size={14} /> Advanced customization</li></ul>
+          <button disabled className={styles.comingSoonButton}>Coming soon</button>
+        </div>
+      </div>
+    </section>
 
-    <section className={styles.faqSection} id="faq"><div><div className={styles.kicker}>A LITTLE CLARITY</div><h2>Questions,<br /><em>answered.</em></h2></div><div className={styles.faqList}><details open><summary>How quickly can I create an invitation? <span>+</span></summary><p>In just a few minutes. Pick a style, add your details, preview it live, and share your one-of-a-kind link.</p></details><details><summary>Can guests RSVP from the invitation? <span>+</span></summary><p>Yes. RSVP is built into our keepsake plan so you can collect names, guest counts and messages in one place.</p></details><details><summary>Can I edit after sharing? <span>+</span></summary><p>Absolutely. Your invitation stays yours. Make changes any time and the link updates instantly.</p></details></div></section>
+    <section className={`${styles.faqSection} ${styles.scrollReveal}`} id="faq">
+      <div>
+        <div className={styles.kicker}>A LITTLE CLARITY</div>
+        <h2>Questions,<br /><em>answered.</em></h2>
+      </div>
+      <div className={styles.faqList}>
+        <details open><summary>How quickly can I create an invitation? <span>+</span></summary><p>In just a few minutes. Pick a style, add your details, preview it live, and share your one-of-a-kind link.</p></details>
+        <details><summary>Can guests RSVP from the invitation? <span>+</span></summary><p>Yes. RSVP is built into our keepsake plan so you can collect names, guest counts and messages in one place.</p></details>
+        <details><summary>Can I edit after sharing? <span>+</span></summary><p>Absolutely. Your invitation stays yours. Make changes any time and the link updates instantly.</p></details>
+      </div>
+    </section>
 
-    <footer className={styles.footer}><div className={styles.brand}><span>7</span> invite<span className={styles.brandDot}>.</span></div><p>For all the moments worth gathering for.</p><div className={styles.footerSocial}><Sparkles size={17} /><MessageCircle size={17} /><Heart size={17} /></div><small>© 2026 Invite7 · Made in India, with feeling.</small></footer>
+    <footer className={`${styles.footer} ${styles.scrollReveal}`}>
+      <BrandLogo href="#top" variant="footer" />
+      <p>For all the moments worth gathering for.</p>
+      <div className={styles.footerSocial}><Sparkles size={17} /><MessageCircle size={17} /><Heart size={17} /></div>
+      <small>© 2026 TRAXVA · A Product by Eantrax · Made in India, with feeling.</small>
+    </footer>
 
-    {showWizard && <div className={styles.overlay}><div className={styles.wizard}><button className={styles.closeWizard} onClick={() => setShowWizard(false)}><X /></button>{published ? <div className={styles.publishSuccess}><div className={styles.successIcon}><Check /></div><div className={styles.kicker}>YOUR INVITATION IS READY</div><h2>Send the <em>feeling.</em></h2><p>Your beautiful invitation is live. Share the link with everyone who matters.</p><div className={styles.shareBox}><Link2 size={16} /><span>{shareUrl}</span><button onClick={copyLink}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? "Copied" : "Copy"}</button></div><div className={styles.shareButtons}><a href={`https://wa.me/?text=${encodeURIComponent(`You’re invited! 💍 ${title}. View the invitation: ${shareUrl}`)}`} target="_blank"><MessageCircle size={16} /> WhatsApp</a><button onClick={copyLink}><Copy size={16} /> Copy link</button><Link href={`/invite/${slug}`} target="_blank"><ExternalLink size={16} /> View invite</Link></div><button className={styles.secondaryCta} onClick={() => setShowWizard(false)}>Back to Invite7</button></div> : <><div className={styles.wizardHeader}><div><div className={styles.kicker}>CREATE YOUR INVITATION</div><h2>Let&apos;s make it <em>yours.</em></h2></div><div className={styles.progressSteps}>{[1, 2, 3, 4].map((number) => <span key={number} className={step >= number ? styles.currentStep : ""}>{number}</span>)}</div></div><div className={styles.wizardBody}><div className={styles.formColumn}>{step === 1 && <><h3>What are we celebrating?</h3><p className={styles.formHint}>Choose the feeling that fits your moment.</p><div className={styles.eventGrid}>{eventTypes.map((event) => <button key={event.name} className={`${styles.eventChoice} ${form.eventType === event.name ? styles.selectedChoice : ""}`} onClick={() => update("eventType", event.name)}><span>{event.icon}</span><strong>{event.name}</strong><small>{event.copy}</small>{form.eventType === event.name && <Check size={15} />}</button>)}</div></>}{step === 2 && <><h3>Tell us about your moment</h3><p className={styles.formHint}>These details bring your invitation to life.</p><div className={styles.formGrid}><label>{form.eventType === "Birthday" ? "Celebrant name" : "First name"}<input value={form.firstName} onChange={(e) => update("firstName", e.target.value)} /></label><label>{form.eventType === "Birthday" ? "Age" : "Second name"}<input value={form.eventType === "Birthday" ? form.age : form.secondName} onChange={(e) => update(form.eventType === "Birthday" ? "age" : "secondName", e.target.value)} /></label><label>Date<input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} /></label><label>Time<input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} /></label><label className={styles.fullField}>Venue name<input value={form.venue} onChange={(e) => update("venue", e.target.value)} /></label><label className={styles.fullField}>Address<input value={form.address} onChange={(e) => update("address", e.target.value)} /></label><label className={styles.fullField}>Google Maps link <span>(optional)</span><input value={form.maps} onChange={(e) => update("maps", e.target.value)} /></label><label className={styles.fullField}>Cover photo <span>(optional)</span><input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto(f); }} /></label><label className={styles.fullField}>A note for your guests<textarea value={form.message} onChange={(e) => update("message", e.target.value)} /></label></div></>}{step === 3 && <><h3>Choose your invitation style</h3><p className={styles.formHint}>A little visual soul for your big moment.</p><div className={styles.designList}>{templates.map((name, index) => <button key={name} className={`${styles.designChoice} ${template === name ? styles.selectedChoice : ""}`} onClick={() => selectTemplate(name)}><span className={`${styles.designSwatch} ${styles[`swatch${index}`]}`} /><div><strong>{name}</strong><small>{index === 0 ? "Warm, timeless & golden" : index === 1 ? "Rich, regal & unforgettable" : "Quietly beautiful"}</small></div>{template === name && <Check size={16} />}</button>)}</div></>}{step === 4 && <><h3>One last look</h3><p className={styles.formHint}>This is exactly what your guests will see.</p><div className={styles.finalPreview}><InvitationMock form={form} onPhotoUpload={uploadPhoto} /></div></>}</div><div className={styles.previewColumn}><div className={styles.previewLabel}><span>LIVE PREVIEW</span><span><Sparkles size={12} /> Updates as you type</span></div><InvitationMock form={form} compact={step !== 4} onPhotoUpload={uploadPhoto} /></div></div><div className={styles.wizardFooter}>{step > 1 ? <button className={styles.backButton} onClick={() => setStep(step - 1)}><ChevronLeft size={16} /> Back</button> : <span />}{step < 4 ? <button className={styles.nextButton} onClick={() => setStep(step + 1)}>Continue <ChevronRight size={16} /></button> : <button className={styles.publishButton} onClick={publish}>Publish invitation <ArrowRight size={16} /></button>}</div></>}</div></div>}
+    {showWizard && <div className={styles.overlay}><div className={styles.wizard}><button className={styles.closeWizard} onClick={() => setShowWizard(false)}><X /></button>{published ? <div className={styles.publishSuccess}>
+            <div className={styles.successIcon}><Check /></div>
+            <div className={styles.kicker}>YOUR INVITATION IS READY</div>
+            <h2>Send the <em>feeling.</em></h2>
+            <p>Your beautiful invitation is live. Share the link directly with your guests, or manage responses from your dashboard.</p>
+            
+            {/* Direct Sharing Links (No login required) */}
+            <div className={styles.shareBox}>
+              <Link2 size={16} />
+              <span>{shareUrl}</span>
+              <button onClick={copyLink}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? "Copied" : "Copy"}</button>
+            </div>
+            
+            <div className={styles.shareButtons}>
+              <a href={`https://wa.me/?text=${encodeURIComponent(`You’re invited! 💍 ${title}. View the invitation: ${shareUrl}`)}`} target="_blank">
+                <MessageCircle size={16} /> Share on WhatsApp
+              </a>
+              <Link href={`/invite/${slug}`} target="_blank">
+                <ExternalLink size={16} /> View live invitation
+              </Link>
+            </div>
+
+            {/* Host Dashboard Option */}
+            {isLoggedIn ? (
+              <div className={styles.dashboardCard}>
+                <div className={styles.dashboardCardLeft}>
+                  <BarChart3 size={20} color="#a7553f" />
+                  <div>
+                    <strong>Your Host Dashboard is ready</strong>
+                    <p>Track RSVPs, manage guest list, and send automated WhatsApp reminders.</p>
+                  </div>
+                </div>
+                <Link href={`/dashboard?slug=${slug}`} className={styles.dashboardLinkBtn}>
+                  Open Host Dashboard <ArrowRight size={14} />
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.dashboardCard}>
+                <div className={styles.dashboardCardLeft}>
+                  <LockKeyhole size={20} color="#a7553f" />
+                  <div>
+                    <strong>Want to track RSVPs &amp; Guest List?</strong>
+                    <p>Sign in to your free host dashboard to monitor attendance and RSVPs in real time.</p>
+                  </div>
+                </div>
+                <Link href={`/login?next=${encodeURIComponent(`/dashboard?slug=${slug}`)}`} className={styles.dashboardLinkBtn}>
+                  Sign in for Dashboard <ArrowRight size={14} />
+                </Link>
+              </div>
+            )}
+
+            <button className={styles.secondaryCta} onClick={() => setShowWizard(false)} style={{ marginTop: "24px" }}>
+              Back to TRAXVA
+            </button>
+          </div> : <><div className={styles.wizardHeader}><div><div className={styles.kicker}>CREATE YOUR INVITATION</div><h2>Let&apos;s make it <em>yours.</em></h2></div><div className={styles.progressSteps}>{[1, 2, 3, 4].map((number) => <span key={number} className={step >= number ? styles.currentStep : ""}>{number}</span>)}</div></div><div className={styles.wizardBody}><div className={styles.formColumn}>{step === 1 && <><h3>What are we celebrating?</h3><p className={styles.formHint}>Choose the feeling that fits your moment.</p><div className={styles.eventGrid}>{eventTypes.map((event) => <button key={event.name} className={`${styles.eventChoice} ${form.eventType === event.name ? styles.selectedChoice : ""}`} onClick={() => update("eventType", event.name)}><span>{event.icon}</span><strong>{event.name}</strong><small>{event.copy}</small>{form.eventType === event.name && <Check size={15} />}</button>)}</div></>}{step === 2 && <><h3>Tell us about your moment</h3><p className={styles.formHint}>These details bring your invitation to life.</p><div className={styles.formGrid}><label>{form.eventType === "Birthday" ? "Celebrant name" : "First name"}<input value={form.firstName} onChange={(e) => update("firstName", e.target.value)} /></label><label>{form.eventType === "Birthday" ? "Age" : "Second name"}<input value={form.eventType === "Birthday" ? form.age : form.secondName} onChange={(e) => update(form.eventType === "Birthday" ? "age" : "secondName", e.target.value)} /></label><label>Date<input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} /></label><label>Time<input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} /></label><label className={styles.fullField}>Venue name<input value={form.venue} onChange={(e) => update("venue", e.target.value)} /></label><label className={styles.fullField}>Address<input value={form.address} onChange={(e) => update("address", e.target.value)} /></label><label className={styles.fullField}>Host WhatsApp / Phone <span>(10-digit mobile number)</span><input type="tel" inputMode="numeric" pattern="[0-9]{10}" maxLength={10} value={form.contact} onChange={(e) => update("contact", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="9876543210" /></label>
+              <label className={styles.fullField}>Google Maps link <span>(optional)</span><input value={form.maps} onChange={(e) => update("maps", e.target.value)} /></label><label className={styles.fullField}>Cover photo <span>(optional)</span><input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto(f); }} /></label><label className={styles.fullField}>A note for your guests<textarea value={form.message} onChange={(e) => update("message", e.target.value)} /></label></div></>}{step === 3 && <><h3>Choose your invitation style</h3><p className={styles.formHint}>A little visual soul for your big moment.</p><div className={styles.designList}>{templates.map((name, index) => { const normKey = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); const swatchClass = (styles as Record<string, string>)[`swatch_${normKey}`] || (styles as Record<string, string>)[`swatch${index}`]; return <button key={name} className={`${styles.designChoice} ${template === name ? styles.selectedChoice : ""}`} onClick={() => selectTemplate(name)}><span className={`${styles.designSwatch} ${swatchClass}`} /><div><strong>{name}</strong><small>{templateDescriptions[name] || "Warm, timeless & golden"}</small></div>{template === name && <Check size={16} />}</button>; })}</div></>}{step === 4 && <><h3>One last look</h3><p className={styles.formHint}>This is exactly what your guests will see.</p><div className={styles.finalPreview}><InvitationMock form={form} onPhotoUpload={uploadPhoto} /></div></>}</div><div className={styles.previewColumn}><div className={styles.previewLabel}><span>LIVE PREVIEW</span><span><Sparkles size={12} /> Updates as you type</span></div><InvitationMock form={form} compact={step !== 4} onPhotoUpload={uploadPhoto} /></div></div><div className={styles.wizardFooter}>{step > 1 ? <button className={styles.backButton} onClick={() => setStep(step - 1)}><ChevronLeft size={16} /> Back</button> : <span />}{publishError && <p role="alert" style={{ color: "#c2593f", fontSize: "12px", margin: "0 12px", fontWeight: 500 }}>{publishError}</p>}{step < 4 ? <button className={styles.nextButton} onClick={() => setStep(step + 1)}>Continue <ChevronRight size={16} /></button> : <button className={styles.publishButton} onClick={publish}>Publish invitation <ArrowRight size={16} /></button>}</div></>}</div></div>}
   </main>;
 }
