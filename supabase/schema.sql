@@ -19,6 +19,8 @@ alter table public.invitations add column if not exists travel_info text;
 alter table public.invitations add column if not exists music_url text;
 alter table public.invitations add column if not exists views_by_place jsonb default '{}'::jsonb;
 alter table public.invitations add column if not exists contact text;
+alter table public.invitations add column if not exists shagun_upi text;
+alter table public.invitations add column if not exists registry_url text;
 
 create table if not exists public.rsvps (
   id uuid primary key default gen_random_uuid(), invitation_id uuid not null references public.invitations(id) on delete cascade,

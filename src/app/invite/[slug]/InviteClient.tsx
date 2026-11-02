@@ -4,15 +4,16 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { CalendarDays, Check, ChevronLeft, Download, Heart, MailOpen, MapPin, PhoneCall, Printer, Send, Share2, Sparkles, Volume2, VolumeX } from "lucide-react";
+import { CalendarDays, Check, ChevronLeft, Copy, Download, ExternalLink, Gift, Heart, MailOpen, MapPin, MessageSquare, PhoneCall, Printer, Send, Share2, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { toPng } from "html-to-image";
 import { motion } from "framer-motion";
 import styles from "./invite.module.css";
 import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
 import EnvelopeOpening from "@/components/EnvelopeOpening";
 
-export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number> };
+export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; shagunUpi?: string; registryUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number> };
 export type InviteEvent = { name: string; date: string; time: string; venue: string; address?: string };
+export type Wish = { id: string; name: string; message: string; createdAt: string };
 
 function themeName(template = "Elegant Gold") {
   const norm = (template || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
@@ -51,9 +52,20 @@ function callPhone(phone?: string) {
 function dateLabel(date: string) { const value = new Date(`${date}T12:00:00`); return Number.isNaN(value.getTime()) ? "Date to be announced" : new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "long", year: "numeric" }).format(value); }
 function timeLabel(time: string) { const value = new Date(`2026-01-01T${time || "19:00"}`); return Number.isNaN(value.getTime()) ? "Time to be announced" : new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit" }).format(value); }
 function icsText(value: string) { return value.replace(/[\\,;\n]/g, (match) => match === "\n" ? "\\n" : `\\${match}`); }
+function formatWishDate(dateStr?: string) {
+  if (!dateStr) return "Just now";
+  try {
+    const d = new Date(dateStr);
+    return Number.isNaN(d.getTime())
+      ? "Just now"
+      : new Intl.DateTimeFormat("en-IN", { month: "short", day: "numeric" }).format(d);
+  } catch {
+    return "Just now";
+  }
+}
 function calendarValue(value: Date) { return value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, ""); }
 
-export default function InviteClient({ invite, slug }: { invite: Invite; slug: string }) {
+export default function InviteClient({ invite, slug, initialWishes = [] }: { invite: Invite; slug: string; initialWishes?: Wish[] }) {
   const searchParams = useSearchParams();
   const guestName = searchParams.get("g")?.trim() || "";
   const [shareUrl, setShareUrl] = useState("");
@@ -86,6 +98,8 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
   const [remaining, setRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, arrived: false });
   const [expired, setExpired] = useState(false);
   const isHostView = searchParams.get("view") === "host";
+  const [wishes, setWishes] = useState<Wish[]>(initialWishes);
+  const [copiedUpi, setCopiedUpi] = useState(false);
   const [showContactHost, setShowContactHost] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -182,6 +196,17 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
     setSent(true);
     setConfetti(true);
     window.setTimeout(() => setConfetti(false), 2600);
+    if (rsvp.message && rsvp.message.trim()) {
+      setWishes((prev) => [
+        {
+          id: crypto.randomUUID(),
+          name: rsvp.name.trim(),
+          message: rsvp.message.trim(),
+          createdAt: new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+    }
   }
   function addToCalendar() { const eventsIcs = events.map((event, index) => { const start = new Date(`${event.date}T${event.time || "19:00"}`); const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); return ["BEGIN:VEVENT", `UID:invite7-${slug}-${index}@invite7.in`, `DTSTAMP:${calendarValue(new Date())}`, `DTSTART:${calendarValue(start)}`, `DTEND:${calendarValue(end)}`, `SUMMARY:${icsText(`${displayName} · ${event.name}`)}`, `LOCATION:${icsText(`${event.venue}, ${event.address || ""}`)}`, `DESCRIPTION:${icsText(invite.message)}`, "END:VEVENT"].join("\r\n"); }).join("\r\n"); const calendar = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite7//Invitation//EN", eventsIcs, "END:VCALENDAR"].join("\r\n"); const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = `${invite.firstName}-events.ics`; link.click(); URL.revokeObjectURL(url); }
   if (expired) return <main className={styles.expired}><div className={styles.expiredCard}><div className={styles.kicker}>INVITE7</div><h1>This invitation<br /><em>has expired.</em></h1><p>The invitation link is no longer active.</p><Link href="/">Create your own invitation <Send size={14} /></Link></div></main>;
@@ -328,6 +353,108 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
       </section>
     ) : null}
     {(invite.dressCode || invite.travelInfo || invite.musicUrl) && <section className={styles.guestExtras}>{invite.dressCode && <article><strong>What to wear</strong><p>{invite.dressCode}</p></article>}{invite.travelInfo && <article><strong>Travel & stay</strong><p>{invite.travelInfo}</p></article>}{invite.musicUrl && <article><strong>Set the mood</strong><audio controls src={invite.musicUrl} /></article>}</section>}
+    {/* 🎁 Digital Shagun & Gift Registry Section */}
+    {(invite.shagunUpi || invite.registryUrl) && (
+      <section className={styles.shagunPanel}>
+        <div className={styles.shagunBadge}><Gift size={15} /> BLESSINGS &amp; SHAGUN</div>
+        <h3>Digital Shagun &amp; Blessings</h3>
+        <p className={styles.shagunNote}>Your presence and heartfelt blessings are our greatest gift. For loved ones wishing to send Shagun or blessings digitally:</p>
+        
+        <div className={styles.shagunContent}>
+          {invite.shagunUpi && (
+            <div className={styles.upiCard}>
+              <div className={styles.qrFrame}>
+                <Image
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`upi://pay?pa=${invite.shagunUpi}&pn=${encodeURIComponent(displayName)}&cu=INR`)}`}
+                  alt="UPI QR Code for Shagun"
+                  width={160}
+                  height={160}
+                  unoptimized
+                  className={styles.upiQrImage}
+                />
+                <span className={styles.qrScanText}>Scan with any UPI App</span>
+              </div>
+              <div className={styles.upiDetails}>
+                <span className={styles.upiLabel}>UPI ID:</span>
+                <code className={styles.upiCode}>{invite.shagunUpi}</code>
+                <div className={styles.upiButtons}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(invite.shagunUpi!);
+                      setCopiedUpi(true);
+                      setTimeout(() => setCopiedUpi(false), 2000);
+                    }}
+                    className={styles.copyUpiBtn}
+                  >
+                    <Copy size={13} /> {copiedUpi ? "UPI ID Copied! ✓" : "Copy UPI ID"}
+                  </button>
+                  <a
+                    href={`upi://pay?pa=${encodeURIComponent(invite.shagunUpi)}&pn=${encodeURIComponent(displayName)}&cu=INR`}
+                    className={styles.payUpiBtn}
+                  >
+                    Pay via GPay / PhonePe / Paytm ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {invite.registryUrl && (
+            <div className={styles.registryBox}>
+              <div>
+                <strong>Gift Wishlist &amp; Registry</strong>
+                <small>Curated celebration gift registry.</small>
+              </div>
+              <a href={invite.registryUrl} target="_blank" rel="noreferrer" className={styles.registryBtn}>
+                Browse Gift Registry <ExternalLink size={14} />
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    {/* ✨ Live Wishes & Blessings Wall */}
+    <section className={styles.wishesSection}>
+      <div className={styles.wishesHeader}>
+        <span className={styles.kicker}>GUESTBOOK</span>
+        <h3>Warm Wishes &amp; Blessings</h3>
+        <p>From beloved family &amp; friends</p>
+      </div>
+
+      {wishes.length > 0 ? (
+        <div className={styles.wishesGrid}>
+          {wishes.map((w) => (
+            <article key={w.id} className={styles.wishCard}>
+              <div className={styles.wishTop}>
+                <strong className={styles.wishAuthor}>{w.name}</strong>
+                <Heart size={14} className={styles.wishHeart} />
+              </div>
+              <p className={styles.wishMessage}>“{w.message}”</p>
+              <span className={styles.wishTime}>
+                {formatWishDate(w.createdAt)}
+              </span>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyWishes}>
+          <p>No wishes yet. Be the first to send your blessings &amp; congratulations!</p>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={styles.leaveWishBtn}
+        onClick={() => {
+          setShowRsvp(true);
+        }}
+      >
+        <MessageSquare size={14} /> Leave a Wish &amp; RSVP
+      </button>
+    </section>
+
     {shareUrl && (
       <section className={styles.qrPanel}>
         <Image src={`https://quickchart.io/qr?size=180&text=${encodeURIComponent(shareUrl)}`} alt="QR code for this invitation" width={180} height={180} unoptimized />

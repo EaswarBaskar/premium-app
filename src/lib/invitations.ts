@@ -22,6 +22,8 @@ export type InvitationRecord = {
   dress_code?: string | null;
   travel_info?: string | null;
   music_url?: string | null;
+  shagun_upi?: string | null;
+  registry_url?: string | null;
 };
 
 export function invitationToClient(value: InvitationRecord) {
@@ -47,6 +49,8 @@ export function invitationToClient(value: InvitationRecord) {
     dressCode: value.dress_code || "",
     travelInfo: value.travel_info || "",
     musicUrl: value.music_url || "",
+    shagunUpi: value.shagun_upi || "",
+    registryUrl: value.registry_url || "",
     plan: value.plan,
     expiresAt: value.expires_at ? new Date(value.expires_at).getTime() : undefined,
     views: typeof extra.views === "number" ? extra.views : 0,

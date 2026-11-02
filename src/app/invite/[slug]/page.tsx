@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { invitationToClient } from "@/lib/invitations";
 import { localStore } from "@/lib/local-store";
-import InviteClient, { Invite } from "./InviteClient";
+import InviteClient, { Invite, Wish } from "./InviteClient";
 
 async function getInvite(slug: string): Promise<Invite | null> {
   const local = localStore.getInvitationBySlug(slug);
@@ -21,6 +21,38 @@ async function getInvite(slug: string): Promise<Invite | null> {
     } catch {}
   }
   return local ? ((invitationToClient(local) as unknown) as Invite) : null;
+}
+
+async function getWishes(slug: string, invitationId?: string): Promise<Wish[]> {
+  const wishes: Wish[] = [];
+  const supabase = getSupabaseAdmin();
+  if (supabase && invitationId) {
+    try {
+      const { data } = await supabase
+        .from("rsvps")
+        .select("id, name, message, created_at")
+        .eq("invitation_id", invitationId)
+        .neq("message", "")
+        .order("created_at", { ascending: false })
+        .limit(30);
+      if (data) {
+        data.forEach((r: { id: string; name: string; message: string; created_at: string }) => {
+          if (r.message && r.message.trim()) {
+            wishes.push({ id: r.id, name: r.name, message: r.message.trim(), createdAt: r.created_at });
+          }
+        });
+      }
+    } catch {}
+  }
+  const localRsvps = localStore.getRsvps();
+  localRsvps.forEach((r) => {
+    if ((r.invitation_id === slug || (invitationId && r.invitation_id === invitationId)) && r.message?.trim()) {
+      if (!wishes.some((w) => w.id === r.id)) {
+        wishes.push({ id: r.id, name: r.name, message: r.message.trim(), createdAt: r.created_at });
+      }
+    }
+  });
+  return wishes;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -78,5 +110,6 @@ export default async function InvitationPage({
 
   const invite = await getInvite(slug);
   if (!invite) notFound();
-  return <InviteClient invite={invite} slug={slug.toLowerCase()} />;
+  const wishes = await getWishes(slug, invite.id);
+  return <InviteClient invite={invite} slug={slug.toLowerCase()} initialWishes={wishes} />;
 }

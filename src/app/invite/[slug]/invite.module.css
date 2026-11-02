@@ -1470,3 +1470,405 @@
 .hostBannerBtn:hover {
   transform: translateY(-1px);
 }
+
+/* ===================================================
+   DIGITAL SHAGUN & BLESSINGS STYLES
+   =================================================== */
+.shagunPanel {
+  position: relative;
+  max-width: 680px;
+  margin: 36px auto 0;
+  padding: 32px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 20px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-align: center;
+  color: var(--invite-text, #fff);
+  overflow: hidden;
+}
+
+.shagunBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #dfb76c;
+  margin-bottom: 12px;
+}
+
+.shagunPanel h3 {
+  font-family: var(--font-serif, "Cinzel", serif);
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+  color: var(--invite-title, #ede7dc);
+}
+
+.shagunNote {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
+.shagunContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.upiCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.qrFrame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.upiQrImage {
+  border-radius: 6px;
+  display: block;
+}
+
+.qrScanText {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.upiDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.upiLabel {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.upiCode {
+  font-family: monospace;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #dfb76c;
+}
+
+.upiButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.copyUpiBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copyUpiBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.payUpiBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #dfb76c, #b38234);
+  color: #1a1a1a;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(223, 183, 108, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.payUpiBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(223, 183, 108, 0.45);
+}
+
+.registryBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  text-align: left;
+}
+
+.registryBox strong {
+  display: block;
+  font-size: 0.92rem;
+  color: #fff;
+}
+
+.registryBox small {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.registryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 999px;
+  color: #dfb76c;
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.registryBtn:hover {
+  background: rgba(212, 175, 55, 0.25);
+}
+
+/* ===================================================
+   LIVE WISHES & BLESSINGS WALL STYLES
+   =================================================== */
+.wishesSection {
+  max-width: 680px;
+  margin: 36px auto 0;
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.wishesHeader {
+  margin-bottom: 24px;
+}
+
+.wishesHeader h3 {
+  font-family: var(--font-serif, "Cinzel", serif);
+  font-size: 1.5rem;
+  margin: 6px 0 4px;
+  color: var(--invite-title, #ede7dc);
+}
+
+.wishesHeader p {
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+
+.wishesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.wishCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.wishCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+.wishTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.wishAuthor {
+  font-size: 0.88rem;
+  color: #dfb76c;
+}
+
+.wishHeart {
+  color: #e07a5f;
+  fill: #e07a5f;
+  opacity: 0.85;
+}
+
+.wishMessage {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 10px;
+  font-style: italic;
+  word-break: break-word;
+}
+
+.wishTime {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.emptyWishes {
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.86rem;
+}
+
+.leaveWishBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 22px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 999px;
+  color: #dfb76c;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.leaveWishBtn:hover {
+  background: rgba(212, 175, 55, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ===================================================
+   FLOATING MUSIC EQUALIZER PILL
+   =================================================== */
+.floatingAudioPill {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 99;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: rgba(26, 26, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 999px;
+  color: #dfb76c;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.floatingAudioPill:hover {
+  background: rgba(40, 40, 40, 0.95);
+  border-color: #dfb76c;
+  transform: scale(1.04);
+}
+
+.audioPlaying {
+  border-color: rgba(212, 175, 55, 0.65);
+  box-shadow: 0 0 16px rgba(223, 183, 108, 0.25);
+}
+
+.soundWaves {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.soundWaves span {
+  display: block;
+  width: 2px;
+  background: #dfb76c;
+  border-radius: 2px;
+  animation: soundWave 0.8s ease-in-out infinite alternate;
+}
+
+.soundWaves span:nth-child(1) {
+  height: 6px;
+  animation-delay: 0s;
+}
+
+.soundWaves span:nth-child(2) {
+  height: 14px;
+  animation-delay: 0.2s;
+}
+
+.soundWaves span:nth-child(3) {
+  height: 9px;
+  animation-delay: 0.4s;
+}
+
+@keyframes soundWave {
+  0% {
+    height: 3px;
+  }
+  100% {
+    height: 14px;
+  }
+}
+
+.audioLabel {
+  font-weight: 500;
+}

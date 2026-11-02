@@ -663,3 +663,122 @@
     font-size: 28px;
   }
 }
+
+/* ===================================================
+   DIGITAL SHAGUN & CURATED MUSIC SELECTOR STYLES
+   =================================================== */
+.shagunBox {
+  grid-column: 1 / -1;
+  margin-top: 18px;
+  padding: 16px;
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px dashed rgba(212, 175, 55, 0.4);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shagunHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  color: #4a3e35;
+}
+
+.musicBox {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.musicHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  color: #3e332a;
+}
+
+.musicHeader strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.musicHeader small {
+  font-size: 0.8rem;
+  color: #8c7f75;
+}
+
+.musicList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.musicItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fdfbf7;
+  border: 1px solid #ebd9c8;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.musicItem:hover {
+  border-color: #c9933e;
+  background: #faf5ed;
+}
+
+.selectedMusicItem {
+  border-color: #b38234;
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 0 1px #b38234;
+}
+
+.musicPlayBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #4a3828;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.musicPlayBtn:hover {
+  background: #b38234;
+  transform: scale(1.08);
+}
+
+.musicInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.musicInfo strong {
+  font-size: 0.88rem;
+  color: #33271e;
+}
+
+.musicInfo span {
+  font-size: 0.76rem;
+  color: #87776b;
+}
+
+.musicCheck {
+  color: #b38234;
+  flex-shrink: 0;
+}

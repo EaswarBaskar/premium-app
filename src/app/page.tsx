@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +15,9 @@ import {
   Copy,
   ClipboardList,
   ExternalLink,
+  Gift,
+  Pause,
+  Volume2,
   Heart,
   Link2,
   Menu,
@@ -31,7 +34,14 @@ import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
 import BrandLogo from "@/components/BrandLogo";
 
 type EventType = "Wedding" | "Engagement" | "Birthday" | "Reception" | "Baby Shower" | "Other";
-type FormData = { eventType: EventType; firstName: string; secondName: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact: string; age: string; template: string; coverPhotoUrl: string; galleryUrls: string[]; events: { name: string; date: string; time: string; venue: string; address: string; maps?: string }[]; dressCode: string; travelInfo: string; musicUrl: string };
+type FormData = { eventType: EventType; firstName: string; secondName: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact: string; age: string; template: string; coverPhotoUrl: string; galleryUrls: string[]; events: { name: string; date: string; time: string; venue: string; address: string; maps?: string }[]; dressCode: string; travelInfo: string; musicUrl: string; shagunUpi: string; registryUrl: string };
+
+export const CURATED_MUSIC = [
+  { id: "shehnai", title: "Royal Shehnai & Sitar", tag: "Indian Traditional", url: "/audio/shehnai-celebration.wav" },
+  { id: "strings", title: "Romantic Strings & Cello", tag: "Warm & Emotional", url: "/audio/romantic-strings.wav" },
+  { id: "piano", title: "Serene Piano & Harp", tag: "Quiet Luxury", url: "/audio/serene-piano.wav" },
+  { id: "none", title: "No Background Music", tag: "Muted", url: "" },
+];
 
 const eventTypes: { name: EventType; icon: string; copy: string }[] = [
   { name: "Wedding", icon: "✦", copy: "For the beginning of forever" },
@@ -42,7 +52,7 @@ const eventTypes: { name: EventType; icon: string; copy: string }[] = [
   { name: "Other", icon: "✧", copy: "Your moment, your way" },
 ];
 
-const initialForm: FormData = { eventType: "Wedding", firstName: "Arjun", secondName: "Priya", date: "2026-12-12", time: "19:00", venue: "The Courtyard, Jaipur", address: "12 Palace Road, Jaipur", maps: "https://maps.google.com", message: "We would love to celebrate this special day with you.", contact: "9876543210", age: "", template: "Elegant Gold", coverPhotoUrl: "", galleryUrls: [], events: [], dressCode: "", travelInfo: "", musicUrl: "" };
+const initialForm: FormData = { eventType: "Wedding", firstName: "Arjun", secondName: "Priya", date: "2026-12-12", time: "19:00", venue: "The Courtyard, Jaipur", address: "12 Palace Road, Jaipur", maps: "https://maps.google.com", message: "We would love to celebrate this special day with you.", contact: "9876543210", age: "", template: "Elegant Gold", coverPhotoUrl: "", galleryUrls: [], events: [], dressCode: "", travelInfo: "", musicUrl: "/audio/shehnai-celebration.wav", shagunUpi: "", registryUrl: "" };
 
 function prettyDate(value: string) {
   if (!value) return "12 December 2026";
@@ -117,6 +127,28 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [publishError, setPublishError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [previewPlaying, setPreviewPlaying] = useState<string | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  function togglePreviewAudio(url: string) {
+    if (!url) {
+      if (previewAudioRef.current) previewAudioRef.current.pause();
+      setPreviewPlaying(null);
+      return;
+    }
+    if (previewAudioRef.current && previewPlaying === url) {
+      previewAudioRef.current.pause();
+      setPreviewPlaying(null);
+      return;
+    }
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+    }
+    const audio = new Audio(url);
+    previewAudioRef.current = audio;
+    audio.play().then(() => setPreviewPlaying(url)).catch(() => {});
+    audio.onended = () => setPreviewPlaying(null);
+  }
 
   useEffect(() => {
     const pending = getInitialPendingData();
@@ -544,6 +576,47 @@ export default function Home() {
               Back to TRAXVA
             </button>
           </div> : <><div className={styles.wizardHeader}><div><div className={styles.kicker}>CREATE YOUR INVITATION</div><h2>Let&apos;s make it <em>yours.</em></h2></div><div className={styles.progressSteps}>{[1, 2, 3, 4].map((number) => <span key={number} className={step >= number ? styles.currentStep : ""}>{number}</span>)}</div></div><div className={styles.wizardBody}><div className={styles.formColumn}>{step === 1 && <><h3>What are we celebrating?</h3><p className={styles.formHint}>Choose the feeling that fits your moment.</p><div className={styles.eventGrid}>{eventTypes.map((event) => <button key={event.name} className={`${styles.eventChoice} ${form.eventType === event.name ? styles.selectedChoice : ""}`} onClick={() => update("eventType", event.name)}><span>{event.icon}</span><strong>{event.name}</strong><small>{event.copy}</small>{form.eventType === event.name && <Check size={15} />}</button>)}</div></>}{step === 2 && <><h3>Tell us about your moment</h3><p className={styles.formHint}>These details bring your invitation to life.</p><div className={styles.formGrid}><label>{form.eventType === "Birthday" ? "Celebrant name" : "First name"}<input value={form.firstName} onChange={(e) => update("firstName", e.target.value)} /></label><label>{form.eventType === "Birthday" ? "Age" : "Second name"}<input value={form.eventType === "Birthday" ? form.age : form.secondName} onChange={(e) => update(form.eventType === "Birthday" ? "age" : "secondName", e.target.value)} /></label><label>Date<input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} /></label><label>Time<input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} /></label><label className={styles.fullField}>Venue name<input value={form.venue} onChange={(e) => update("venue", e.target.value)} /></label><label className={styles.fullField}>Address<input value={form.address} onChange={(e) => update("address", e.target.value)} /></label><label className={styles.fullField}>Host WhatsApp / Phone <span>(10-digit mobile number)</span><input type="tel" inputMode="numeric" pattern="[0-9]{10}" maxLength={10} value={form.contact} onChange={(e) => update("contact", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="9876543210" /></label>
-              <label className={styles.fullField}>Google Maps link <span>(optional)</span><input value={form.maps} onChange={(e) => update("maps", e.target.value)} /></label><label className={styles.fullField}>Cover photo <span>(optional)</span><input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto(f); }} /></label><label className={styles.fullField}>A note for your guests<textarea value={form.message} onChange={(e) => update("message", e.target.value)} /></label></div></>}{step === 3 && <><h3>Choose your invitation style</h3><p className={styles.formHint}>A little visual soul for your big moment.</p><div className={styles.designList}>{templates.map((name, index) => { const normKey = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); const swatchClass = (styles as Record<string, string>)[`swatch_${normKey}`] || (styles as Record<string, string>)[`swatch${index}`]; return <button key={name} className={`${styles.designChoice} ${template === name ? styles.selectedChoice : ""}`} onClick={() => selectTemplate(name)}><span className={`${styles.designSwatch} ${swatchClass}`} /><div><strong>{name}</strong><small>{templateDescriptions[name] || "Warm, timeless & golden"}</small></div>{template === name && <Check size={16} />}</button>; })}</div></>}{step === 4 && <><h3>One last look</h3><p className={styles.formHint}>This is exactly what your guests will see.</p><div className={styles.finalPreview}><InvitationMock form={form} onPhotoUpload={uploadPhoto} /></div></>}</div><div className={styles.previewColumn}><div className={styles.previewLabel}><span>LIVE PREVIEW</span><span><Sparkles size={12} /> Updates as you type</span></div><InvitationMock form={form} compact={step !== 4} onPhotoUpload={uploadPhoto} /></div></div><div className={styles.wizardFooter}>{step > 1 ? <button className={styles.backButton} onClick={() => setStep(step - 1)}><ChevronLeft size={16} /> Back</button> : <span />}{publishError && <p role="alert" style={{ color: "#c2593f", fontSize: "12px", margin: "0 12px", fontWeight: 500 }}>{publishError}</p>}{step < 4 ? <button className={styles.nextButton} onClick={() => setStep(step + 1)}>Continue <ChevronRight size={16} /></button> : <button className={styles.publishButton} onClick={publish}>Publish invitation <ArrowRight size={16} /></button>}</div></>}</div></div>}
+              <label className={styles.fullField}>Google Maps link <span>(optional)</span><input value={form.maps} onChange={(e) => update("maps", e.target.value)} /></label><label className={styles.fullField}>Cover photo <span>(optional)</span><input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto(f); }} /></label><label className={styles.fullField}>A note for your guests<textarea value={form.message} onChange={(e) => update("message", e.target.value)} /></label>
+                <div className={styles.shagunBox}>
+                  <div className={styles.shagunHeader}><Gift size={16} /> <strong>Digital Shagun &amp; Gift Registry (Optional)</strong></div>
+                  <label className={styles.fullField}>UPI ID for Digital Shagun <span>(GPay / PhonePe / Paytm / BHIM)</span><input placeholder="e.g. host@okhdfcbank or 9876543210@paytm" value={form.shagunUpi} onChange={(e) => update("shagunUpi", e.target.value.trim())} /></label>
+                  <label className={styles.fullField}>Gift Registry Link <span>(Amazon Wishlist, etc.)</span><input placeholder="https://www.amazon.in/... or wishlist link" value={form.registryUrl} onChange={(e) => update("registryUrl", e.target.value.trim())} /></label>
+                </div>
+              </div></>}{step === 3 && <><h3>Choose your invitation style</h3><p className={styles.formHint}>A little visual soul for your big moment.</p><div className={styles.designList}>{templates.map((name, index) => { const normKey = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); const swatchClass = (styles as Record<string, string>)[`swatch_${normKey}`] || (styles as Record<string, string>)[`swatch${index}`]; return <button key={name} className={`${styles.designChoice} ${template === name ? styles.selectedChoice : ""}`} onClick={() => selectTemplate(name)}><span className={`${styles.designSwatch} ${swatchClass}`} /><div><strong>{name}</strong><small>{templateDescriptions[name] || "Warm, timeless & golden"}</small></div>{template === name && <Check size={16} />}</button>; })}</div>
+              <div className={styles.musicBox}>
+                <div className={styles.musicHeader}><Volume2 size={16} /> <strong>Curated Background Music</strong><small>Plays when guests break the wax seal</small></div>
+                <div className={styles.musicList}>
+                  {CURATED_MUSIC.map((track) => {
+                    const isSelected = form.musicUrl === track.url;
+                    const isPlaying = previewPlaying === track.url;
+                    return (
+                      <div
+                        key={track.id}
+                        className={`${styles.musicItem} ${isSelected ? styles.selectedMusicItem : ""}`}
+                        onClick={() => update("musicUrl", track.url)}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <button
+                          type="button"
+                          className={styles.musicPlayBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePreviewAudio(track.url);
+                          }}
+                          aria-label={isPlaying ? "Pause preview" : "Play preview"}
+                        >
+                          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                        </button>
+                        <div className={styles.musicInfo}>
+                          <strong>{track.title}</strong>
+                          <span>{track.tag}</span>
+                        </div>
+                        {isSelected && <Check size={16} className={styles.musicCheck} />}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div></>}{step === 4 && <><h3>One last look</h3><p className={styles.formHint}>This is exactly what your guests will see.</p><div className={styles.finalPreview}><InvitationMock form={form} onPhotoUpload={uploadPhoto} /></div></>}</div><div className={styles.previewColumn}><div className={styles.previewLabel}><span>LIVE PREVIEW</span><span><Sparkles size={12} /> Updates as you type</span></div><InvitationMock form={form} compact={step !== 4} onPhotoUpload={uploadPhoto} /></div></div><div className={styles.wizardFooter}>{step > 1 ? <button className={styles.backButton} onClick={() => setStep(step - 1)}><ChevronLeft size={16} /> Back</button> : <span />}{publishError && <p role="alert" style={{ color: "#c2593f", fontSize: "12px", margin: "0 12px", fontWeight: 500 }}>{publishError}</p>}{step < 4 ? <button className={styles.nextButton} onClick={() => setStep(step + 1)}>Continue <ChevronRight size={16} /></button> : <button className={styles.publishButton} onClick={publish}>Publish invitation <ArrowRight size={16} /></button>}</div></>}</div></div>}
   </main>;
 }
