@@ -4,26 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
-  BarChart3,
-  CalendarDays,
-  Check,
   Clock,
   Download,
   Eye,
-  FileSpreadsheet,
   Globe2,
   Heart,
   LayoutDashboard,
   Layers,
   MessageSquare,
-  Plus,
   RefreshCw,
   Search,
   Send,
   Settings,
-  Sparkles,
   Trash2,
-  Users,
 } from "lucide-react";
 import styles from "./admin.module.css";
 import BrandLogo from "@/components/BrandLogo";
@@ -114,11 +107,31 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    loadData();
+    let active = true;
+    const fetchData = async (silent = false) => {
+      if (!silent) setLoading(true);
+      try {
+        const res = await fetch("/api/admin/overview", { cache: "no-store" });
+        if (res.ok && active) {
+          const json = await res.json();
+          setData(json);
+          setLastSyncTime(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch admin data", err);
+      } finally {
+        if (active && !silent) setLoading(false);
+      }
+    };
+
+    fetchData(false);
     const interval = setInterval(() => {
-      loadData(true);
+      fetchData(true);
     }, 15000);
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, []);
 
   async function deleteInvite(slug: string, title: string) {
@@ -406,7 +419,7 @@ export default function AdminPage() {
                             <span>{inv.date}</span>
                           </td>
                           <td>
-                            <strong>{inv.views}</strong>{inv.viewsByPlace && Object.keys(inv.viewsByPlace).length > 0 && <small style={{ display: "block", fontSize: "10px", color: "#8c857a" }}>{Object.entries(inv.viewsByPlace).slice(0, 1).map(([p, c]) => `${p}`).join("")}</small>}
+                            <strong>{inv.views}</strong>{inv.viewsByPlace && Object.keys(inv.viewsByPlace).length > 0 && <small style={{ display: "block", fontSize: "10px", color: "#8c857a" }}>{Object.entries(inv.viewsByPlace).slice(0, 1).map(([p]) => `${p}`).join("")}</small>}
                           </td>
                           <td>
                             <strong>{inv.rsvpsCount}</strong>{" "}

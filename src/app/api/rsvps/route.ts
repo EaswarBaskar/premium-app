@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       invitationIds = (userInvites || []).map((row: { id: string }) => row.id);
     } catch {}
 
-    const localOwned = localStore.getAllInvitations().filter((inv) => (inv as any).owner_id === user.id);
+    const localOwned = localStore.getAllInvitations().filter((inv) => inv.owner_id === user.id);
     const localIds = localOwned.map((inv) => inv.id);
     invitationIds = [...new Set([...invitationIds, ...localIds])];
   }
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
   // If no invitations found for this user/slug, return empty array immediately (NEVER return other people's RSVPs)
   if (!invitationIds.length) return NextResponse.json([]);
 
-  let data: any[] = [];
+  let data: Array<{ id: string; [key: string]: unknown }> = [];
   try {
     const res = await supabase
       .from("rsvps")
@@ -68,9 +68,9 @@ export async function GET(request: Request) {
         .in("invitation_id", invitationIds)
         .order("created_at", { ascending: false })
         .limit(500);
-      data = retry.data || [];
+      data = (retry.data || []) as Array<{ id: string; [key: string]: unknown }>;
     } else if (res.data) {
-      data = res.data;
+      data = res.data as Array<{ id: string; [key: string]: unknown }>;
     }
   } catch {}
 
@@ -80,7 +80,7 @@ export async function GET(request: Request) {
   );
 
   const combined = [...data, ...localRsvps];
-  const seen = new Set();
+  const seen = new Set<string>();
   const deduped = combined.filter((r) => {
     if (seen.has(r.id)) return false;
     seen.add(r.id);

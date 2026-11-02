@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { invitationToClient } from "@/lib/invitations";
-import { localStore } from "@/lib/local-store";
+import { localStore, type ExtendedInvitationRecord } from "@/lib/local-store";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -24,7 +24,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  let body: Record<string, unknown>;
+  let body: Partial<ExtendedInvitationRecord>;
   try {
     body = await request.json();
   } catch {
@@ -41,14 +41,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
     } catch {}
   }
 
-  let updated = localStore.updateInvitation(slug, body as any);
+  let updated = localStore.updateInvitation(slug, body);
   if (!updated && supabase) {
     try {
       const { data } = await supabase.from("invitations").select("*").eq("slug", slug.toLowerCase()).maybeSingle();
       if (data) {
-        const merged = { ...data, ...body };
-        localStore.saveInvitation(merged as any);
-        updated = merged as any;
+        const merged = { ...data, ...body } as ExtendedInvitationRecord;
+        localStore.saveInvitation(merged);
+        updated = merged;
       }
     } catch {}
   }

@@ -87,8 +87,10 @@ export default function Dashboard() {
     } catch {}
 
     if (!isSupabaseConfigured) {
-      setAuthReady(true);
-      setUserEmail("planner@invite7.in");
+      queueMicrotask(() => {
+        setAuthReady(true);
+        setUserEmail("planner@invite7.in");
+      });
       return;
     }
     createSupabaseBrowserClient().auth.getUser().then(({ data }) => {
@@ -110,7 +112,6 @@ export default function Dashboard() {
   async function loadDashboardData(isRefresh = false) {
     if (!authReady) return;
     if (isRefresh) setRefreshing(true);
-    else setLoadingInvitation(true);
 
     const searchSlug = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("slug") : null;
     const cachedSlug = typeof window !== "undefined" ? window.localStorage.getItem("invite7-active-invitation-slug") : null;
@@ -192,7 +193,12 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    loadDashboardData();
+    if (!authReady) return;
+    const timer = setTimeout(() => {
+      loadDashboardData();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady]);
 
   function refreshData() {
@@ -214,14 +220,15 @@ export default function Dashboard() {
   const confirmedSeats = guests.filter((guest) => guest.status === "Confirmed").reduce((sum, guest) => sum + guest.guests, 0);
   const visibleGuests = useMemo(() => filter === "All guests" ? guests : guests.filter((guest) => guest.status === filter), [filter, guests]);
 
+  const targetDate = invitation?.date;
   const countdownDays = useMemo(() => {
-    if (!invitation?.date) return null;
-    const evtTime = new Date(invitation.date).getTime();
+    if (!targetDate) return null;
+    const evtTime = new Date(targetDate).getTime();
     if (isNaN(evtTime)) return null;
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     return Math.ceil((evtTime - now.getTime()) / 86400000);
-  }, [invitation?.date]);
+  }, [targetDate]);
 
   function getTemplateMessage(guest: Guest, tone: "formal" | "warmth" | "reminder") {
     const slug = invitation?.slug || "";

@@ -1,18 +1,54 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { localStore } from "@/lib/local-store";
+import { localStore, type ExtendedInvitationRecord } from "@/lib/local-store";
 
 export const dynamic = "force-dynamic";
+
+type RawAdminInvitation = {
+  id: string;
+  slug: string;
+  first_name?: string;
+  firstName?: string;
+  second_name?: string | null;
+  secondName?: string | null;
+  event_type?: string;
+  eventType?: string;
+  date: string;
+  time: string;
+  venue: string;
+  template?: string;
+  plan?: string;
+  views?: number;
+  viewsByPlace?: Record<string, number>;
+  created_at?: string;
+  expires_at?: string | null;
+};
+
+type RawAdminRsvp = {
+  id: string;
+  invitation_id: string;
+  name: string;
+  guest_count: number;
+  response: string;
+  message: string;
+  event_name?: string | null;
+  created_at: string;
+  invitations?: {
+    slug: string;
+    first_name: string;
+    second_name?: string | null;
+  } | null;
+};
 
 export async function GET() {
   const supabase = getSupabaseAdmin();
 
-  let invitations: any[] = [];
-  let rsvps: any[] = [];
+  let invitations: RawAdminInvitation[] = [];
+  let rsvps: RawAdminRsvp[] = [];
   const isLive = Boolean(supabase);
 
   if (!supabase) {
-    invitations = localStore.getAllInvitations();
+    invitations = localStore.getAllInvitations() as RawAdminInvitation[];
     rsvps = localStore.getRsvps();
   } else {
     const [invRes, rsvpRes] = await Promise.all([
@@ -20,14 +56,16 @@ export async function GET() {
       supabase.from("rsvps").select("*, invitations(slug, first_name, second_name)").order("created_at", { ascending: false }),
     ]);
 
-    const liveInvs = invRes.data || [];
-    const liveRsvps = rsvpRes.data || [];
+    const liveInvs = (invRes.data || []) as RawAdminInvitation[];
+    const liveRsvps = (rsvpRes.data || []) as RawAdminRsvp[];
 
     // Also include any local invitations not yet synced to guarantee zero data loss
-    const seenSlugs = new Set(liveInvs.map((i: any) => (i.slug || "").toLowerCase()));
-    const localInvs = localStore.getAllInvitations().filter((i) => !seenSlugs.has((i.slug || "").toLowerCase()));
+    const seenSlugs = new Set(liveInvs.map((i) => (i.slug || "").toLowerCase()));
+    const localInvs = (localStore.getAllInvitations() as ExtendedInvitationRecord[]).filter(
+      (i) => !seenSlugs.has((i.slug || "").toLowerCase())
+    ) as RawAdminInvitation[];
 
-    const seenRsvpIds = new Set(liveRsvps.map((r: any) => r.id));
+    const seenRsvpIds = new Set(liveRsvps.map((r) => r.id));
     const localRsvps = localStore.getRsvps().filter((r) => !seenRsvpIds.has(r.id));
 
     invitations = [...liveInvs, ...localInvs];
@@ -57,7 +95,7 @@ export async function GET() {
 
     const t = inv.template || "Elegant Gold";
     if (inv.viewsByPlace) {
-      Object.entries(inv.viewsByPlace as Record<string, number>).forEach(([place, count]) => {
+      Object.entries(inv.viewsByPlace).forEach(([place, count]) => {
         globalPlaces[place] = (globalPlaces[place] || 0) + Number(count);
       });
     }
@@ -72,8 +110,8 @@ export async function GET() {
     return {
       id: inv.id,
       slug: inv.slug,
-      firstName: inv.first_name || inv.firstName,
-      secondName: inv.second_name || inv.secondName,
+      firstName: inv.first_name || inv.firstName || "",
+      secondName: inv.second_name || inv.secondName || "",
       eventType: inv.event_type || inv.eventType || "Wedding",
       date: inv.date,
       time: inv.time,
@@ -98,7 +136,7 @@ export async function GET() {
           ...r,
           invitations: {
             slug: match.slug,
-            first_name: match.first_name || match.firstName,
+            first_name: match.first_name || match.firstName || "",
             second_name: match.second_name || match.secondName || null,
           },
         };
@@ -141,37 +179,36 @@ export async function DELETE(request: Request) {
   if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
 
   const supabase = getSupabaseAdmin();
-  if (!supabase) {
-    const ok = localStore.deleteInvitation(slug);
-    return NextResponse.json({ success: ok });
+  if (supabase) {
+    try {
+      await supabase.from("invitations").delete().eq("slug", slug.toLowerCase());
+    } catch {}
   }
 
-  const { error } = await supabase.from("invitations").delete().eq("slug", slug.toLowerCase());
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Always delete from local store to guarantee dual-write synchronization
+  localStore.deleteInvitation(slug);
   return NextResponse.json({ success: true });
 }
 
 export async function PATCH(request: Request) {
-  const body = await request.json().catch(() => ({}));
-  const { slug, action, extraDays = 7 } = body;
+  const body = (await request.json().catch(() => ({}))) as { slug?: string; action?: string; extraDays?: number };
+  const { slug, action = "extend", extraDays = 7 } = body;
   if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
 
+  if (action !== "extend") return NextResponse.json({ success: true });
+  const days = Number(extraDays) || 7;
+  const localExpiry = localStore.extendValidity(slug, days);
+
   const supabase = getSupabaseAdmin();
-  if (!supabase) {
-    if (action === "extend") {
-      const newExpiry = localStore.extendValidity(slug, Number(extraDays) || 7);
+  if (supabase) {
+    try {
+      const { data: inv } = await supabase.from("invitations").select("expires_at").eq("slug", slug.toLowerCase()).single();
+      const currentExpiry = inv?.expires_at ? new Date(inv.expires_at).getTime() : Date.now();
+      const newExpiry = new Date(Math.max(Date.now(), currentExpiry) + days * 86400000).toISOString();
+      await supabase.from("invitations").update({ expires_at: newExpiry }).eq("slug", slug.toLowerCase());
       return NextResponse.json({ success: true, expiresAt: newExpiry });
-    }
-    return NextResponse.json({ success: true });
+    } catch {}
   }
 
-  if (action === "extend") {
-    const { data: inv } = await supabase.from("invitations").select("expires_at").eq("slug", slug.toLowerCase()).single();
-    const currentExpiry = inv?.expires_at ? new Date(inv.expires_at).getTime() : Date.now();
-    const newExpiry = new Date(Math.max(Date.now(), currentExpiry) + extraDays * 86400000).toISOString();
-    await supabase.from("invitations").update({ expires_at: newExpiry }).eq("slug", slug.toLowerCase());
-    return NextResponse.json({ success: true, expiresAt: newExpiry });
-  }
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, expiresAt: localExpiry });
 }

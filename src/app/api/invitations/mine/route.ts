@@ -16,10 +16,10 @@ export async function GET(request: Request) {
   if (!supabase) {
     if (requestedSlug) {
       const inv = localStore.getInvitationBySlug(requestedSlug);
-      if (inv) return NextResponse.json({ ...invitationToClient(inv), slug: inv.slug, views: (inv as any).views || 0 });
+      if (inv) return NextResponse.json(invitationToClient(inv));
     }
     const local = localStore.getLatestInvitation();
-    return NextResponse.json(local ? { ...invitationToClient(local), slug: local.slug, views: (local as any).views || 0 } : null);
+    return NextResponse.json(local ? invitationToClient(local) : null);
   }
 
   // Supabase is configured: user must be authenticated to access their host dashboard
@@ -39,16 +39,16 @@ export async function GET(request: Request) {
           } catch {}
         }
         // Also claim in localStore
-        localStore.updateInvitation(requestedSlug, { owner_id: user.id } as any);
-        return NextResponse.json({ ...invitationToClient(data), slug: data.slug, views: data.views || 0 });
+        localStore.updateInvitation(requestedSlug, { owner_id: user.id });
+        return NextResponse.json(invitationToClient(data));
       }
     } catch {}
 
     // Check localStore fallback
     const local = localStore.getInvitationBySlug(requestedSlug);
     if (local) {
-      localStore.updateInvitation(requestedSlug, { owner_id: user.id } as any);
-      return NextResponse.json({ ...invitationToClient(local), slug: local.slug, views: (local as any).views || 0 });
+      localStore.updateInvitation(requestedSlug, { owner_id: user.id });
+      return NextResponse.json(invitationToClient(local));
     }
   }
 
@@ -62,18 +62,18 @@ export async function GET(request: Request) {
       .limit(1)
       .maybeSingle();
     if (!error && data) {
-      return NextResponse.json({ ...invitationToClient(data), slug: data.slug, views: data.views || 0 });
+      return NextResponse.json(invitationToClient(data));
     }
   } catch {}
 
   // 4. Look for an invitation owned by this user in localStore
   const allLocal = localStore.getAllInvitations();
   const ownedLocal = allLocal
-    .filter((inv) => (inv as any).owner_id === user.id)
-    .sort((a, b) => ((b as any).created_at || "").localeCompare((a as any).created_at || ""));
+    .filter((inv) => inv.owner_id === user.id)
+    .sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
   if (ownedLocal.length > 0) {
     const latest = ownedLocal[0];
-    return NextResponse.json({ ...invitationToClient(latest), slug: latest.slug, views: (latest as any).views || 0 });
+    return NextResponse.json(invitationToClient(latest));
   }
 
   // 5. User has no invitations yet. Do NOT leak other people's invitations!

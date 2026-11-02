@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { createSupabaseServerClient } from "@/lib/supabase/auth-server";
-import { localStore } from "@/lib/local-store";
+import { localStore, type ExtendedInvitationRecord } from "@/lib/local-store";
 
 function slugPart(value: unknown) {
   return String(value || "").trim().normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
     views: 0,
     ...fullPayload,
   };
-  localStore.saveInvitation(localRecord as any);
+  localStore.saveInvitation(localRecord as unknown as ExtendedInvitationRecord);
 
   return NextResponse.json({ id: data.id, slug: data.slug });
 }

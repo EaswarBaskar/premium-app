@@ -13,8 +13,16 @@ export type LocalRsvp = {
   created_at: string;
 };
 
+export type ExtendedInvitationRecord = InvitationRecord & {
+  views?: number;
+  viewsByPlace?: Record<string, number>;
+  visitorLog?: Array<{ guest: string; place: string; time: string }>;
+  created_at?: string;
+  owner_id?: string;
+};
+
 type LocalDb = {
-  invitations: Record<string, InvitationRecord>;
+  invitations: Record<string, ExtendedInvitationRecord>;
   rsvps: LocalRsvp[];
 };
 
@@ -37,7 +45,7 @@ function saveDb(data: LocalDb) {
 }
 
 export const localStore = {
-  updateInvitation(slug: string, updates: Partial<InvitationRecord>) {
+  updateInvitation(slug: string, updates: Partial<ExtendedInvitationRecord>) {
     const db = loadDb();
     const inv = db.invitations[slug.toLowerCase()];
     if (inv) {
@@ -48,19 +56,19 @@ export const localStore = {
     return null;
   },
 
-  saveInvitation(record: InvitationRecord & { views?: number; created_at?: string; owner_id?: string }) {
+  saveInvitation(record: ExtendedInvitationRecord) {
     const db = loadDb();
     db.invitations[record.slug.toLowerCase()] = record;
     saveDb(db);
     return record;
   },
 
-  getInvitationBySlug(slug: string): InvitationRecord | null {
+  getInvitationBySlug(slug: string): ExtendedInvitationRecord | null {
     const db = loadDb();
     return db.invitations[slug.toLowerCase()] || null;
   },
 
-  getLatestInvitation(): (InvitationRecord & { views?: number }) | null {
+  getLatestInvitation(): ExtendedInvitationRecord | null {
     const db = loadDb();
     const list = Object.values(db.invitations);
     return list.length > 0 ? list[list.length - 1] : null;
@@ -70,24 +78,24 @@ export const localStore = {
     const db = loadDb();
     const inv = db.invitations[slug.toLowerCase()];
     if (inv) {
-      const current = Number((inv as any).views) || 0;
-      (inv as any).views = current + 1;
-      
+      const current = Number(inv.views) || 0;
+      inv.views = current + 1;
+
       const loc = place || "India";
-      if (!(inv as any).viewsByPlace) (inv as any).viewsByPlace = {};
-      (inv as any).viewsByPlace[loc] = ((inv as any).viewsByPlace[loc] || 0) + 1;
+      if (!inv.viewsByPlace) inv.viewsByPlace = {};
+      inv.viewsByPlace[loc] = (inv.viewsByPlace[loc] || 0) + 1;
 
       if (guestName) {
-        if (!(inv as any).visitorLog) (inv as any).visitorLog = [];
-        (inv as any).visitorLog.unshift({
+        if (!inv.visitorLog) inv.visitorLog = [];
+        inv.visitorLog.unshift({
           guest: guestName,
           place: loc,
           time: new Date().toISOString(),
         });
-        if ((inv as any).visitorLog.length > 50) (inv as any).visitorLog.pop();
+        if (inv.visitorLog.length > 50) inv.visitorLog.pop();
       }
       saveDb(db);
-      return (inv as any).views;
+      return inv.views;
     }
     return 0;
   },
@@ -104,7 +112,7 @@ export const localStore = {
     return db.rsvps;
   },
 
-  getAllInvitations(): (InvitationRecord & { views?: number; created_at?: string; owner_id?: string })[] {
+  getAllInvitations(): ExtendedInvitationRecord[] {
     const db = loadDb();
     return Object.values(db.invitations);
   },
@@ -112,10 +120,12 @@ export const localStore = {
   deleteInvitation(slug: string): boolean {
     const db = loadDb();
     const key = slug.toLowerCase();
-    if (db.invitations[key]) {
+    const inv = db.invitations[key];
+    if (inv) {
+      const invId = inv.id;
       delete db.invitations[key];
-      // remove associated rsvps
-      db.rsvps = db.rsvps.filter((r) => r.invitation_id !== key);
+      // remove associated rsvps matching either slug key or invitation ID
+      db.rsvps = db.rsvps.filter((r) => r.invitation_id !== key && r.invitation_id !== invId);
       saveDb(db);
       return true;
     }
@@ -126,11 +136,10 @@ export const localStore = {
     const db = loadDb();
     const inv = db.invitations[slug.toLowerCase()];
     if (!inv) return null;
-    const currentExpiry = (inv as any).expires_at ? new Date((inv as any).expires_at).getTime() : Date.now();
+    const currentExpiry = inv.expires_at ? new Date(inv.expires_at).getTime() : Date.now();
     const newExpiry = new Date(Math.max(Date.now(), currentExpiry) + extraDays * 86400000).toISOString();
-    (inv as any).expires_at = newExpiry;
+    inv.expires_at = newExpiry;
     saveDb(db);
     return newExpiry;
   },
 };
-

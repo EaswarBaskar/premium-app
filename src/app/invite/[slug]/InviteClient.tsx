@@ -4,14 +4,14 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { BarChart3, CalendarDays, Check, ChevronLeft, Download, FileSpreadsheet, Heart, MailOpen, MapPin, PhoneCall, Printer, Send, Share2, Sparkles, Upload, Users, Volume2, VolumeX } from "lucide-react";
+import { CalendarDays, Check, ChevronLeft, Download, Heart, MailOpen, MapPin, PhoneCall, Printer, Send, Share2, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { toPng } from "html-to-image";
 import { motion } from "framer-motion";
 import styles from "./invite.module.css";
 import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
 import EnvelopeOpening from "@/components/EnvelopeOpening";
 
-export type Invite = { eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number> };
+export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number> };
 export type InviteEvent = { name: string; date: string; time: string; venue: string; address?: string };
 
 function themeName(template = "Elegant Gold") {
@@ -84,30 +84,9 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
   const [rsvp, setRsvp] = useState({ name: guestName, guestCount: "1", response: "attending", eventName: "", message: "" });
   const [remaining, setRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, arrived: false });
   const [expired, setExpired] = useState(false);
-  const [activeView, setActiveView] = useState<"guest" | "host">(
-    searchParams.get("view") === "host" ? "host" : "guest"
-  );
+  const isHostView = searchParams.get("view") === "host";
   const [showContactHost, setShowContactHost] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [showReminderModal, setShowReminderModal] = useState(false);
-  const [importText, setImportText] = useState("");
-  const [importSuccess, setImportSuccess] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
-  const [hostTone, setHostTone] = useState<"warmth" | "formal" | "reminder">("warmth");
-  const [broadcasting, setBroadcasting] = useState(false);
-  const [broadcastFeedback, setBroadcastFeedback] = useState("");
-  const [hostStats, setHostStats] = useState({
-    invited: 500,
-    confirmed: 320,
-    pending: 150,
-    declined: 30,
-    attendance: {
-      engagement: 210,
-      mehendi: 180,
-      wedding: 300,
-      reception: 450,
-    },
-  });
   const [downloading, setDownloading] = useState(false);
   const [showRsvpHint, setShowRsvpHint] = useState(false);
   const [hintDismissed, setHintDismissed] = useState(false);
@@ -186,21 +165,23 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
 
   useEffect(() => { const tick = () => { const difference = new Date(`${invite.date}T${invite.time || "19:00"}`).getTime() - Date.now(); setRemaining(difference <= 0 || Number.isNaN(difference) ? { days: 0, hours: 0, minutes: 0, seconds: 0, arrived: true } : { days: Math.floor(difference / 86400000), hours: Math.floor(difference / 3600000) % 24, minutes: Math.floor(difference / 60000) % 60, seconds: Math.floor(difference / 1000) % 60, arrived: false }); }; tick(); const timer = window.setInterval(tick, 1000); return () => window.clearInterval(timer); }, [invite.date, invite.time]);
   useEffect(() => { const timer = window.setTimeout(() => setExpired(Boolean(invite.expiresAt && invite.expiresAt < Date.now())), 0); return () => window.clearTimeout(timer); }, [invite.expiresAt]);
-  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setRsvpError(""); const response = await fetch(`/api/invitations/${encodeURIComponent(slug)}/rsvp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...rsvp, eventName: rsvp.eventName || events[0]?.name }) }); if (!response.ok) { const body = await response.json(); setRsvpError(body.error || "Could not send RSVP."); return; } setSent(true); setConfetti(true); window.setTimeout(() => setConfetti(false), 2600);
-    const count = Number(rsvp.guestCount) || 1;
-    if (rsvp.response === "attending") {
-      setHostStats((prev) => ({
-        ...prev,
-        confirmed: prev.confirmed + count,
-        pending: Math.max(0, prev.pending - 1),
-      }));
-    } else if (rsvp.response === "declined") {
-      setHostStats((prev) => ({
-        ...prev,
-        declined: prev.declined + 1,
-        pending: Math.max(0, prev.pending - 1),
-      }));
-    } }
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setRsvpError("");
+    const response = await fetch(`/api/invitations/${encodeURIComponent(slug)}/rsvp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...rsvp, eventName: rsvp.eventName || events[0]?.name }),
+    });
+    if (!response.ok) {
+      const body = await response.json();
+      setRsvpError(body.error || "Could not send RSVP.");
+      return;
+    }
+    setSent(true);
+    setConfetti(true);
+    window.setTimeout(() => setConfetti(false), 2600);
+  }
   function addToCalendar() { const eventsIcs = events.map((event, index) => { const start = new Date(`${event.date}T${event.time || "19:00"}`); const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); return ["BEGIN:VEVENT", `UID:invite7-${slug}-${index}@invite7.in`, `DTSTAMP:${calendarValue(new Date())}`, `DTSTART:${calendarValue(start)}`, `DTEND:${calendarValue(end)}`, `SUMMARY:${icsText(`${displayName} · ${event.name}`)}`, `LOCATION:${icsText(`${event.venue}, ${event.address || ""}`)}`, `DESCRIPTION:${icsText(invite.message)}`, "END:VEVENT"].join("\r\n"); }).join("\r\n"); const calendar = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite7//Invitation//EN", eventsIcs, "END:VCALENDAR"].join("\r\n"); const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = `${invite.firstName}-events.ics`; link.click(); URL.revokeObjectURL(url); }
   if (expired) return <main className={styles.expired}><div className={styles.expiredCard}><div className={styles.kicker}>INVITE7</div><h1>This invitation<br /><em>has expired.</em></h1><p>The invitation link is no longer active.</p><Link href="/">Create your own invitation <Send size={14} /></Link></div></main>;
   return <main className={styles.invitePage} data-theme={theme}>
@@ -239,6 +220,17 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
           } catch {}
         }}
       />
+    )}
+
+    {isHostView && (
+      <aside className={styles.hostBanner} aria-label="Host Mode Preview">
+        <div className={styles.hostBannerInner}>
+          <span>👑 <strong>Host Preview Mode</strong> · You are viewing how guests experience this invitation.</span>
+          <Link href={`/dashboard?slug=${encodeURIComponent(slug)}`} className={styles.hostBannerBtn}>
+            Open Host Dashboard →
+          </Link>
+        </div>
+      </aside>
     )}
 
     <div className={`${styles.petal} ${styles.petalOne}`}>✦</div><div className={`${styles.petal} ${styles.petalTwo}`}>✧</div><div className={`${styles.petal} ${styles.petalThree}`}>✦</div>
@@ -487,201 +479,6 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
             >
               <PhoneCall size={15} /> {isFamilyEvent ? "Call Family" : "Call Host"} ({formatPhone(invite.contact)})
             </a>
-          </div>
-        </div>
-      </div>
-    )}
-
-    {/* Guest Import (Excel/CSV) Modal */}
-    {showImportModal && (
-      <div className={styles.rsvpOverlay} onClick={() => setShowImportModal(false)}>
-        <div className={styles.rsvpCard} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-          <button className={styles.close} aria-label="Close" onClick={() => setShowImportModal(false)}>×</button>
-          <div className={styles.kicker}>GUEST IMPORT (EXCEL / CSV)</div>
-          <h2>Import your guest list</h2>
-          <p style={{ color: "#746f68", fontSize: "13px", lineHeight: "1.5", margin: "8px 0 16px" }}>
-            Upload a .csv file or paste names with guest counts to instantly sync your invited headcount.
-          </p>
-          <div style={{ display: "grid", gap: "12px" }}>
-            <label style={{ fontSize: "12px", color: "#666" }}>
-              Paste guest names (one per line, e.g. "Vikram & Sunita, 2"):
-              <textarea
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                placeholder="Vikram & Sunita, 2&#10;Deepak Verma, 1&#10;The Kapoor Family, 4"
-                style={{ width: "100%", height: "100px", marginTop: "6px", padding: "10px", fontSize: "13px", border: "1px solid #d5cec2", borderRadius: "8px" }}
-              />
-            </label>
-            <button
-              type="button"
-              className={styles.contactBtn}
-              style={{ background: "var(--story-bg)", color: "#fff" }}
-              onClick={() => {
-                const lines = importText.split("\n").filter((l) => l.trim().length > 0);
-                const count = lines.length || 10;
-                setHostStats((prev) => ({
-                  ...prev,
-                  invited: prev.invited + count,
-                  pending: prev.pending + count,
-                }));
-                setImportSuccess(`Imported ${count} new guests successfully!`);
-                setTimeout(() => {
-                  setImportSuccess("");
-                  setShowImportModal(false);
-                  setImportText("");
-                }, 1400);
-              }}
-            >
-              <Upload size={14} /> Process Import
-            </button>
-            {importSuccess && <p style={{ color: "#2e7d32", fontSize: "13px", fontWeight: "600", textAlign: "center" }}>{importSuccess}</p>}
-          </div>
-        </div>
-      </div>
-    )}
-
-    {/* WhatsApp Reminders & Broadcast Modal */}
-    {showReminderModal && (
-      <div className={styles.rsvpOverlay} onClick={() => setShowReminderModal(false)}>
-        <div className={styles.rsvpCard} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-          <button className={styles.close} aria-label="Close" onClick={() => setShowReminderModal(false)}>×</button>
-          <div className={styles.kicker}>AUTOMATED WHATSAPP SUITE</div>
-          <h2>Send ceremony reminder</h2>
-          <p style={{ color: "#746f68", fontSize: "12px", lineHeight: "1.4", margin: "6px 0 14px" }}>
-            Select your tone, then broadcast to pending guests or trigger server delivery.
-          </p>
-
-          {/* Tone Selector */}
-          <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
-            <button
-              type="button"
-              onClick={() => setHostTone("warmth")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "999px",
-                border: "1px solid var(--accent)",
-                background: hostTone === "warmth" ? "var(--story-bg)" : "transparent",
-                color: hostTone === "warmth" ? "#fff" : "var(--ink)",
-                fontSize: "11px",
-                cursor: "pointer",
-                fontWeight: 500,
-              }}
-            >
-              💛 Family Warmth
-            </button>
-            <button
-              type="button"
-              onClick={() => setHostTone("formal")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "999px",
-                border: "1px solid var(--accent)",
-                background: hostTone === "formal" ? "var(--story-bg)" : "transparent",
-                color: hostTone === "formal" ? "#fff" : "var(--ink)",
-                fontSize: "11px",
-                cursor: "pointer",
-                fontWeight: 500,
-              }}
-            >
-              👑 Formal / Regal
-            </button>
-            <button
-              type="button"
-              onClick={() => setHostTone("reminder")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "999px",
-                border: "1px solid var(--accent)",
-                background: hostTone === "reminder" ? "var(--story-bg)" : "transparent",
-                color: hostTone === "reminder" ? "#fff" : "var(--ink)",
-                fontSize: "11px",
-                cursor: "pointer",
-                fontWeight: 500,
-              }}
-            >
-              ⏳ Last-Minute
-            </button>
-          </div>
-
-          {/* Live Preview */}
-          <div style={{ background: "#f5f0e6", padding: "12px 14px", borderRadius: "8px", fontSize: "12px", lineHeight: "1.5", color: "#333", border: "1px solid #e2d9c8", maxHeight: "110px", overflowY: "auto" }}>
-            {hostTone === "formal" ? (
-              <>
-                Respected Guest,<br />
-                We cordially request the honour of your esteemed presence to celebrate <strong>{displayName}</strong> on <strong>{dateLabel(invite.date)}</strong>.<br /><br />
-                Personal invitation link:<br />
-                <span style={{ color: "#a7553f", wordBreak: "break-all" }}>{shareUrl || `http://localhost:3000/invite/${slug}`}</span>
-              </>
-            ) : hostTone === "reminder" ? (
-              <>
-                Hi Guest! ⏳<br />
-                Just a gentle reminder regarding <strong>{displayName}</strong> on <strong>{dateLabel(invite.date)}</strong> at <strong>{invite.venue}</strong>. We are finalizing seating and catering.<br /><br />
-                Confirm your RSVP in 10 seconds:<br />
-                <span style={{ color: "#a7553f", wordBreak: "break-all" }}>{shareUrl || `http://localhost:3000/invite/${slug}`}</span>
-              </>
-            ) : (
-              <>
-                Namaste! 🙏<br />
-                Our celebration would truly be incomplete without you and your family! Join us for <strong>{displayName}</strong> on <strong>{dateLabel(invite.date)}</strong>.<br /><br />
-                View your personal invitation:<br />
-                <span style={{ color: "#a7553f", wordBreak: "break-all" }}>{shareUrl || `http://localhost:3000/invite/${slug}`}</span>
-              </>
-            )}
-          </div>
-
-          <div style={{ display: "grid", gap: "8px", marginTop: "14px" }}>
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(
-                hostTone === "formal"
-                  ? `Respected Guest,\n\nWe cordially request the honour of your esteemed presence to celebrate ${displayName} on ${dateLabel(invite.date)} at ${invite.venue}.\n\nKindly confirm your attendance: ${shareUrl || `http://localhost:3000/invite/${slug}`}`
-                  : hostTone === "reminder"
-                  ? `Hi Guest! ⏳\n\nJust a gentle reminder regarding ${displayName} on ${dateLabel(invite.date)} at ${invite.venue}. Please confirm your attendance: ${shareUrl || `http://localhost:3000/invite/${slug}`}`
-                  : `Namaste! 🙏\n\nOur celebration would truly be incomplete without you! Celebrate ${displayName} on ${dateLabel(invite.date)} at ${invite.venue}. RSVP here: ${shareUrl || `http://localhost:3000/invite/${slug}`}`
-              )}`}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.contactBtn}
-              style={{ background: "#25D366", color: "#fff", textDecoration: "none" }}
-            >
-              <Share2 size={14} /> Open 1-Click WhatsApp Broadcast
-            </a>
-
-            <button
-              type="button"
-              className={styles.contactBtn}
-              style={{ background: "var(--story-bg)", color: "#fff" }}
-              disabled={broadcasting}
-              onClick={async () => {
-                setBroadcasting(true);
-                setBroadcastFeedback("");
-                try {
-                  const res = await fetch("/api/whatsapp/broadcast", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      slug,
-                      templateTone: hostTone,
-                      recipients: [{ name: "Pending Guests", phone: "+919876543210" }],
-                    }),
-                  });
-                  const d = await res.json();
-                  if (res.ok) {
-                    setBroadcastFeedback(`Sent via ${d.provider}!`);
-                  } else {
-                    setBroadcastFeedback(d.error || "Failed");
-                  }
-                } catch {
-                  setBroadcastFeedback("Network error");
-                } finally {
-                  setBroadcasting(false);
-                }
-              }}
-            >
-              <Send size={14} /> {broadcasting ? "Triggering..." : "Trigger Cloud API Broadcast"}
-            </button>
-            {broadcastFeedback && (
-              <small style={{ color: "#2e7d32", textAlign: "center", fontWeight: 600 }}>{broadcastFeedback}</small>
-            )}
           </div>
         </div>
       </div>

@@ -24,7 +24,10 @@ export type InvitationRecord = {
 };
 
 export function invitationToClient(value: InvitationRecord) {
+  const extra = value as Record<string, unknown>;
   return {
+    id: value.id,
+    slug: value.slug,
     eventType: value.event_type,
     firstName: value.first_name,
     secondName: value.second_name || "",
@@ -45,7 +48,7 @@ export function invitationToClient(value: InvitationRecord) {
     musicUrl: value.music_url || "",
     plan: value.plan,
     expiresAt: value.expires_at ? new Date(value.expires_at).getTime() : undefined,
-    views: (value as any).views || 0,
-    viewsByPlace: (value as any).viewsByPlace || {},
+    views: typeof extra.views === "number" ? extra.views : 0,
+    viewsByPlace: (typeof extra.viewsByPlace === "object" && extra.viewsByPlace !== null ? extra.viewsByPlace : {}) as Record<string, number>,
   };
 }

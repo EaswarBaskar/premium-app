@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import styles from "./EnvelopeOpening.module.css";
 import type { Invite } from "@/app/invite/[slug]/InviteClient";

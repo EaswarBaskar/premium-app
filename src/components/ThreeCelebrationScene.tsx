@@ -12,6 +12,16 @@ export interface ThreeCelebrationProps {
   speed?: number;
 }
 
+function checkWebGLSupport(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const testCanvas = document.createElement("canvas");
+    return Boolean(testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl"));
+  } catch {
+    return false;
+  }
+}
+
 export default function ThreeCelebrationScene({
   variant = "hero",
   position = "auto",
@@ -20,24 +30,12 @@ export default function ThreeCelebrationScene({
   speed = 1,
 }: ThreeCelebrationProps) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const [isSupported, setIsSupported] = useState(true);
+  const [isSupported] = useState(() => checkWebGLSupport());
 
   useEffect(() => {
+    if (!isSupported) return;
     const container = mountRef.current;
     if (!container) return;
-
-    // Check WebGL availability
-    try {
-      const testCanvas = document.createElement("canvas");
-      const gl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
-      if (!gl) {
-        setIsSupported(false);
-        return;
-      }
-    } catch {
-      setIsSupported(false);
-      return;
-    }
 
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || 500;
@@ -374,7 +372,7 @@ export default function ThreeCelebrationScene({
 
       renderer.dispose();
     };
-  }, [variant, position, speed]);
+  }, [variant, position, speed, isSupported]);
 
   if (!isSupported) return null;
 

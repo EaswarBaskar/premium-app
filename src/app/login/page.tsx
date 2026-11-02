@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Globe2, LockKeyhole } from "lucide-react";
 import styles from "./login.module.css";

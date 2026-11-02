@@ -1,6 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+function redirectWithNext(request: NextRequest) {
+  const loginUrl = new URL("/login", request.url);
+  const destination = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  loginUrl.searchParams.set("next", destination);
+  return NextResponse.redirect(loginUrl);
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -12,7 +19,7 @@ export async function middleware(request: NextRequest) {
 
   if (!url || !key) {
     if (request.nextUrl.pathname.startsWith("/dashboard")) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return redirectWithNext(request);
     }
     return response;
   }
@@ -33,7 +40,7 @@ export async function middleware(request: NextRequest) {
   );
   const { data: { user } } = await supabase.auth.getUser();
   if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return redirectWithNext(request);
   }
   return response;
 }

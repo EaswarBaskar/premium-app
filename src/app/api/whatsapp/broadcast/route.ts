@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { localStore } from "@/lib/local-store";
 
 export type BroadcastPayload = {
   slug: string;
@@ -104,12 +103,12 @@ export async function POST(request: Request) {
             error: errData.error?.message || "Meta API Error",
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         results.push({
           phone: recipient.phone,
           name: recipient.name,
           status: "failed",
-          error: err.message || "Network Error",
+          error: err instanceof Error ? err.message : "Network Error",
         });
       }
     }
@@ -151,12 +150,12 @@ export async function POST(request: Request) {
             error: errData.message || "Twilio API Error",
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         results.push({
           phone: recipient.phone,
           name: recipient.name,
           status: "failed",
-          error: err.message || "Twilio Network Error",
+          error: err instanceof Error ? err.message : "Twilio Network Error",
         });
       }
     }
