@@ -7,8 +7,38 @@ function slugPart(value: unknown) {
   return String(value || "").trim().normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
 }
 
+type PostInvitationBody = {
+  eventType?: string;
+  firstName?: string;
+  secondName?: string | null;
+  age?: string | null;
+  date?: string;
+  time?: string;
+  venue?: string;
+  address?: string | null;
+  maps?: string | null;
+  message?: string | null;
+  contact?: string | null;
+  template?: string;
+  plan?: string;
+  coverPhotoUrl?: string | null;
+  galleryUrls?: string[];
+  events?: Array<{ name: string; date: string; time: string; venue: string; address?: string }>;
+  dressCode?: string | null;
+  travelInfo?: string | null;
+  musicUrl?: string | null;
+};
+
 export async function POST(request: Request) {
-  const body = await request.json();
+  let body: PostInvitationBody;
+  try {
+    body = (await request.json()) as PostInvitationBody;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
+  }
   if (JSON.stringify(body).length > 2000000) {
     return NextResponse.json({ error: "Invitation data is too large." }, { status: 413 });
   }
@@ -30,6 +60,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Some invitation fields are too long." }, { status: 400 });
   }
 
+  const firstName = body.firstName.trim();
+  const date = body.date;
+  const time = body.time;
+  const venue = body.venue.trim();
+  const eventType = body.eventType || "Wedding";
+
   const prefix = [slugPart(body.firstName), slugPart(body.secondName || body.age)].filter(Boolean).join("-") || "invitation";
   const slug = `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
   const days = body.plan === "keepsake" ? 30 : body.plan === "signature" ? 7 : 3;
@@ -42,13 +78,13 @@ export async function POST(request: Request) {
       id: crypto.randomUUID(),
       owner_id: "local-user",
       slug,
-      event_type: body.eventType,
-      first_name: body.firstName.trim(),
+      event_type: eventType,
+      first_name: firstName,
       second_name: body.secondName?.trim() || null,
       age: body.age || null,
-      date: body.date,
-      time: body.time,
-      venue: body.venue.trim(),
+      date,
+      time,
+      venue,
       address: body.address?.trim() || "",
       maps: body.maps?.trim() || null,
       message: body.message?.trim() || "",
@@ -76,13 +112,13 @@ export async function POST(request: Request) {
   const fullPayload: Record<string, unknown> = {
     owner_id: ownerId,
     slug,
-    event_type: body.eventType,
-    first_name: body.firstName.trim(),
+    event_type: eventType,
+    first_name: firstName,
     second_name: body.secondName?.trim() || null,
     age: body.age || null,
-    date: body.date,
-    time: body.time,
-    venue: body.venue.trim(),
+    date,
+    time,
+    venue,
     address: body.address?.trim() || "",
     maps: body.maps?.trim() || null,
     message: body.message?.trim() || "",
@@ -103,13 +139,13 @@ export async function POST(request: Request) {
     const basePayload: Record<string, unknown> = {
       owner_id: ownerId,
       slug,
-      event_type: body.eventType,
-      first_name: body.firstName.trim(),
+      event_type: eventType,
+      first_name: firstName,
       second_name: body.secondName?.trim() || null,
       age: body.age || null,
-      date: body.date,
-      time: body.time,
-      venue: body.venue.trim(),
+      date,
+      time,
+      venue,
       address: body.address?.trim() || "",
       maps: body.maps?.trim() || null,
       message: body.message?.trim() || "",

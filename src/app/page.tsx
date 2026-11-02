@@ -106,11 +106,11 @@ function getInitialPendingData(): { form?: FormData; template?: string } | null 
 
 export default function Home() {
   const router = useRouter();
-  const [showWizard, setShowWizard] = useState(() => Boolean(getInitialPendingData()));
+  const [showWizard, setShowWizard] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [step, setStep] = useState(() => (getInitialPendingData() ? 4 : 1));
-  const [form, setForm] = useState<FormData>(() => getInitialPendingData()?.form || initialForm);
-  const [template, setTemplate] = useState(() => getInitialPendingData()?.template || "Elegant Gold");
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState<FormData>(initialForm);
+  const [template, setTemplate] = useState("Elegant Gold");
   const plan = "starter";
   const [published, setPublished] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState("");
@@ -119,6 +119,15 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    const pending = getInitialPendingData();
+    if (pending) {
+      queueMicrotask(() => {
+        if (pending.form) setForm(pending.form);
+        if (pending.template) setTemplate(pending.template);
+        setShowWizard(true);
+        setStep(4);
+      });
+    }
     createSupabaseBrowserClient().auth.getUser().then(({ data }) => {
       setIsLoggedIn(Boolean(data.user));
     }).catch(() => setIsLoggedIn(false));

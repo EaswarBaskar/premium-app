@@ -57,14 +57,15 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
   const searchParams = useSearchParams();
   const guestName = searchParams.get("g")?.trim() || "";
   const [shareUrl, setShareUrl] = useState("");
-  const [showCover, setShowCover] = useState(() => {
-    if (typeof window === "undefined") return true;
+  const [showCover, setShowCover] = useState(true);
+
+  useEffect(() => {
     try {
-      return sessionStorage.getItem(`traxva_opened_${slug}`) !== "true";
-    } catch {
-      return true;
-    }
-  });
+      if (sessionStorage.getItem(`traxva_opened_${slug}`) === "true") {
+        queueMicrotask(() => setShowCover(false));
+      }
+    } catch {}
+  }, [slug]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
 
@@ -206,7 +207,7 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
         guestName={guestName}
         theme={theme}
         onOpenComplete={() => {
-          setShowCover(false);
+          queueMicrotask(() => setShowCover(false));
           setConfetti(true);
           window.setTimeout(() => setConfetti(false), 2800);
           if (audioRef.current && invite.musicUrl) {
@@ -214,7 +215,7 @@ export default function InviteClient({ invite, slug }: { invite: Invite; slug: s
           }
         }}
         onSkip={() => {
-          setShowCover(false);
+          queueMicrotask(() => setShowCover(false));
           try {
             sessionStorage.setItem(`traxva_opened_${slug}`, "true");
           } catch {}

@@ -3,7 +3,13 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { createSupabaseServerClient } from "@/lib/supabase/auth-server";
 
 export async function POST(request: Request) {
-  const form = await request.formData();
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return NextResponse.json({ error: "Invalid form data." }, { status: 400 });
+  }
+
   const file = form.get("file");
   if (!(file instanceof File) || !file.type.startsWith("image/")) {
     return NextResponse.json({ error: "Please choose an image file." }, { status: 400 });

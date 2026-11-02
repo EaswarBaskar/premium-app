@@ -17,9 +17,12 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ slu
   const supabase = getSupabaseAdmin();
   let data: OgInvitationData | null = null;
   if (supabase) {
-    const res = await supabase.from("invitations").select("first_name, second_name, date, event_type").eq("slug", slug.toLowerCase()).maybeSingle();
-    data = res.data;
-  } else {
+    try {
+      const res = await supabase.from("invitations").select("first_name, second_name, date, event_type").eq("slug", slug.toLowerCase()).maybeSingle();
+      data = res.data;
+    } catch {}
+  }
+  if (!data) {
     data = localStore.getInvitationBySlug(slug);
   }
   const name = data ? (data.event_type === "Birthday" ? data.first_name : `${data.first_name} & ${data.second_name}`) : "Your invitation";

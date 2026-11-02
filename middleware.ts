@@ -18,9 +18,7 @@ export async function middleware(request: NextRequest) {
     process.env.SUPABASE_ANON_KEY;
 
   if (!url || !key) {
-    if (request.nextUrl.pathname.startsWith("/dashboard")) {
-      return redirectWithNext(request);
-    }
+    // When Supabase is not configured, allow local demo mode to operate smoothly
     return response;
   }
 
