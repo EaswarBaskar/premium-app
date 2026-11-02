@@ -99,8 +99,9 @@ export async function POST(request: Request) {
   };
 
   let { data, error } = await supabase.from("invitations").insert(fullPayload).select("id, slug").single();
-  if (error && error.code === "PGRST204") {
+  if (error && (error.code === "PGRST204" || error.code === "42703")) {
     const basePayload: Record<string, unknown> = {
+      owner_id: ownerId,
       slug,
       event_type: body.eventType,
       first_name: body.firstName.trim(),
@@ -112,6 +113,7 @@ export async function POST(request: Request) {
       address: body.address?.trim() || "",
       maps: body.maps?.trim() || null,
       message: body.message?.trim() || "",
+      contact: body.contact?.trim() || null,
       template: body.template || "Elegant Gold",
       plan: body.plan || "starter",
       expires_at: expiresAt,
@@ -128,6 +130,7 @@ export async function POST(request: Request) {
     created_at: new Date().toISOString(),
     views: 0,
     ...fullPayload,
+    owner_id: ownerId || "local-user",
   };
   localStore.saveInvitation(localRecord as unknown as ExtendedInvitationRecord);
 

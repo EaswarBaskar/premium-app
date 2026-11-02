@@ -1,6 +1,7 @@
 export type InvitationRecord = {
   id: string;
   slug: string;
+  owner_id?: string | null;
   event_type: string;
   first_name: string;
   second_name: string | null;

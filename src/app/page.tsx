@@ -21,6 +21,7 @@ import {
   MessageCircle,
   Play,
   Sparkles,
+  Share2,
   Users,
   X,
 } from "lucide-react";
@@ -478,8 +479,23 @@ export default function Home() {
             </div>
             
             <div className={styles.shareButtons}>
-              <a href={`https://wa.me/?text=${encodeURIComponent(`You’re invited! 💍 ${title}. View the invitation: ${shareUrl}`)}`} target="_blank">
-                <MessageCircle size={16} /> Share on WhatsApp
+              {form.contact ? (
+                <a
+                  href={`https://wa.me/${form.contact.replace(/\D/g, "").length === 10 ? `91${form.contact.replace(/\D/g, "")}` : form.contact.replace(/\D/g, "")}?text=${encodeURIComponent(`Here is your live invitation link: ${shareUrl}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    background: "#25D366",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                  }}
+                >
+                  <MessageCircle size={16} /> Send to my WhatsApp ({form.contact.replace(/\D/g, "").length === 10 ? `+91 ${form.contact.replace(/\D/g, "")}` : form.contact})
+                </a>
+              ) : null}
+              <a href={`https://wa.me/?text=${encodeURIComponent(`You’re invited! 💍 ${title}. View the invitation: ${shareUrl}`)}`} target="_blank" rel="noreferrer">
+                <Share2 size={16} /> Share with Guests
               </a>
               <Link href={`/invite/${slug}`} target="_blank">
                 <ExternalLink size={16} /> View live invitation

@@ -7,14 +7,19 @@ import { localStore } from "@/lib/local-store";
 import InviteClient, { Invite } from "./InviteClient";
 
 async function getInvite(slug: string): Promise<Invite | null> {
+  const local = localStore.getInvitationBySlug(slug);
   const supabase = getSupabaseAdmin();
   if (supabase) {
     try {
       const { data } = await supabase.from("invitations").select("*").eq("slug", slug.toLowerCase()).maybeSingle();
-      if (data) return (invitationToClient(data) as unknown) as Invite;
+      if (data) {
+        // Merge Supabase with local store so custom fields (contact, cover photo, gallery) are never lost
+        const merged = { ...local, ...data };
+        if (!merged.contact && local?.contact) merged.contact = local.contact;
+        return (invitationToClient(merged) as unknown) as Invite;
+      }
     } catch {}
   }
-  const local = localStore.getInvitationBySlug(slug);
   return local ? ((invitationToClient(local) as unknown) as Invite) : null;
 }
 

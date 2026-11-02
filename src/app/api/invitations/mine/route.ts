@@ -27,28 +27,28 @@ export async function GET(request: Request) {
 
   // 2. If a specific slug is requested (from /dashboard?slug=... or localStorage)
   if (requestedSlug) {
-    // Check Supabase first
+    const local = localStore.getInvitationBySlug(requestedSlug);
     try {
       const { data, error } = await supabase.from("invitations").select("*").eq("slug", requestedSlug).maybeSingle();
       if (!error && data) {
-        // If owner_id column exists in Supabase and was null, claim it for this user!
-        if (!data.owner_id) {
+        // If owner_id is missing or "local-user", claim it for this user!
+        if (!data.owner_id || data.owner_id === "local-user") {
           try {
             await supabase.from("invitations").update({ owner_id: user.id }).eq("id", data.id);
             data.owner_id = user.id;
           } catch {}
         }
-        // Also claim in localStore
-        localStore.updateInvitation(requestedSlug, { owner_id: user.id });
-        return NextResponse.json(invitationToClient(data));
+        const merged = { ...local, ...data };
+        if (!merged.contact && local?.contact) merged.contact = local.contact;
+        localStore.updateInvitation(requestedSlug, { owner_id: user.id, ...merged });
+        return NextResponse.json(invitationToClient(merged));
       }
     } catch {}
 
     // Check localStore fallback
-    const local = localStore.getInvitationBySlug(requestedSlug);
     if (local) {
       localStore.updateInvitation(requestedSlug, { owner_id: user.id });
-      return NextResponse.json(invitationToClient(local));
+      return NextResponse.json(invitationToClient({ ...local, owner_id: user.id }));
     }
   }
 
@@ -62,7 +62,10 @@ export async function GET(request: Request) {
       .limit(1)
       .maybeSingle();
     if (!error && data) {
-      return NextResponse.json(invitationToClient(data));
+      const local = localStore.getInvitationBySlug(data.slug);
+      const merged = { ...local, ...data };
+      if (!merged.contact && local?.contact) merged.contact = local.contact;
+      return NextResponse.json(invitationToClient(merged));
     }
   } catch {}
 
@@ -76,6 +79,18 @@ export async function GET(request: Request) {
     return NextResponse.json(invitationToClient(latest));
   }
 
-  // 5. User has no invitations yet. Do NOT leak other people's invitations!
+  // 5. If this user just logged in and has NO invitations linked yet,
+  // claim the most recently created invitation (e.g. created before signing in)
+  const unclaimed = allLocal.filter((inv) => !inv.owner_id || inv.owner_id === "local-user");
+  if (unclaimed.length > 0) {
+    const latestUnclaimed = unclaimed[unclaimed.length - 1];
+    localStore.updateInvitation(latestUnclaimed.slug, { owner_id: user.id });
+    try {
+      await supabase.from("invitations").update({ owner_id: user.id }).eq("slug", latestUnclaimed.slug.toLowerCase());
+    } catch {}
+    return NextResponse.json(invitationToClient({ ...latestUnclaimed, owner_id: user.id }));
+  }
+
+  // 6. User has no invitations yet.
   return NextResponse.json(null);
 }

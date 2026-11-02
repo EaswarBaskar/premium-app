@@ -263,11 +263,17 @@ export default function Dashboard() {
     setFeedback(`Added ${newG.name} to guest list!`);
   }
 
+function formatWaNumber(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 10) return `91${digits}`;
+  return digits;
+}
+
   function sendQueueCurrent() {
     if (!activeList[queueIndex]) return;
     const guest = activeList[queueIndex];
     const msg = getTemplateMessage(guest, templateTone);
-    window.open(`https://wa.me/${guest.phone.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${formatWaNumber(guest.phone)}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
     if (queueIndex < activeList.length - 1) {
       setQueueIndex(queueIndex + 1);
     } else {
@@ -310,7 +316,7 @@ export default function Dashboard() {
     const title = `${invitation.firstName}${invitation.secondName ? ` & ${invitation.secondName}` : ""}`;
     const link = `${window.location.origin}/invite/${slug}?g=${encodeURIComponent(guest.name)}`;
     const message = `Hi ${guest.name}, you’re warmly invited to celebrate ${title}. View your invitation: ${link}`;
-    window.open(`https://wa.me/${guest.phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${formatWaNumber(guest.phone)}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   }
 
   function addGuest(e: FormEvent) {
