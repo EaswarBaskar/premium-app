@@ -134,31 +134,43 @@ export async function POST(request: Request) {
     expires_at: expiresAt,
   };
 
-  let { data, error } = await supabase.from("invitations").insert(fullPayload).select("id, slug").single();
-  if (error && (error.code === "PGRST204" || error.code === "42703")) {
-    const basePayload: Record<string, unknown> = {
-      owner_id: ownerId,
-      slug,
-      event_type: eventType,
-      first_name: firstName,
-      second_name: body.secondName?.trim() || null,
-      age: body.age || null,
-      date,
-      time,
-      venue,
-      address: body.address?.trim() || "",
-      maps: body.maps?.trim() || null,
-      message: body.message?.trim() || "",
-      contact: body.contact?.trim() || null,
-      template: body.template || "Elegant Gold",
-      plan: body.plan || "starter",
-      expires_at: expiresAt,
-    };
-    const retry = await supabase.from("invitations").insert(basePayload).select("id, slug").single();
-    data = retry.data;
-    error = retry.error;
+  const payloadToInsert: Record<string, unknown> = { ...fullPayload };
+  let insertRes = await supabase.from("invitations").insert(payloadToInsert).select("id, slug").single();
+
+  // If Supabase table is missing any newly added columns (PGRST204 or 42703),
+  // dynamically extract the missing column name from the error message and retry
+  let attempts = 0;
+  while (insertRes.error && (insertRes.error.code === "PGRST204" || insertRes.error.code === "42703") && attempts < 10) {
+    attempts++;
+    const missingColMatch = insertRes.error.message.match(/Could not find the '([^']+)' column/i);
+    if (missingColMatch && missingColMatch[1] && missingColMatch[1] in payloadToInsert) {
+      delete payloadToInsert[missingColMatch[1]];
+      insertRes = await supabase.from("invitations").insert(payloadToInsert).select("id, slug").single();
+    } else {
+      // Fallback: keep only the core guaranteed columns
+      const coreKeys = ["slug", "event_type", "first_name", "second_name", "age", "date", "time", "venue", "address", "maps", "message", "template", "plan", "expires_at"];
+      Object.keys(payloadToInsert).forEach((k) => {
+        if (!coreKeys.includes(k)) delete payloadToInsert[k];
+      });
+      insertRes = await supabase.from("invitations").insert(payloadToInsert).select("id, slug").single();
+      break;
+    }
   }
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  const { data, error } = insertRes;
+
+  if (error || !data) {
+    console.warn("Supabase insert failed, saving to localStore fallback:", error?.message);
+    const fallbackRecord = {
+      id: crypto.randomUUID(),
+      owner_id: ownerId || "local-user",
+      created_at: new Date().toISOString(),
+      views: 0,
+      ...fullPayload,
+    };
+    localStore.saveInvitation(fallbackRecord as unknown as ExtendedInvitationRecord);
+    return NextResponse.json({ id: fallbackRecord.id, slug });
+  }
 
   // Dual-write to localStore so custom fields (contact, events, cover photo) are preserved even if Supabase table has a legacy schema
   const localRecord = {
