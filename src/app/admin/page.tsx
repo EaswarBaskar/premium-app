@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -11,6 +11,8 @@ import {
   Heart,
   LayoutDashboard,
   Layers,
+  LockKeyhole,
+  LogOut,
   MessageSquare,
   RefreshCw,
   Search,
@@ -89,6 +91,10 @@ export default function AdminPage() {
   const [templateFilter, setTemplateFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [feedback, setFeedback] = useState("");
+  const [isLocked, setIsLocked] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState("");
+  const [submittingAuth, setSubmittingAuth] = useState(false);
 
   async function loadData(silent = false) {
     if (!silent) setLoading(true);
@@ -133,6 +139,37 @@ export default function AdminPage() {
       clearInterval(interval);
     };
   }, []);
+
+  async function unlock(e: FormEvent) {
+    e.preventDefault();
+    setSubmittingAuth(true);
+    setPasscodeError("");
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setIsLocked(false);
+        setPasscode("");
+        loadData();
+      } else {
+        setPasscodeError(json.error || "Incorrect passcode.");
+      }
+    } catch {
+      setPasscodeError("Could not connect to server.");
+    } finally {
+      setSubmittingAuth(false);
+    }
+  }
+
+  async function lockConsole() {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    setIsLocked(true);
+    setData(null);
+  }
 
   async function deleteInvite(slug: string, title: string) {
     if (!window.confirm(`Are you sure you want to delete "${title}" (/invite/${slug})?`)) return;
@@ -203,6 +240,44 @@ export default function AdminPage() {
     });
   }, [data, search, templateFilter, statusFilter]);
 
+  if (isLocked) {
+    return (
+      <main className={styles.adminLockPage}>
+        <div className={styles.lockCard}>
+          <BrandLogo href="/" variant="admin" extraBadge="ADMIN LOCK" />
+          <div className={styles.lockIconBox}>
+            <LockKeyhole size={28} />
+          </div>
+          <h2>Restricted Console</h2>
+          <p>Please enter the administrator passcode to access platform metrics, database records, and control tools.</p>
+
+          <form onSubmit={unlock} className={styles.lockForm}>
+            <input
+              type="password"
+              placeholder="Enter admin passcode"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value)}
+              autoFocus
+              className={styles.lockInput}
+            />
+            {passcodeError && <p className={styles.lockError}>{passcodeError}</p>}
+            <button
+              type="submit"
+              disabled={submittingAuth || !passcode.trim()}
+              className={styles.lockSubmitBtn}
+            >
+              {submittingAuth ? "Verifying..." : "Unlock Console →"}
+            </button>
+          </form>
+
+          <Link href="/" className={styles.lockBackLink}>
+            Return to Homepage
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   if (loading && !data) {
     return (
       <main className={styles.adminPage}>
@@ -229,6 +304,9 @@ export default function AdminPage() {
           <Link href="/" className={styles.headerLink}>
             <Globe2 size={14} /> Main Site <ArrowUpRight size={13} />
           </Link>
+          <button type="button" onClick={lockConsole} className={styles.lockHeaderBtn} title="Lock Admin Console">
+            <LogOut size={13} /> Lock Console
+          </button>
         </div>
       </header>
 

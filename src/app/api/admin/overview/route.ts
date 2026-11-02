@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { localStore, type ExtendedInvitationRecord } from "@/lib/local-store";
+import { verifyAdminAuth } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,9 @@ type RawAdminRsvp = {
   } | null;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  const isAuthed = await verifyAdminAuth(request);
+  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
   const supabase = getSupabaseAdmin();
 
   let invitations: RawAdminInvitation[] = [];
@@ -174,6 +177,8 @@ export async function GET() {
 }
 
 export async function DELETE(request: Request) {
+  const isAuthed = await verifyAdminAuth(request);
+  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug");
   if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
@@ -191,6 +196,8 @@ export async function DELETE(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const isAuthed = await verifyAdminAuth(request);
+  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
   const body = (await request.json().catch(() => ({}))) as { slug?: string; action?: string; extraDays?: number };
   const { slug, action = "extend", extraDays = 7 } = body;
   if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });

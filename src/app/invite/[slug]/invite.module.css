@@ -401,6 +401,9 @@
   .gallery,
   .guestExtras,
   .qrPanel,
+  .shagunPanel,
+  .wishesSection,
+  .floatingAudioPill,
   .inviteFooter,
   .rsvpOverlay {
     display: none !important;
@@ -1476,48 +1479,51 @@
    =================================================== */
 .shagunPanel {
   position: relative;
-  max-width: 680px;
+  z-index: 1;
+  width: min(720px, 100%);
   margin: 36px auto 0;
-  padding: 32px 24px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 20px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 36px 28px;
+  background: var(--info-bg, #fffdf9);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 65%);
+  border-radius: 24px;
+  box-shadow: 0 16px 45px #0000000e;
   text-align: center;
-  color: var(--invite-text, #fff);
+  color: var(--ink);
   overflow: hidden;
 }
 
 .shagunBadge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  gap: 7px;
+  padding: 6px 16px;
+  background: color-mix(in srgb, var(--accent), transparent 85%);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 50%);
   border-radius: 999px;
   font-size: 0.72rem;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #dfb76c;
-  margin-bottom: 12px;
+  color: var(--ink);
+  font-weight: 700;
+  margin-bottom: 14px;
 }
 
 .shagunPanel h3 {
-  font-family: var(--font-serif, "Cinzel", serif);
-  font-size: 1.6rem;
-  margin: 0 0 8px;
-  color: var(--invite-title, #ede7dc);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+  margin: 0 0 10px;
+  color: var(--ink);
 }
 
 .shagunNote {
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.75);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--ink), transparent 30%);
   max-width: 480px;
-  margin: 0 auto 24px;
+  margin: 0 auto 26px;
 }
 
 .shagunContent {
@@ -1532,12 +1538,13 @@
   flex-direction: column;
   align-items: center;
   gap: 18px;
-  padding: 22px;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 16px;
+  padding: 24px;
+  background: var(--panel-bg, #f5f1e9);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 60%);
+  border-radius: 18px;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
+  box-shadow: 0 8px 24px #0000000a;
 }
 
 .qrFrame {
@@ -1547,20 +1554,20 @@
   gap: 8px;
   padding: 12px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .upiQrImage {
-  border-radius: 6px;
+  border-radius: 8px;
   display: block;
 }
 
 .qrScanText {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #333;
-  letter-spacing: 0.5px;
+  color: #333333;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
@@ -1574,24 +1581,28 @@
 
 .upiLabel {
   font-size: 0.76rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, var(--ink), transparent 35%);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
+  font-weight: 600;
 }
 
 .upiCode {
   font-family: monospace;
-  font-size: 0.95rem;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #dfb76c;
+  font-size: 0.96rem;
+  font-weight: 600;
+  background: var(--info-bg, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 70%);
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: var(--ink);
+  letter-spacing: 0.5px;
 }
 
 .upiButtons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   margin-top: 6px;
 }
@@ -1601,39 +1612,41 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 11px 18px;
+  background: var(--info-bg, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 60%);
   border-radius: 999px;
-  font-size: 0.82rem;
-  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .copyUpiBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--accent), transparent 85%);
+  border-color: var(--accent);
 }
 
 .payUpiBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 11px 18px;
-  background: linear-gradient(135deg, #dfb76c, #b38234);
-  color: #1a1a1a;
-  font-size: 0.84rem;
+  gap: 7px;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: var(--story-bg, #263b33);
+  font-size: 0.88rem;
   font-weight: 600;
   border-radius: 999px;
   text-decoration: none;
-  box-shadow: 0 4px 15px rgba(223, 183, 108, 0.3);
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent), transparent 60%);
+  transition: transform 0.15s ease, filter 0.2s ease;
 }
 
 .payUpiBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(223, 183, 108, 0.45);
+  filter: brightness(1.06);
 }
 
 .registryBox {
@@ -1641,75 +1654,97 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 20px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-radius: 12px;
+  padding: 18px 22px;
+  background: var(--panel-bg, #f5f1e9);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 60%);
+  border-radius: 16px;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   text-align: left;
 }
 
 .registryBox strong {
   display: block;
-  font-size: 0.92rem;
-  color: #fff;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .registryBox small {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--ink), transparent 35%);
 }
 
 .registryBtn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 14px;
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  gap: 6px;
+  padding: 9px 16px;
+  background: var(--accent);
+  color: var(--story-bg, #263b33);
   border-radius: 999px;
-  color: #dfb76c;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
 
 .registryBtn:hover {
-  background: rgba(212, 175, 55, 0.25);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
 /* ===================================================
    LIVE WISHES & BLESSINGS WALL STYLES
    =================================================== */
 .wishesSection {
-  max-width: 680px;
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
   margin: 36px auto 0;
-  padding: 32px 20px;
+  padding: 36px 28px;
+  background: var(--info-bg, #fffdf9);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 65%);
+  border-radius: 24px;
+  box-shadow: 0 16px 45px #0000000e;
   text-align: center;
+  color: var(--ink);
 }
 
 .wishesHeader {
-  margin-bottom: 24px;
+  margin-bottom: 26px;
+}
+
+.wishesHeader .kicker {
+  color: var(--accent);
+  letter-spacing: 2.5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 4px;
 }
 
 .wishesHeader h3 {
-  font-family: var(--font-serif, "Cinzel", serif);
-  font-size: 1.5rem;
-  margin: 6px 0 4px;
-  color: var(--invite-title, #ede7dc);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+  margin: 6px 0 6px;
+  color: var(--ink);
 }
 
 .wishesHeader p {
-  font-size: 0.84rem;
-  color: rgba(255, 255, 255, 0.65);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: color-mix(in srgb, var(--ink), transparent 30%);
   margin: 0;
 }
 
 .wishesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
   margin-bottom: 24px;
 }
@@ -1719,17 +1754,17 @@
   flex-direction: column;
   justify-content: space-between;
   text-align: left;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  padding: 18px;
+  background: var(--panel-bg, #f5f1e9);
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 60%);
+  border-radius: 14px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .wishCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(212, 175, 55, 0.45);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px #0000000d;
 }
 
 .wishTop {
@@ -1740,57 +1775,66 @@
 }
 
 .wishAuthor {
-  font-size: 0.88rem;
-  color: #dfb76c;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .wishHeart {
-  color: #e07a5f;
-  fill: #e07a5f;
+  color: #d9534f;
+  fill: #d9534f;
   opacity: 0.85;
 }
 
 .wishMessage {
-  font-size: 0.86rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink), transparent 20%);
   margin: 0 0 10px;
   font-style: italic;
   word-break: break-word;
 }
 
 .wishTime {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.74rem;
+  color: color-mix(in srgb, var(--ink), transparent 50%);
 }
 
 .emptyWishes {
-  padding: 24px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  margin-bottom: 20px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.86rem;
+  padding: 28px 20px;
+  background: var(--panel-bg, #f5f1e9);
+  border: 1px dashed color-mix(in srgb, var(--accent), transparent 55%);
+  border-radius: 14px;
+  margin-bottom: 22px;
+  color: color-mix(in srgb, var(--ink), transparent 30%);
+  font-size: 0.92rem;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.emptyWishes p {
+  margin: 0;
 }
 
 .leaveWishBtn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 11px 22px;
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.45);
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: var(--story-bg, #263b33);
+  border: 1px solid var(--accent);
   border-radius: 999px;
-  color: #dfb76c;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.88rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent), transparent 65%);
 }
 
 .leaveWishBtn:hover {
-  background: rgba(212, 175, 55, 0.25);
+  filter: brightness(1.08);
   transform: translateY(-1px);
 }
 

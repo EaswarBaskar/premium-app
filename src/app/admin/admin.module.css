@@ -654,3 +654,142 @@
     justify-content: space-between;
   }
 }
+
+/* ===================================================
+   ADMIN LOCK SCREEN STYLES
+   =================================================== */
+.adminLockPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e1b18;
+  padding: 24px;
+}
+
+.lockCard {
+  width: 100%;
+  max-width: 440px;
+  background: #25221e;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 18px;
+  padding: 36px 28px;
+  text-align: center;
+  color: #ede7dc;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lockIconBox {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #dfb76c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0 16px;
+}
+
+.lockCard h2 {
+  font-family: serif;
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+  color: #f7f3ec;
+}
+
+.lockCard p {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #a89f91;
+  margin: 0 0 24px;
+}
+
+.lockForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lockInput {
+  width: 100%;
+  padding: 13px 16px;
+  background: #171513;
+  border: 1px solid #3d3730;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.lockInput:focus {
+  border-color: #dfb76c;
+}
+
+.lockError {
+  color: #ff6b6b;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.lockSubmitBtn {
+  width: 100%;
+  padding: 13px 20px;
+  background: linear-gradient(135deg, #dfb76c, #b38234);
+  color: #171513;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.lockSubmitBtn:hover:not(:disabled) {
+  opacity: 0.94;
+  transform: translateY(-1px);
+}
+
+.lockSubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lockBackLink {
+  margin-top: 20px;
+  font-size: 0.82rem;
+  color: #a89f91;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.lockBackLink:hover {
+  color: #dfb76c;
+}
+
+.lockHeaderBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #d1c8b8;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lockHeaderBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
