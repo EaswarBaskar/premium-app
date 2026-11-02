@@ -1,31 +1,115 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { invitationToClient } from "@/lib/invitations";
-import InviteClient, { Invite } from "./InviteClient";
+import { localStore } from "@/lib/local-store";
+import InviteClient, { Invite, Wish } from "./InviteClient";
 
 async function getInvite(slug: string): Promise<Invite | null> {
+  const local = localStore.getInvitationBySlug(slug);
   const supabase = getSupabaseAdmin();
-  if (!supabase) return null;
-  const { data } = await supabase.from("invitations").select("*").eq("slug", slug.toLowerCase()).maybeSingle();
-  return data ? invitationToClient(data) as Invite : null;
+  if (supabase) {
+    try {
+      const { data } = await supabase.from("invitations").select("*").eq("slug", slug.toLowerCase()).maybeSingle();
+      if (data) {
+        // Merge Supabase with local store so custom fields (contact, cover photo, gallery) are never lost
+        const merged = { ...local, ...data };
+        if (!merged.contact && local?.contact) merged.contact = local.contact;
+        return (invitationToClient(merged) as unknown) as Invite;
+      }
+    } catch {}
+  }
+  return local ? ((invitationToClient(local) as unknown) as Invite) : null;
+}
+
+async function getWishes(slug: string, invitationId?: string): Promise<Wish[]> {
+  const wishes: Wish[] = [];
+  const supabase = getSupabaseAdmin();
+  if (supabase && invitationId) {
+    try {
+      const { data } = await supabase
+        .from("rsvps")
+        .select("id, name, message, created_at")
+        .eq("invitation_id", invitationId)
+        .neq("message", "")
+        .order("created_at", { ascending: false })
+        .limit(30);
+      if (data) {
+        data.forEach((r: { id: string; name: string; message: string; created_at: string }) => {
+          if (r.message && r.message.trim()) {
+            wishes.push({ id: r.id, name: r.name, message: r.message.trim(), createdAt: r.created_at });
+          }
+        });
+      }
+    } catch {}
+  }
+  const localRsvps = localStore.getRsvps();
+  localRsvps.forEach((r) => {
+    if ((r.invitation_id === slug || (invitationId && r.invitation_id === invitationId)) && r.message?.trim()) {
+      if (!wishes.some((w) => w.id === r.id)) {
+        wishes.push({ id: r.id, name: r.name, message: r.message.trim(), createdAt: r.created_at });
+      }
+    }
+  });
+  return wishes;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const invite = await getInvite(slug);
-  if (!invite) return { title: "Invitation not found · Invite7" };
+  if (!invite) return { title: "Invitation not found · TRAXVA" };
   const name = invite.eventType === "Birthday" ? invite.firstName : `${invite.firstName} & ${invite.secondName}`;
   const title = `${name} · ${invite.eventType} invitation`;
-  const description = `${dateLabel(invite.date)} · ${invite.venue}. Created with Invite7.`;
-  return { title, description, openGraph: { title, description, type: "website", images: [`/invite/${slug}/opengraph-image`] }, twitter: { card: "summary_large_image", title, description, images: [`/invite/${slug}/opengraph-image`] } };
+  const description = `${dateLabel(invite.date)} · ${invite.venue}. Created with TRAXVA — A Product by Eantrax.`;
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website", images: [`/invite/${slug}/opengraph-image`] },
+    twitter: { card: "summary_large_image", title, description, images: [`/invite/${slug}/opengraph-image`] },
+  };
 }
 
-function dateLabel(date: string) { const value = new Date(`${date}T12:00:00`); return Number.isNaN(value.getTime()) ? "Date to be announced" : new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "long", year: "numeric" }).format(value); }
+function dateLabel(date: string) {
+  const value = new Date(`${date}T12:00:00`);
+  return Number.isNaN(value.getTime())
+    ? "Date to be announced"
+    : new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "long", year: "numeric" }).format(value);
+}
 
-export default async function InvitationPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function InvitationPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ g?: string }>;
+}) {
   const { slug } = await params;
+  const sp = searchParams ? await searchParams : {};
+  const guestName = sp.g ? sp.g.trim() : null;
+
+  let place = "India";
+  try {
+    const headerList = await headers();
+    const city = headerList.get("x-vercel-ip-city") || headerList.get("cf-ipcity");
+    const country = headerList.get("x-vercel-ip-country") || headerList.get("cf-ipcountry") || "India";
+    place = city ? `${city}, ${country}` : country === "IN" ? "India" : country;
+  } catch {}
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    localStore.incrementViews(slug, guestName, place);
+  } else {
+    try {
+      const { data } = await supabase.from("invitations").select("id, views").eq("slug", slug.toLowerCase()).maybeSingle();
+      if (data) {
+        await supabase.from("invitations").update({ views: (data.views || 0) + 1 }).eq("id", data.id);
+      }
+    } catch {}
+  }
+
   const invite = await getInvite(slug);
   if (!invite) notFound();
-  return <InviteClient invite={invite} slug={slug.toLowerCase()} />;
+  const wishes = await getWishes(slug, invite.id);
+  return <InviteClient invite={invite} slug={slug.toLowerCase()} initialWishes={wishes} />;
 }

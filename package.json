@@ -12,11 +12,14 @@
     "@supabase/server": "^1.9.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
+    "@types/three": "^0.186.0",
     "framer-motion": "^13.1.1",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^1.39.0",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@types/node": "^20",

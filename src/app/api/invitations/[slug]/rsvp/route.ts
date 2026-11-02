@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { localStore } from "@/lib/local-store";
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
 const WINDOW_MS = 10 * 60 * 1000;
@@ -19,22 +20,58 @@ function allowed(request: Request) {
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   if (!allowed(request)) return NextResponse.json({ error: "Too many RSVP attempts. Please try again later." }, { status: 429 });
-  const supabase = getSupabaseAdmin();
-  if (!supabase) return NextResponse.json({ error: "Supabase is not configured." }, { status: 503 });
   const { slug } = await params;
   let body: Record<string, unknown>;
-  try { body = await request.json(); } catch { return NextResponse.json({ error: "Invalid RSVP data." }, { status: 400 }); }
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid RSVP data." }, { status: 400 });
+  }
   if (JSON.stringify(body).length > 10000) return NextResponse.json({ error: "RSVP is too large." }, { status: 413 });
   if (typeof body.name !== "string" || !body.name.trim()) return NextResponse.json({ error: "Your name is required." }, { status: 400 });
   if (body.name.trim().length > 120 || String(body.message || "").length > 1000) return NextResponse.json({ error: "Please keep your RSVP shorter." }, { status: 400 });
   const guestCount = Number(body.guestCount);
   if (!Number.isInteger(guestCount) || guestCount < 1 || guestCount > 20) return NextResponse.json({ error: "Guest count must be between 1 and 20." }, { status: 400 });
-  const { data: invite, error: inviteError } = await supabase.from("invitations").select("id, expires_at").eq("slug", slug.toLowerCase()).maybeSingle();
-  if (inviteError || !invite) return NextResponse.json({ error: "Invitation not found." }, { status: 404 });
-  if (invite.expires_at && new Date(invite.expires_at).getTime() < Date.now()) return NextResponse.json({ error: "This invitation has expired." }, { status: 410 });
+
   const response = ["attending", "maybe", "declined"].includes(String(body.response)) ? String(body.response) : "attending";
   const message = typeof body.message === "string" ? body.message.trim() : "";
   const eventName = typeof body.eventName === "string" ? body.eventName.trim().slice(0, 120) : null;
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    const invite = localStore.getInvitationBySlug(slug);
+    if (!invite) return NextResponse.json({ error: "Invitation not found." }, { status: 404 });
+    localStore.saveRsvp({
+      id: crypto.randomUUID(),
+      invitation_id: invite.id,
+      name: body.name.trim(),
+      guest_count: guestCount,
+      response,
+      message,
+      event_name: eventName,
+      created_at: new Date().toISOString(),
+    });
+    return NextResponse.json({ ok: true });
+  }
+
+  const { data: invite } = await supabase.from("invitations").select("id, expires_at").eq("slug", slug.toLowerCase()).maybeSingle();
+  if (!invite) {
+    const local = localStore.getInvitationBySlug(slug);
+    if (!local) return NextResponse.json({ error: "Invitation not found." }, { status: 404 });
+    localStore.saveRsvp({
+      id: crypto.randomUUID(),
+      invitation_id: local.id,
+      name: body.name.trim(),
+      guest_count: guestCount,
+      response,
+      message,
+      event_name: eventName,
+      created_at: new Date().toISOString(),
+    });
+    return NextResponse.json({ ok: true });
+  }
+  if (invite.expires_at && new Date(invite.expires_at).getTime() < Date.now()) return NextResponse.json({ error: "This invitation has expired." }, { status: 410 });
+
   const payload: Record<string, unknown> = { invitation_id: invite.id, name: body.name.trim(), guest_count: guestCount, message, response };
   if (eventName) payload.event_name = eventName;
   let { error } = await supabase.from("rsvps").insert(payload);
