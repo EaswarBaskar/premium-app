@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arjun &amp; Meenakshi – திருமண அழைப்பிதழ்</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Arjun &amp; Meenakshi – திருமண அழைப்பிதழ்">
+<meta property="og:description" content="7 February 2027 · Chennai. Join us and bless the couple.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@400;500&amp;family=Noto+Serif+Tamil:wght@500;700&amp;display=swap">
+<style>
+:root{--bg:#fff3d9;--ink:#3a0d12;--gold:#b8861b;--k2:#7a1220;--card:#fffbef;--muted:#7a5a4a;--line:#e6cf98;--door:#6b0f1a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#25080e;--ink:#fbeccb;--gold:#e2b94a;--k2:#f3c6a5;--card:#35101a;--muted:#d9b9a0;--line:#5a2a2e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#25080e;--ink:#fbeccb;--gold:#e2b94a;--k2:#f3c6a5;--card:#35101a;--muted:#d9b9a0;--line:#5a2a2e;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html.locked{overflow:hidden}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.05rem/1.8 "Hind Madurai","Noto Sans Tamil","Latha",sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:"Noto Serif Tamil","Noto Serif",serif;font-weight:700;line-height:1.35;margin:0}
+main{max-width:520px;margin:0 auto}
+section{padding:3rem 1.5rem;text-align:center}
+p{margin:.6rem 0}
+.muted{color:var(--muted);font-size:.95rem}
+
+/* gate: temple doors */
+.gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);transition:visibility 0s 1.9s}
+.door{position:absolute;top:0;bottom:0;width:50%;background:
+radial-gradient(circle,#d9a93a 1.6px,transparent 2px) 0 0/22px 22px,linear-gradient(#7a1220,var(--door));transition:transform 1.6s cubic-bezier(.7,0,.2,1) .35s}
+.door.l{left:0;border-right:3px solid #d9a93a}
+.door.r{right:0;border-left:3px solid #d9a93a}
+.door::after{content:"";position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:#d9a93a;box-shadow:0 0 0 4px #6b0f1a,0 0 0 6px #d9a93a}
+.door.l::after{right:14px}.door.r::after{left:14px}
+.gate-c{position:relative;text-align:center;color:#fbeccb;transition:opacity .35s}
+.gate-c .om{font:700 3rem/1 "Noto Serif Tamil",serif;color:#f2c14e}
+.gate-c h2{font-size:1.35rem;margin:.6rem 0 1.4rem}
+button.open{font:500 1rem "Hind Madurai",sans-serif;color:#3a0d12;background:#f2c14e;border:0;border-radius:2rem;padding:.8rem 1.8rem;min-height:48px;cursor:pointer;box-shadow:0 0 0 4px rgba(242,193,78,.3)}
+button.open:focus-visible,a.btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.go .door.l{transform:translateX(-101%)}.go .door.r{transform:translateX(101%)}
+.go .gate-c{opacity:0}
+.go .gate{visibility:hidden;pointer-events:none}
+
+/* hero */
+.hero{padding-top:2rem;position:relative;overflow:hidden}
+.kolam{width:min(82vw,330px);height:auto;display:block;margin:0 auto}
+.kolam path,.kolam circle.ring{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 3.4s cubic-bezier(.5,0,.3,1) var(--d,0s)}
+.kolam .a{stroke:var(--gold);--d:.9s}.kolam .b{stroke:var(--k2);--d:1.7s}.kolam .ring{stroke:var(--gold);--d:.6s}
+.kolam .dot{fill:var(--gold);opacity:0;transition:opacity .5s calc(.6s + var(--i)*.28s)}
+.go .kolam path,.go .kolam circle.ring{stroke-dashoffset:0}
+.go .kolam .dot{opacity:1}
+.h{opacity:0;transform:translateY(14px);transition:opacity 1s var(--t,3s),transform 1s var(--t,3s)}
+.go .h{opacity:1;transform:none}
+.names{font-size:clamp(2rem,9.5vw,2.9rem);margin-top:1.2rem}
+.names span{display:block;font-size:1.4rem;color:var(--gold);font-weight:500}
+.date{font-weight:500;margin-top:.8rem}
+.cd{display:flex;justify-content:center;gap:.6rem;margin-top:1.4rem}
+.cd div{min-width:64px;padding:.5rem .3rem;border:1px solid var(--line);border-radius:.6rem;background:var(--card)}
+.cd b{display:block;font:700 1.5rem/1.2 "Noto Serif Tamil",serif;font-variant-numeric:tabular-nums}
+.cd small{font-size:.78rem;color:var(--muted)}
+
+/* petals */
+.petal{position:absolute;top:-24px;width:12px;height:16px;border-radius:100% 0 100% 0;background:#f59e0b;opacity:0;pointer-events:none;animation:fall var(--dur) linear var(--dl) infinite;animation-play-state:paused}
+.petal:nth-child(3n){background:#ea7a1a}.petal:nth-child(4n){background:#fcd34d}
+.go .petal{animation-play-state:running}
+@keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:.85}90%{opacity:.85}100%{transform:translate(var(--dx),620px) rotate(540deg);opacity:0}}
+
+.greet{font:700 1.25rem/1.5 "Noto Serif Tamil",serif;color:var(--k2);margin:0 0 .6rem}
+.rsvp label{display:block;text-align:left;font-size:.95rem;margin-top:.9rem}
+.rsvp input,.rsvp select{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.7rem .8rem;min-height:48px}
+.rsvp input:focus-visible,.rsvp select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.rsvp button{font:500 1rem "Hind Madurai",sans-serif;margin-top:1.3rem;width:100%;min-height:50px;border:0;border-radius:2rem;background:#1f8f4e;color:#fff;cursor:pointer}
+.rsvp button:focus-visible,.music:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.music{display:none;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);background:var(--card);color:var(--ink);font-size:1.2rem;cursor:pointer}
+.go .music{display:block}
+.lang{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:14px;z-index:60;min-height:40px;padding:0 1rem;border-radius:2rem;border:2px solid var(--gold);background:var(--card);color:var(--ink);font:500 .9rem "Hind Madurai",sans-serif;cursor:pointer}
+.lang:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+a.btn{margin-inline:.3rem}
+.theme{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:14px;z-index:60;max-width:48vw;min-height:40px;padding:0 .8rem;border-radius:2rem;border:2px solid var(--gold);background:var(--card);color:var(--ink);font:500 .85rem "Hind Madurai",sans-serif;cursor:pointer}
+.theme:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.inv{margin-bottom:1.2rem}.inv p{font:700 1.2rem "Noto Serif Tamil",serif;color:var(--gold);margin:.3rem 0 0}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.pair .card{margin:.4rem 0;padding:1rem .6rem}
+.av{width:72px;height:72px;margin:0 auto .5rem;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7a1220,#b8861b);color:#fff3d9;font:700 1.6rem "Noto Serif Tamil",serif}
+.pair h3{font-size:1rem}.pair p{font-size:.85rem;line-height:1.5;color:var(--muted);margin:.2rem 0}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.8rem}
+.gal i{display:block;aspect-ratio:3/4;border-radius:.6rem;background:radial-gradient(circle,rgba(255,243,217,.55) 1.4px,transparent 2px) 0 0/16px 16px,linear-gradient(160deg,#7a1220,#b8861b)}
+.gal i:nth-child(even){background:radial-gradient(circle,rgba(255,243,217,.55) 1.4px,transparent 2px) 0 0/16px 16px,linear-gradient(200deg,#b8861b,#7a1220)}
+#qr{display:inline-block;background:#fff;padding:10px;border-radius:.6rem;margin:.8rem 0 .4rem}
+.live .st{font-weight:500;color:var(--k2)}
+.live.on .st{color:#1f8f4e}
+/* content */
+.rule{height:14px;margin:0 auto;max-width:220px;background:radial-gradient(circle,var(--gold) 2px,transparent 2.5px) 0 50%/14px 14px repeat-x}
+.card{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.2rem 1rem;margin:.9rem 0}
+.card h3{font-size:1.15rem;color:var(--k2)}
+a.btn{display:inline-block;margin-top:1rem;padding:.7rem 1.5rem;border-radius:2rem;border:2px solid var(--gold);color:var(--ink);text-decoration:none;font-weight:500}
+footer{padding:2rem 1.5rem 3rem;text-align:center}
+
+@media (prefers-reduced-motion:reduce){
+.door,.gate-c,.h,.kolam path,.kolam circle.ring,.kolam .dot{transition-duration:.01ms!important;transition-delay:0s!important}
+.petal{display:none}}
+</style>
+<noscript><style>.gate{display:none}.kolam path,.kolam circle.ring{stroke-dashoffset:0}.kolam .dot{opacity:1}.h{opacity:1;transform:none}</style></noscript>
+</head>
+<body>
+<div class="gate" id="gate" aria-label="Invitation">
+  <div class="door l"></div><div class="door r"></div>
+  <div class="gate-c">
+    <div class="om">உ</div>
+    <h2>திருமண அழைப்பிதழ்</h2>
+    <p id="gg" style="color:#fbeccb;margin:-.6rem 1rem 1.2rem" hidden></p>
+    <button class="open" id="openBtn" type="button">திறக்க தொடவும்</button>
+  </div>
+</div>
+
+<select class="theme" id="theme" aria-label="Theme"><option value="hindu">Traditional</option><option value="christian">Christian</option><option value="muslim">Muslim</option><option value="chettinad">Chettinad</option></select>
+<button class="lang" id="lang" type="button">English</button>
+<main>
+  <section class="hero">
+    <div id="petals" aria-hidden="true"></div>
+    <div class="kolam" id="kolam" aria-hidden="true"></div>
+    <h1 class="names h" style="--t:3.2s">சிரஞ்சீவி அர்ஜுன்<span>&amp;</span>சௌபாக்யவதி மீனாட்சி</h1>
+    <p class="date h" style="--t:3.6s">7 பிப்ரவரி 2027, ஞாயிறு · காலை 7:30 முகூர்த்தம்</p>
+    <div class="cd h" style="--t:4s" id="cd" aria-label="Countdown">
+      <div><b id="d">–</b><small>நாட்கள்</small></div>
+      <div><b id="hh">–</b><small>மணி</small></div>
+      <div><b id="m">–</b><small>நிமிடம்</small></div>
+      <div><b id="s">–</b><small>வினாடி</small></div>
+    </div>
+  </section>
+
+  <div class="rule" aria-hidden="true"></div>
+
+  <section>
+    <div class="inv"><svg width="34" height="44" viewBox="0 0 34 44" aria-hidden="true"><path d="M17 2c5 7 7 11 0 17-7-6-5-10 0-17z" fill="#f2b632"/><path d="M5 24h24l-4 6H9zM14 30h6v8h-6zM8 38h18v4H8z" fill="#b8861b"/></svg><p>ஸ்ரீ கணபதி துணை</p></div>
+    <p class="greet" id="greet" hidden></p>
+    <h2>அன்புடையீர், வணக்கம்</h2>
+    <p>எங்கள் இல்லத்தில் நடைபெறும் திருமண விழாவில் குடும்பத்துடன் கலந்து கொண்டு, மணமக்களை வாழ்த்தி ஆசீர்வதிக்க அன்புடன் அழைக்கிறோம்.</p>
+  </section>
+
+  <section style="padding-top:0">
+    <h2>மணமக்கள்</h2>
+    <div class="pair">
+      <div class="card"><div class="av">அ</div><h3>சிரஞ்சீவி அர்ஜுன்</h3><p>மணமகன்</p><p>திரு. கணேசன் – திருமதி. லக்ஷ்மி அவர்களின் மகன்</p></div>
+      <div class="card"><div class="av">மீ</div><h3>சௌபாக்யவதி மீனாட்சி</h3><p>மணமகள்</p><p>திரு. சுப்பிரமணியம் – திருமதி. வள்ளி அவர்களின் மகள்</p></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <h2>புகைப்படங்கள்</h2>
+    <div class="gal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="muted">மாதிரி படங்கள் – உண்மையான புகைப்படங்கள் இங்கே வரும்</p>
+  </section>
+
+  <section style="padding-top:0">
+    <h2>நிகழ்ச்சி நிரல்</h2>
+    <div class="card"><h3>வரவேற்பு</h3><p>6 பிப்ரவரி, சனி · மாலை 6:30</p></div>
+    <div class="card"><h3>முகூர்த்தம்</h3><p>7 பிப்ரவரி, ஞாயிறு · காலை 7:30 – 9:00</p></div>
+    <div class="card"><h3>திருமண விருந்து</h3><p>7 பிப்ரவரி · காலை 9:30 முதல்</p></div>
+  </section>
+
+  <section style="padding-top:0">
+    <h2>திருமண மண்டபம்</h2>
+    <p>ஸ்ரீ கணேஷ் மஹால், சென்னை</p>
+    <p class="muted">மாதிரி முகவரி – உண்மையான விவரங்கள் இங்கே வரும்</p>
+    <p class="muted">வாகன நிறுத்தம் மண்டப வளாகத்தில் உண்டு. அருகில் தங்கும் விடுதிகள் உள்ளன.</p>
+    <a class="btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Arjun%20%26%20Meenakshi%20Wedding&amp;dates=20270207T020000Z%2F20270207T033000Z&amp;location=Sri%20Ganesh%20Mahal%2C%20Chennai" target="_blank" rel="noopener">நாட்காட்டியில் சேர்</a>
+    <a class="btn" href="https://maps.google.com" target="_blank" rel="noopener">வழி காட்டு</a>
+  </section>
+  <section class="live" id="live" style="padding-top:0">
+    <h2>நேரலை</h2>
+    <p class="muted">வெளியூரில் உள்ளவர்களும் நேரலையில் கலந்து கொள்ளலாம்</p>
+    <p class="st" id="lst"></p>
+    <a class="btn" href="https://www.youtube.com" target="_blank" rel="noopener">நேரலை காண</a>
+  </section>
+
+  <section class="rsvp" style="padding-top:0">
+    <h2>வருகை உறுதி</h2>
+    <p class="muted">உங்கள் வருகையை WhatsApp-இல் தெரிவியுங்கள்</p>
+    <label for="gname">உங்கள் பெயர்</label>
+    <input id="gname" type="text" autocomplete="name">
+    <label for="gcount">வருபவர்கள் எண்ணிக்கை</label>
+    <select id="gcount"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <button id="rsvpBtn" type="button">WhatsApp-இல் தெரிவிக்க</button>
+  </section>
+</main>
+<button class="music" id="music" type="button" aria-label="இசை இயக்கு / நிறுத்து" aria-pressed="false">♪</button>
+
+<footer>
+  <p>அன்புடன் அழைப்போர்: ராமன் குடும்பத்தினர் · சேகர் குடும்பத்தினர் · பாக்யா குடும்பத்தினர்</p>
+  <h2>இந்த அழைப்பை பகிருங்கள்</h2>
+  <div id="qr" aria-label="QR code"></div><br>
+  <a class="btn" id="share" href="https://wa.me/" target="_blank" rel="noopener">WhatsApp-இல் பகிர</a>
+  <div class="rule" aria-hidden="true"></div>
+  <p>தங்கள் வருகையை விரும்பும்<br><b>திரு. கணேசன் – திருமதி. லக்ஷ்மி குடும்பத்தினர்</b></p>
+  <p class="muted">மாதிரி வடிவமைப்பு · Sample demo</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+var root=document.documentElement;
+root.classList.add('locked');
+
+// Kolam: rose curve + hypotrochoid + ring + pulli dots, all stroke-drawn
+function pts(n,f){var o=[];for(var i=0;i<=n;i++)o.push(f(i/n).map(function(v){return v.toFixed(1)}).join(' '));return 'M'+o.join('L')}
+var rose=pts(720,function(u){var t=u*2*Math.PI,r=96*Math.cos(4*t);return[r*Math.cos(t),r*Math.sin(t)]});
+var hypo=pts(900,function(u){var t=u*6*Math.PI,k=70/9;return[k*(5*Math.cos(t)+4*Math.cos(5*t/3)),k*(5*Math.sin(t)-4*Math.sin(5*t/3))]});
+var dots='';
+for(var i=0;i<8;i++){var a=i*Math.PI/4;dots+='<circle class="dot" style="--i:'+i+'" cx="'+(118*Math.cos(a)).toFixed(1)+'" cy="'+(118*Math.sin(a)).toFixed(1)+'" r="3"/>'}
+dots+='<circle class="dot" style="--i:8" cx="0" cy="0" r="3.4"/>';
+document.getElementById('kolam').innerHTML='<svg viewBox="-128 -128 256 256" width="100%" role="img" aria-label="Kolam"><circle class="ring" r="106" pathLength="1"/><path class="a" pathLength="1" d="'+rose+'"/><path class="b" pathLength="1" d="'+hypo+'"/>'+dots+'</svg>';
+
+// Petals: few, light
+var P=document.getElementById('petals'),h='';
+for(var j=0;j<14;j++){h+='<i class="petal" style="left:'+(Math.random()*96).toFixed(0)+'%;--dur:'+(7+Math.random()*6).toFixed(1)+'s;--dl:'+(3+Math.random()*8).toFixed(1)+'s;--dx:'+(Math.round(Math.random()*80-40))+'px"></i>'}
+P.innerHTML=h;
+
+// Open gate on tap
+document.getElementById('openBtn').addEventListener('click',function(){
+ root.classList.add('go');toggleMusic(true);
+ setTimeout(function(){root.classList.remove('locked');document.getElementById('gate').style.display='none'},2000);
+});
+
+// Countdown
+var T=new Date('2027-02-07T07:30:00+05:30').getTime();
+function pad(n){return n<10?'0'+n:''+n}
+function tick(){var d=Math.max(0,T-Date.now()),s=Math.floor(d/1000);
+ document.getElementById('d').textContent=Math.floor(s/86400);
+ document.getElementById('hh').textContent=pad(Math.floor(s%86400/3600));
+ document.getElementById('m').textContent=pad(Math.floor(s%3600/60));
+ document.getElementById('s').textContent=pad(s%60)}
+tick();setInterval(tick,1000);
+
+// Personalised greeting: open the page as /#ramesh-mama (add each guest family here)
+var GUESTS={'ramesh-mama':'ரமேஷ் மாமா','lakshmi-athai':'லக்ஷ்மி அத்தை','sundar-anna':'சுந்தர் அண்ணா'};
+function greet(){var k=location.hash.slice(1).toLowerCase(),on=Object.prototype.hasOwnProperty.call(GUESTS,k),t=on?'அன்புள்ள '+GUESTS[k]+' குடும்பத்தினருக்கு':'';
+ [['greet'],['gg']].forEach(function(a){var e=document.getElementById(a[0]);e.textContent=t;e.hidden=!on});
+ if(on)document.getElementById('gname').value=GUESTS[k]}
+greet();addEventListener('hashchange',greet);
+
+// RSVP via WhatsApp (replace with the family’s number)
+var WA='919999999999';
+document.getElementById('rsvpBtn').addEventListener('click',function(){
+ var n=document.getElementById('gname'),c=document.getElementById('gcount').value;
+ if(!n.value.trim()){n.focus();return}
+ var t='வணக்கம்! '+n.value.trim()+' குடும்பத்தினர் ('+c+' பேர்) திருமண விழாவில் கலந்து கொள்கிறோம்.';
+ window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(lang=='en'?'Hello! '+n.value.trim()+' and family ('+c+' guests) will attend the wedding.':t),'_blank','noopener')});
+
+// Music: synthesised nadaswaram-style placeholder (Mohanam scale) - swap for a real recording later
+var ac,playing=false,tm,idx=0,dr,B=293.66,RT=[1,9/8,5/4,3/2,5/3,2],SQ=[0,1,2,3,2,1,0,2,3,4,5,4,3,2,1,2,3,2,1,0];
+function note(){var t=ac.currentTime,o=ac.createOscillator(),f=ac.createBiquadFilter(),g=ac.createGain(),v=ac.createOscillator(),vg=ac.createGain();
+ o.type='sawtooth';o.frequency.value=B*RT[SQ[idx%SQ.length]];v.frequency.value=5.5;vg.gain.value=4;v.connect(vg);vg.connect(o.frequency);
+ f.type='bandpass';f.frequency.value=1500;f.Q.value=3;
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+.62);
+ o.connect(f);f.connect(g);g.connect(ac.destination);o.start(t);v.start(t);o.stop(t+.65);v.stop(t+.65);
+ idx++;tm=setTimeout(note,idx%7?480:900)}
+function toggleMusic(on){var b=document.getElementById('music');
+ try{if(on&&!playing){ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();
+  dr=ac.createOscillator();var dg=ac.createGain();dr.type='triangle';dr.frequency.value=B/2;dg.gain.value=.05;dr.connect(dg);dg.connect(ac.destination);dr.start();note();playing=true}
+ else if(!on&&playing){clearTimeout(tm);dr.stop();playing=false}}catch(e){playing=false}
+ b.textContent=playing?'❚❚':'♪';b.setAttribute('aria-pressed',playing)}
+document.getElementById('music').addEventListener('click',function(){toggleMusic(!playing)});
+
+// Language toggle: swaps each Tamil text for its English pair
+var lang='ta',GEN={'ramesh-mama':'Ramesh Mama','lakshmi-athai':'Lakshmi Athai','sundar-anna':'Sundar Anna'};
+var EN={'திருமண அழைப்பிதழ்':'Wedding Invitation','திறக்க தொடவும்':'Tap to open','சிரஞ்சீவி அர்ஜுன்':'Arjun','சௌபாக்யவதி மீனாட்சி':'Meenakshi','7 பிப்ரவரி 2027, ஞாயிறு · காலை 7:30 முகூர்த்தம்':'Sunday, 7 February 2027 · Muhurtham 7:30 AM','நாட்கள்':'Days','மணி':'Hours','நிமிடம்':'Minutes','வினாடி':'Seconds','அன்புடையீர், வணக்கம்':'Dear family and friends','எங்கள் இல்லத்தில் நடைபெறும் திருமண விழாவில் குடும்பத்துடன் கலந்து கொண்டு, மணமக்களை வாழ்த்தி ஆசீர்வதிக்க அன்புடன் அழைக்கிறோம்.':'With joy, we invite you and your family to our wedding. Please join us and bless the couple.','நிகழ்ச்சி நிரல்':'Schedule','வரவேற்பு':'Reception','6 பிப்ரவரி, சனி · மாலை 6:30':'Saturday, 6 February · 6:30 PM','முகூர்த்தம்':'Muhurtham','7 பிப்ரவரி, ஞாயிறு · காலை 7:30 – 9:00':'Sunday, 7 February · 7:30 – 9:00 AM','திருமண விருந்து':'Wedding feast','7 பிப்ரவரி · காலை 9:30 முதல்':'7 February · from 9:30 AM','திருமண மண்டபம்':'Venue','ஸ்ரீ கணேஷ் மஹால், சென்னை':'Sri Ganesh Mahal, Chennai','மாதிரி முகவரி – உண்மையான விவரங்கள் இங்கே வரும்':'Sample address – real details go here','நாட்காட்டியில் சேர்':'Add to calendar','வழி காட்டு':'Get directions','நேரலை':'Live stream','வெளியூரில் உள்ளவர்களும் நேரலையில் கலந்து கொள்ளலாம்':'Join from anywhere in the world','நேரலை காண':'Watch live','வருகை உறுதி':'RSVP','உங்கள் வருகையை WhatsApp-இல் தெரிவியுங்கள்':'Confirm your attendance on WhatsApp','உங்கள் பெயர்':'Your name','வருபவர்கள் எண்ணிக்கை':'Number of guests','WhatsApp-இல் தெரிவிக்க':'Send on WhatsApp','தங்கள் வருகையை விரும்பும்':'With best compliments from','திரு. கணேசன் – திருமதி. லக்ஷ்மி குடும்பத்தினர்':'Mr. Ganesan & Mrs. Lakshmi and family','மாதிரி வடிவமைப்பு · Sample demo':'Sample demo'};
+function walk(en){var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n,L=[];while(n=w.nextNode())L.push(n);
+ L.forEach(function(n){var p=n.parentNode.nodeName;if(p=='SCRIPT'||p=='STYLE'||p=='NOSCRIPT')return;
+  if(en){var k=n.nodeValue.trim();if(Object.prototype.hasOwnProperty.call(EN,k)){n._ta=k;n.nodeValue=n.nodeValue.replace(k,EN[k])}}
+  else if(n._ta){n.nodeValue=n.nodeValue.replace(EN[n._ta],n._ta);n._ta=0}})}
+function greet(){var k=location.hash.slice(1).toLowerCase(),on=Object.prototype.hasOwnProperty.call(GUESTS,k),en=lang=='en',t=on?(en?'Dear '+GEN[k]+' and family':'அன்புள்ள '+GUESTS[k]+' குடும்பத்தினருக்கு'):'';
+ ['greet','gg'].forEach(function(i){var e=document.getElementById(i);e.textContent=t;e.hidden=!on});
+ if(on)document.getElementById('gname').value=en?GEN[k]:GUESTS[k]}
+
+// Live stream status: before, during, after (replace the YouTube link per client)
+var LS=new Date('2027-02-07T07:00:00+05:30').getTime(),LE=LS+3*3600000;
+function live(){var n=Date.now(),on=n>=LS&&n<LE,en=lang=='en';
+ document.getElementById('live').classList.toggle('on',on);
+ document.getElementById('lst').textContent=n<LS?(en?'Live starts on 7 February, 7:00 AM':'நேரலை 7 பிப்ரவரி, காலை 7:00 மணிக்கு'):on?(en?'Live now':'நேரலை இப்போது'):(en?'The recording will be shared soon':'பதிவு விரைவில் பகிரப்படும்')}
+var lb=document.getElementById('lang');
+lb.addEventListener('click',function(){lang=lang=='ta'?'en':'ta';walk(lang=='en');root.lang=lang;lb.textContent=lang=='en'?'தமிழ்':'English';greet();live()});
+live();setInterval(live,30000);
+
+// New sections: English pairs, QR code for the printed card, WhatsApp share
+Object.assign(EN,{'ஸ்ரீ கணபதி துணை':'With Lord Ganesha’s blessings','மணமக்கள்':'The couple','மணமகன்':'Groom','மணமகள்':'Bride','திரு. கணேசன் – திருமதி. லக்ஷ்மி அவர்களின் மகன்':'Son of Mr. Ganesan and Mrs. Lakshmi','திரு. சுப்பிரமணியம் – திருமதி. வள்ளி அவர்களின் மகள்':'Daughter of Mr. Subramaniam and Mrs. Valli','புகைப்படங்கள்':'Photos','மாதிரி படங்கள் – உண்மையான புகைப்படங்கள் இங்கே வரும்':'Sample tiles – real photos go here','வாகன நிறுத்தம் மண்டப வளாகத்தில் உண்டு. அருகில் தங்கும் விடுதிகள் உள்ளன.':'Parking is available at the hall. Hotels are nearby.','இந்த அழைப்பை பகிருங்கள்':'Share this invitation','WhatsApp-இல் பகிர':'Share on WhatsApp','அன்புடன் அழைப்போர்: ராமன் குடும்பத்தினர் · சேகர் குடும்பத்தினர் · பாக்யா குடும்பத்தினர்':'With love from: Raman family · Sekar family · Bhagya family'});
+var base=location.href.split('#')[0];
+try{new QRCode(document.getElementById('qr'),{text:base,width:132,height:132,colorDark:'#3a0d12',colorLight:'#ffffff'})}catch(e){}
+function setShare(){var en=lang=='en',t=en?'Wedding invitation of Arjun & Meenakshi: ':'அர்ஜுன் & மீனாட்சி திருமண அழைப்பிதழ்: ';document.getElementById('share').href='https://wa.me/?text='+encodeURIComponent(t+base)}
+setShare();lb.addEventListener('click',setShare);
+
+// Themes: palette, motif, wording and music per community (wording is a draft; get each one checked by someone from that community)
+var DL='7 பிப்ரவரி 2027, ஞாயிறு · காலை 7:30 ';
+var THEMES={
+ hindu:{k2:['#7a1220','#f3c6a5'],g:['#b8861b','#e2b94a'],da:'#7a1220',db:'#6b0f1a',mot:'kolam',music:1,t:{},en:{}},
+ christian:{k2:['#1f3a6e','#bcd0f5'],g:['#a8801a','#e2c46a'],da:'#1f3a6e',db:'#142a52',mot:'cross',music:0,
+  t:{'ஸ்ரீ கணபதி துணை':'இறைவனின் ஆசீர்வாதத்துடன்','அன்புடையீர், வணக்கம்':'கர்த்தருக்குள் அன்புடையீர்','முகூர்த்தம்':'திருமண ஆராதனை','திருமண மண்டபம்':'ஆலயம்','ஸ்ரீ கணேஷ் மஹால், சென்னை':'கிறிஸ்து ஆலயம், சென்னை',[DL+'முகூர்த்தம்']:DL+'திருமண ஆராதனை','சிரஞ்சீவி அர்ஜுன்':'ஜோசுவா','சௌபாக்யவதி மீனாட்சி':'ரூத்','அ':'ஜோ','மீ':'ரூ'},
+  en:{'இறைவனின் ஆசீர்வாதத்துடன்':'With God’s blessing','கர்த்தருக்குள் அன்புடையீர்':'Beloved in the Lord','திருமண ஆராதனை':'Wedding service','ஆலயம்':'Church','கிறிஸ்து ஆலயம், சென்னை':'Christ Church, Chennai',[DL+'திருமண ஆராதனை']:'Sunday, 7 February 2027 · Wedding service 7:30 AM','ஜோசுவா':'Joshua','ரூத்':'Ruth'}},
+ muslim:{k2:['#0f5c4a','#9fe0c8'],g:['#a8801a','#e2c46a'],da:'#0f5c4a',db:'#0a4638',mot:'star',music:0,
+  t:{'ஸ்ரீ கணபதி துணை':'அல்லாஹ்வின் திருப்பெயரால்','அன்புடையீர், வணக்கம்':'அஸ்ஸலாமு அலைக்கும்','முகூர்த்தம்':'நிக்காஹ்','திருமண விருந்து':'வலிமா விருந்து','ஸ்ரீ கணேஷ் மஹால், சென்னை':'அல் அமீன் மஹால், சென்னை',[DL+'முகூர்த்தம்']:DL+'நிக்காஹ்','சிரஞ்சீவி அர்ஜுன்':'முஹம்மது ஆரிஃப்','சௌபாக்யவதி மீனாட்சி':'ஆயிஷா பானு','அ':'மு','மீ':'ஆ'},
+  en:{'அல்லாஹ்வின் திருப்பெயரால்':'In the name of Allah','அஸ்ஸலாமு அலைக்கும்':'Assalamu alaikum','நிக்காஹ்':'Nikah','வலிமா விருந்து':'Walima feast','அல் அமீன் மஹால், சென்னை':'Al Ameen Mahal, Chennai',[DL+'நிக்காஹ்']:'Sunday, 7 February 2027 · Nikah 7:30 AM','முஹம்மது ஆரிஃப்':'Muhammad Arif','ஆயிஷா பானு':'Ayesha Banu'}},
+ chettinad:{k2:['#9c3a1a','#f3b79c'],g:['#b8861b','#e2b94a'],da:'#9c3a1a',db:'#7c2d12',mot:'tile',music:1,
+  t:{'ஸ்ரீ கணபதி துணை':'பிள்ளையார் துணை','ஸ்ரீ கணேஷ் மஹால், சென்னை':'நகரத்தார் மண்டபம், காரைக்குடி','சிரஞ்சீவி அர்ஜுன்':'சிரஞ்சீவி முத்தையா','சௌபாக்யவதி மீனாட்சி':'சௌபாக்யவதி மீனாட்சி ஆச்சி','அ':'மு'},
+  en:{'பிள்ளையார் துணை':'With Lord Pillaiyar’s blessings','நகரத்தார் மண்டபம், காரைக்குடி':'Nagarathar Mandapam, Karaikudi','சிரஞ்சீவி முத்தையா':'Muthiah','சௌபாக்யவதி மீனாட்சி ஆச்சி':'Meenakshi Aachi'}}};
+var BK={};Object.keys(THEMES).forEach(function(k){Object.assign(EN,THEMES[k].en);Object.keys(THEMES[k].t).forEach(function(b){BK[b]=1})});
+
+function S(x){return '<svg viewBox="-128 -128 256 256" width="100%" role="img" aria-label="Motif">'+x+'</svg>'}
+function PA(c,d){return '<path class="'+c+'" pathLength="1" d="'+d+'"/>'}
+function CI(r,alt){return '<circle class="ring" r="'+r+'" pathLength="1"'+(alt?' style="stroke:var(--k2)"':'')+'/>'}
+function SQ(h,rot){var o=[];for(var i=0;i<4;i++){var a=rot+i*Math.PI/2+Math.PI/4;o.push((h*Math.SQRT2*Math.cos(a)).toFixed(1)+' '+(h*Math.SQRT2*Math.sin(a)).toFixed(1))}return 'M'+o.join('L')+'Z'}
+var MOT={
+ kolam:function(){return S(CI(106)+PA('a',rose)+PA('b',hypo)+dots)},
+ cross:function(){var d='';[[-84,-84],[84,-84],[-84,84],[84,84]].forEach(function(p,i){d+='<circle class="dot" style="--i:'+i+'" cx="'+p[0]+'" cy="'+p[1]+'" r="3.4"/>'});return S(CI(118)+CI(100,1)+PA('a','M-12 -76H12V-12H76V12H12V76H-12V12H-76V-12H-12Z')+d)},
+ star:function(){return S(CI(122)+PA('a',SQ(80,0))+PA('a',SQ(80,Math.PI/4))+PA('b',SQ(40,0))+PA('b',SQ(40,Math.PI/4))+CI(22,1))},
+ tile:function(){return S(CI(120)+PA('a',SQ(100,0))+PA('a',SQ(100,Math.PI/4))+PA('b',pts(480,function(u){var t=u*2*Math.PI,r=64*Math.cos(6*t);return[r*Math.cos(t),r*Math.sin(t)]}))+CI(24,1))}};
+
+var tst=document.createElement('style');document.head.appendChild(tst);
+var MUS=1,_tm=toggleMusic;toggleMusic=function(on){_tm(MUS?on:false)};
+function applyTheme(id){var Th=THEMES[id],en=lang=='en',d=root.dataset.theme?root.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches,i=d?1:0;
+ if(en)walk(false);
+ var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n,L=[];while(n=w.nextNode())L.push(n);
+ L.forEach(function(n){var p=n.parentNode.nodeName;if(p=='SCRIPT'||p=='STYLE'||p=='NOSCRIPT')return;var k=n.nodeValue.trim();
+  if(n._b===undefined&&BK[k])n._b=k;
+  if(n._b!==undefined){n.nodeValue=n.nodeValue.replace(k,Th.t[n._b]||n._b)}});
+ root.style.setProperty('--k2',Th.k2[i]);root.style.setProperty('--gold',Th.g[i]);
+ var rg='radial-gradient(circle,rgba(255,243,217,.55) 1.4px,transparent 2px) 0 0/16px 16px,';
+ tst.textContent='.door{background:radial-gradient(circle,#d9a93a 1.6px,transparent 2px) 0 0/22px 22px,linear-gradient('+Th.da+','+Th.db+')}.av{background:linear-gradient(135deg,'+Th.da+','+Th.g[0]+')}.gal i{background:'+rg+'linear-gradient(160deg,'+Th.da+','+Th.g[0]+')}.gal i:nth-child(even){background:'+rg+'linear-gradient(200deg,'+Th.g[0]+','+Th.da+')}';
+ document.getElementById('kolam').innerHTML=MOT[Th.mot]();
+ MUS=Th.music;if(!MUS)toggleMusic(false);document.getElementById('music').style.display=MUS?'':'none';
+ if(en)walk(true)}
+document.getElementById('theme').addEventListener('change',function(){applyTheme(this.value)});
+})();
+</script>
+</body>
+</html>

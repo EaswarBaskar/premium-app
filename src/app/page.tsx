@@ -73,6 +73,8 @@ const templateDescriptions: Record<string, string> = {
   "Royal Indian": "Rich, regal & unforgettable",
   "Modern Ivory": "Quiet, minimal & refined",
   "Garden Floral": "Fresh, botanical & romantic",
+  "Tamil Heritage": "Kolam, ivory & temple gold",
+  "Temple Kalyanam": "Deep maroon & festive gold",
   "Fun & Bright": "Joyful, energetic & vivid",
   "Midnight Luxe": "Dark, sleek & mysterious",
   "Minimal Joy": "Soft, modern & understated",
@@ -200,7 +202,7 @@ export default function Home() {
     if (!response.ok) { setPublishError(result.error || "Could not upload the photo."); return; }
     setForm((current) => ({ ...current, coverPhotoUrl: result.url, galleryUrls: [...current.galleryUrls, result.url] }));
   }
-  const templates = form.eventType === "Birthday" ? ["Fun & Bright", "Midnight Luxe", "Minimal Joy"] : ["Elegant Gold", "Royal Indian", "Modern Ivory", "Garden Floral"];
+  const templates = form.eventType === "Birthday" ? ["Fun & Bright", "Midnight Luxe", "Minimal Joy"] : ["Elegant Gold", "Royal Indian", "Modern Ivory", "Garden Floral", "Tamil Heritage", "Temple Kalyanam"];
   const generatedSlug = useMemo(() => invitationSlug(form.firstName, form.secondName), [form.firstName, form.secondName]);
   const slug = publishedSlug || generatedSlug;
   const activeSlug = slug;

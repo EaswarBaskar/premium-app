@@ -10,6 +10,9 @@ import { motion } from "framer-motion";
 import styles from "./invite.module.css";
 import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
 import EnvelopeOpening from "@/components/EnvelopeOpening";
+import MobileQuickDock from "@/components/MobileQuickDock";
+import ShagunModal from "@/components/ShagunModal";
+import LuxuryTimeline from "@/components/LuxuryTimeline";
 
 export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; shagunUpi?: string; registryUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number> };
 export type InviteEvent = { name: string; date: string; time: string; venue: string; address?: string };
@@ -22,6 +25,8 @@ function themeName(template = "Elegant Gold") {
     royalindian: "royalIndian",
     modernivory: "modernIvory",
     gardenfloral: "gardenFloral",
+    tamilheritage: "tamilHeritage",
+    templekalyanam: "templeKalyanam",
     funbright: "funBright",
     midnightluxe: "midnightLuxe",
     minimaljoy: "minimalJoy",
@@ -101,6 +106,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   const [wishes, setWishes] = useState<Wish[]>(initialWishes);
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [showContactHost, setShowContactHost] = useState(false);
+  const [showShagunModal, setShowShagunModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [showRsvpHint, setShowRsvpHint] = useState(false);
@@ -338,7 +344,17 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
             </div>
       </div>
     </section>
-    {events.length > 1 && <section className={styles.eventTimeline}><div className={styles.kicker}>THE CELEBRATION</div>{events.map((event) => <article key={`${event.name}-${event.date}`}><strong>{event.name}</strong><span>{dateLabel(event.date)} · {timeLabel(event.time)}</span><small>{event.venue}{event.address ? ` · ${event.address}` : ""}</small><button type="button" onClick={() => { setRsvp((current) => ({ ...current, eventName: event.name })); setShowRsvp(true); }}>RSVP for {event.name}</button></article>)}</section>}
+    {events.length > 0 && (
+      <LuxuryTimeline
+        events={events}
+        displayName={displayName}
+        onRsvpEvent={(name) => {
+          setRsvp((current) => ({ ...current, eventName: name }));
+          setShowRsvp(true);
+        }}
+        globalDressCode={invite.dressCode}
+      />
+    )}
     {invite.galleryUrls?.length ? (
       <section className={styles.gallery}>
         <div className={styles.galleryTitle}>
@@ -378,6 +394,14 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
                 <span className={styles.upiLabel}>UPI ID:</span>
                 <code className={styles.upiCode}>{invite.shagunUpi}</code>
                 <div className={styles.upiButtons}>
+                  <button
+                    type="button"
+                    onClick={() => setShowShagunModal(true)}
+                    className={styles.payUpiBtn}
+                    style={{ cursor: "pointer", border: 0 }}
+                  >
+                    <Gift size={13} /> Open Digital Shagun Box ✨
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
@@ -753,6 +777,29 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
           </span>
         )}
       </button>
+    )}
+    <MobileQuickDock
+      enabled={!showCover}
+      hasRsvpd={sent}
+      mapsUrl={invite.maps || "https://maps.google.com"}
+      onRsvpClick={() => {
+        setShowRsvp(true);
+        setShowRsvpHint(false);
+        setHintDismissed(true);
+      }}
+      onCalendarClick={addToCalendar}
+      hasShagun={Boolean(invite.shagunUpi)}
+      onShagunClick={() => setShowShagunModal(true)}
+    />
+
+    {invite.shagunUpi && (
+      <ShagunModal
+        isOpen={showShagunModal}
+        onClose={() => setShowShagunModal(false)}
+        upiId={invite.shagunUpi}
+        displayName={displayName}
+        registryUrl={invite.registryUrl}
+      />
     )}
   </main>;
 }

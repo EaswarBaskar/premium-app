@@ -1,3 +1,11 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+/** Combines Tailwind utility classes without conflicting declarations. */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export const EVENTS = {
   engagement: {
     date: new Date('2026-10-30T10:00:00'),

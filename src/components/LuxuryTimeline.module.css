@@ -1,0 +1,268 @@
+.timelineSection {
+  width: min(820px, 100%);
+  position: relative;
+  z-index: 1;
+  margin: 36px auto;
+  padding: 0 16px;
+}
+
+.timelineHeader {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.timelineKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent, #b4945b);
+  background: color-mix(in srgb, var(--accent, #d4b77d) 15%, transparent);
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.timelineHeader h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 400;
+  color: var(--ink, #263b33);
+  margin: 0 0 6px;
+}
+
+.timelineHeader p {
+  color: #746f68;
+  font-size: 14px;
+}
+
+/* Vertical Timeline Track */
+.timelineTrack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-left: 28px;
+}
+
+/* The vertical connecting gold thread */
+.timelineTrack::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 18px;
+  bottom: 24px;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent, #d4b77d) 20%, transparent),
+    var(--accent, #d4b77d) 30%,
+    var(--accent, #d4b77d) 80%,
+    color-mix(in srgb, var(--accent, #d4b77d) 20%, transparent)
+  );
+}
+
+.timelineCard {
+  position: relative;
+  background: var(--info-bg, #fffdf9);
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 35%, transparent);
+  border-radius: 20px;
+  padding: 24px 26px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.timelineCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent, #d4b77d);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.08);
+}
+
+/* Timeline Node on the vertical line */
+.nodeMarker {
+  position: absolute;
+  left: -29px;
+  top: 24px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--story-bg, #263b33);
+  border: 2px solid var(--accent, #d4b77d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 4px var(--invite-bg, #f1eee8);
+  z-index: 2;
+}
+
+.nodeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #d4b77d);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ceremonyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink, #263b33);
+}
+
+.ceremonyIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.timePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--story-bg, #263b33);
+  background: color-mix(in srgb, var(--accent, #d4b77d) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 40%, transparent);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.cardDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #ebe5da;
+}
+
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.detailItem svg {
+  color: var(--accent, #b4945b);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.detailText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8c857a;
+}
+
+.detailValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink, #263b33);
+  line-height: 1.4;
+}
+
+.detailSub {
+  font-size: 12px;
+  color: #746f68;
+}
+
+/* Dress code chip */
+.dressCodeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #695e52;
+  background: color-mix(in srgb, var(--panel-bg, #f5f1e9) 80%, transparent);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px dashed color-mix(in srgb, var(--accent, #d4b77d) 40%, transparent);
+}
+
+.dressCodeRow strong {
+  color: var(--ink, #263b33);
+  font-weight: 600;
+}
+
+/* Action buttons on card */
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid #d9d0c5;
+  background: #ffffff;
+  color: var(--ink, #263b33);
+}
+
+.actionBtn:hover {
+  border-color: var(--accent, #d4b77d);
+  color: var(--accent, #d4b77d);
+  background: color-mix(in srgb, var(--accent, #d4b77d) 8%, #ffffff);
+}
+
+.primaryActionBtn {
+  background: var(--story-bg, #263b33);
+  color: #ffffff;
+  border-color: var(--story-bg, #263b33);
+  font-weight: 600;
+}
+
+.primaryActionBtn:hover {
+  background: color-mix(in srgb, var(--story-bg, #263b33) 85%, #ffffff);
+  border-color: var(--story-bg, #263b33);
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .timelineTrack {
+    padding-left: 20px;
+  }
+  .nodeMarker {
+    left: -21px;
+    width: 16px;
+    height: 16px;
+  }
+  .cardDetails {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .timelineCard {
+    padding: 18px 16px;
+  }
+}
+

@@ -1,0 +1,366 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 19, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modalCard {
+  background: var(--info-bg, #fffdfa);
+  color: var(--ink, #263b33);
+  width: min(480px, 100%);
+  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 45%, transparent);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  padding: 32px 28px;
+}
+
+.modalGlow {
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent, #d4b77d) 30%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel-bg, #f5f1e9) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink, #263b33) 15%, transparent);
+  color: var(--ink, #263b33);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.closeBtn:hover {
+  background: var(--story-bg, #263b33);
+  color: #ffffff;
+}
+
+.modalHeader {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent, #b4945b);
+  background: color-mix(in srgb, var(--accent, #d4b77d) 15%, transparent);
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.modalHeader h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ink, #263b33);
+  margin: 0 0 6px;
+}
+
+.modalHeader p {
+  font-size: 13px;
+  color: #746f68;
+  line-height: 1.5;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+/* Auspicious Amount Chips */
+.chipSection {
+  margin: 20px 0 16px;
+}
+
+.chipSectionLabel {
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #8c857a;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.chipsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.amountChip {
+  background: var(--panel-bg, #f5f1e9);
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 30%, transparent);
+  border-radius: 12px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.amountChip:hover {
+  border-color: var(--accent, #d4b77d);
+  background: #ffffff;
+}
+
+.amountChipActive {
+  background: var(--story-bg, #263b33);
+  border-color: var(--accent, #d4b77d);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent, #d4b77d) 35%, transparent);
+}
+
+.chipValue {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink, #263b33);
+}
+
+.amountChipActive .chipValue {
+  color: #ffffff;
+}
+
+.chipTag {
+  font-size: 9px;
+  color: #8c857a;
+  letter-spacing: 0.2px;
+}
+
+.amountChipActive .chipTag {
+  color: var(--accent, #d4b77d);
+}
+
+.customAmountBox {
+  margin-top: 10px;
+  position: relative;
+}
+
+.customAmountInput {
+  width: 100%;
+  padding: 10px 14px 10px 32px;
+  border: 1px solid #d9d0c5;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 14px;
+  color: var(--ink, #263b33);
+  box-sizing: border-box;
+}
+
+.customAmountInput:focus {
+  outline: 2px solid var(--accent, #d4b77d);
+  border-color: var(--accent, #d4b77d);
+}
+
+.currencyPrefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #746f68;
+  font-weight: 600;
+}
+
+/* QR Code & UPI Area */
+.qrCard {
+  background: var(--panel-bg, #f5f1e9);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 18px 0;
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 25%, transparent);
+}
+
+.qrWrapper {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qrImage {
+  display: block;
+  border-radius: 6px;
+}
+
+.upiInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.upiLabel {
+  font-size: 11px;
+  color: #8c857a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.upiIdCode {
+  font-family: monospace;
+  font-size: 13px;
+  background: #ffffff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px dashed #d9d0c5;
+  color: var(--ink, #263b33);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.copyUpiBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #ffffff;
+  color: var(--ink, #263b33);
+  border: 1px solid #d9d0c5;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.copyUpiBtn:hover {
+  border-color: var(--accent, #d4b77d);
+  color: var(--accent, #d4b77d);
+}
+
+/* 1-Tap App Launch Grid */
+.appsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.appPayBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e0d8cc;
+  text-decoration: none;
+  color: var(--ink, #263b33);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.appPayBtn:hover {
+  border-color: var(--accent, #d4b77d);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.appIcon {
+  font-size: 18px;
+}
+
+.universalPayBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  background: var(--story-bg, #263b33);
+  color: #ffffff;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.universalPayBtn:hover {
+  background: color-mix(in srgb, var(--story-bg, #263b33) 85%, #ffffff);
+}
+
+/* Auspicious note footer */
+.auspiciousNote {
+  margin-top: 18px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--accent, #d4b77d) 12%, transparent);
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #6e675d;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.auspiciousNote span:first-child {
+  font-size: 14px;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .modalCard {
+    padding: 24px 18px;
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .qrCard {
+    flex-direction: column;
+    text-align: center;
+  }
+  .upiInfo {
+    align-items: center;
+  }
+  .chipsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
