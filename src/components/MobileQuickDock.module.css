@@ -1,10 +1,10 @@
 .dockContainer {
   position: fixed;
-  bottom: 18px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 40;
-  width: min(440px, calc(100vw - 28px));
+  width: min(440px, calc(100vw - 20px));
   pointer-events: none;
 }
 

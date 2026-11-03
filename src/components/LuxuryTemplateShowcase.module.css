@@ -1,0 +1,498 @@
+.showcaseSection {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 80px 24px 110px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 50px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--terracotta, #a7553f);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.sectionHeader h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(34px, 4.5vw, 48px);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -1.5px;
+  color: #171615;
+  margin: 0;
+}
+
+.sectionHeader h2 em {
+  font-style: italic;
+  color: var(--terracotta, #a7553f);
+}
+
+.headerAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--terracotta, #a7553f);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.headerAction:hover {
+  transform: translateX(4px);
+}
+
+/* 3-Column Luxury Card Grid */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.stationeryWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* The Physical Card Canvas */
+.luxuryCard {
+  position: relative;
+  aspect-ratio: 5 / 7;
+  min-height: 490px;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 
+    0 18px 45px rgba(0, 0, 0, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+.luxuryCard:hover {
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 
+    0 28px 70px rgba(0, 0, 0, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.3);
+}
+
+/* Inner Gold Foil Stamped Border (Die-cut arch or double ruled) */
+.innerBorder {
+  position: absolute;
+  inset: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--card-foil-border, rgba(212, 175, 55, 0.45));
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.innerBorder::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 10px;
+  border: 1px dashed var(--card-foil-subtle, rgba(212, 175, 55, 0.25));
+}
+
+/* Corner Flourishes */
+.cornerFlourish {
+  position: absolute;
+  color: var(--card-accent, #d4b77d);
+  font-size: 11px;
+  line-height: 1;
+}
+.tl { top: 6px; left: 6px; }
+.tr { top: 6px; right: 6px; }
+.bl { bottom: 6px; left: 6px; }
+.br { bottom: 6px; right: 6px; }
+
+/* Popular / Couture Floating Badge */
+.topBadge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--card-accent, rgba(212, 175, 55, 0.6));
+  color: var(--card-accent, #f3d489);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+/* Card Content Hierarchy */
+.cardContent {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 12px;
+}
+
+/* Top Crest / Seal */
+.cardCrest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.crestIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--card-accent-soft, rgba(212, 175, 55, 0.25)) 0%, transparent 70%);
+  border: 1px solid var(--card-accent, #d4b77d);
+  color: var(--card-accent, #d4b77d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.cardKicker {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--card-accent, #d4b77d);
+  margin-top: 4px;
+}
+
+.cardEyebrow {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--card-muted, rgba(255, 255, 255, 0.7));
+  margin-top: 2px;
+}
+
+/* Centerpiece Couple Names with Metallic Gold Foil */
+.cardNamesBox {
+  margin: 18px 0;
+}
+
+.cardNames {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin: 0;
+  background: var(--card-foil-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+}
+
+.cardAmpersand {
+  font-style: italic;
+  font-family: Georgia, serif;
+  font-size: 0.9em;
+  opacity: 0.85;
+}
+
+.cardTagline {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--card-muted, rgba(255, 255, 255, 0.65));
+  margin-top: 8px;
+}
+
+/* Card Bottom Details */
+.cardFooterDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cardDivider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 140px;
+  color: var(--card-accent, #d4b77d);
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+.cardDivider span {
+  flex: 1;
+  height: 1px;
+  background: var(--card-foil-subtle, rgba(212, 175, 55, 0.35));
+}
+
+.cardDate {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--card-fg, #ffffff);
+}
+
+.cardVenue {
+  font-size: 11px;
+  color: var(--card-muted, rgba(255, 255, 255, 0.7));
+  letter-spacing: 0.5px;
+}
+
+/* Hover Overlay with Live Action Pill */
+.hoverActionOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 5;
+  padding: 24px;
+}
+
+.luxuryCard:hover .hoverActionOverlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.previewActionBtn {
+  background: #ffffff;
+  color: #171615;
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(8px);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.luxuryCard:hover .previewActionBtn {
+  transform: translateY(0);
+}
+
+.previewActionBtn:hover {
+  background: var(--card-accent, #d4b77d);
+  color: #171615;
+}
+
+.useTemplateBtn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transform: translateY(8px);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.luxuryCard:hover .useTemplateBtn {
+  transform: translateY(0);
+  transition-delay: 0.05s;
+}
+
+.useTemplateBtn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Card Meta Below Card */
+.cardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.metaTitle {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #171615;
+  margin: 0;
+}
+
+.metaCategory {
+  font-size: 11px;
+  color: #746f68;
+  display: block;
+  margin-top: 2px;
+}
+
+.featureChips {
+  display: flex;
+  gap: 6px;
+}
+
+.featureChip {
+  font-size: 10px;
+  background: #efebe2;
+  color: #5c564e;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* ===================================================
+   CARD THEME PRESETS: Realistic Luxury Palettes
+   =================================================== */
+
+/* Theme 1: Royal Kalyanam (Deep Velvet Maroon & 24K Gold) */
+.themeRoyalKalyanam {
+  --card-bg: #520d18;
+  --card-fg: #fde8c8;
+  --card-muted: #f3c2a2;
+  --card-accent: #e2b755;
+  --card-accent-soft: rgba(226, 183, 85, 0.2);
+  --card-foil-border: rgba(226, 183, 85, 0.55);
+  --card-foil-subtle: rgba(226, 183, 85, 0.28);
+  --card-foil-gradient: linear-gradient(135deg, #fff3c4 0%, #e5b955 45%, #ffd978 70%, #b38520 100%);
+  background-color: var(--card-bg);
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(226, 183, 85, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 50% 80%, rgba(0, 0, 0, 0.35) 0%, transparent 70%);
+}
+
+/* Theme 2: Garden Botanical (Forest Emerald & Champagne Gold) */
+.themeGardenBotanical {
+  --card-bg: #22382c;
+  --card-fg: #f7f3ec;
+  --card-muted: #c9dacb;
+  --card-accent: #d8b082;
+  --card-accent-soft: rgba(216, 176, 130, 0.22);
+  --card-foil-border: rgba(216, 176, 130, 0.5);
+  --card-foil-subtle: rgba(216, 176, 130, 0.22);
+  --card-foil-gradient: linear-gradient(135deg, #ffffff 0%, #ebd0b0 50%, #d8b082 100%);
+  background-color: var(--card-bg);
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(216, 176, 130, 0.1) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+/* Theme 3: Midnight Luxe (Obsidian Cosmic & Iridescent Gold) */
+.themeMidnightLuxe {
+  --card-bg: #0c0f17;
+  --card-fg: #f3f5f8;
+  --card-muted: #9aa8be;
+  --card-accent: #d4af37;
+  --card-accent-soft: rgba(212, 175, 55, 0.25);
+  --card-foil-border: rgba(212, 175, 55, 0.55);
+  --card-foil-subtle: rgba(212, 175, 55, 0.25);
+  --card-foil-gradient: linear-gradient(135deg, #fff7d6 0%, #d4af37 40%, #ffdf79 65%, #997819 100%);
+  background-color: var(--card-bg);
+  background-image: 
+    radial-gradient(circle at 50% 15%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(26, 38, 57, 0.4) 0%, transparent 60%);
+}
+
+@media (max-width: 960px) {
+  .cardGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .luxuryCard {
+    min-height: 460px;
+  }
+}
+
+
+/* Touch & Mobile Screen Enhancements */
+@media (max-width: 768px), (hover: none) {
+  .showcaseSection {
+    padding: 50px 16px 70px;
+  }
+  .sectionHeader {
+    margin-bottom: 28px;
+  }
+  .cardGrid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .luxuryCard {
+    min-height: 470px;
+    padding: 20px 16px;
+  }
+  .hoverActionOverlay {
+    position: relative;
+    inset: auto;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 14px 0 0;
+    margin-top: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    border-top: 1px dashed var(--card-foil-subtle, rgba(212, 175, 55, 0.25));
+  }
+  .previewActionBtn {
+    transform: none !important;
+    padding: 9px 16px;
+    font-size: 11px;
+    background: var(--card-accent, #d4b77d);
+    color: #171615;
+  }
+  .useTemplateBtn {
+    transform: none !important;
+    padding: 8px 14px;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+}

@@ -32,6 +32,7 @@ import styles from "./page.module.css";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
 import BrandLogo from "@/components/BrandLogo";
+import LuxuryTemplateShowcase from "@/components/LuxuryTemplateShowcase";
 
 type EventType = "Wedding" | "Engagement" | "Birthday" | "Reception" | "Baby Shower" | "Other";
 type FormData = { eventType: EventType; firstName: string; secondName: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact: string; age: string; template: string; coverPhotoUrl: string; galleryUrls: string[]; events: { name: string; date: string; time: string; venue: string; address: string; maps?: string }[]; dressCode: string; travelInfo: string; musicUrl: string; shagunUpi: string; registryUrl: string };
@@ -336,41 +337,12 @@ export default function Home() {
       </div>
     </section>
 
-    <section className={`${styles.section} ${styles.templateSection}`} id="templates">
-      <div className={`${styles.sectionHeading} ${styles.scrollReveal}`}>
-        <div>
-          <div className={styles.kicker}>THE TRAXVA EDIT</div>
-          <h2>Made for milestones<br /><em>that matter.</em></h2>
-        </div>
-        <a className={styles.textLink} href="#pricing">Explore all designs <ArrowRight size={15} /></a>
-      </div>
-      <div className={styles.templateGrid}>
-        <div className={`${styles.templateCard} ${styles.scrollReveal} ${styles.delay1}`}>
-          <div className={`${styles.templateImage} ${styles.weddingImage}`}>
-            <span>THE WEDDING OF</span>
-            <strong>Arjun &amp; Priya</strong>
-            <small>12 · 12 · 2026</small>
-          </div>
-          <div><p>Elegant Gold</p><span>Wedding · Premium</span></div>
-        </div>
-        <div className={`${styles.templateCard} ${styles.scrollReveal} ${styles.delay2}`}>
-          <div className={`${styles.templateImage} ${styles.engagementImage}`}>
-            <span>A BEAUTIFUL PROMISE</span>
-            <strong>Riya &amp; Adi</strong>
-            <small>Save the date</small>
-          </div>
-          <div><p>Modern Romance</p><span>Engagement · Premium</span></div>
-        </div>
-        <div className={`${styles.templateCard} ${styles.scrollReveal} ${styles.delay3}`}>
-          <div className={`${styles.templateImage} ${styles.birthdayImage}`}>
-            <span>LET&apos;S CELEBRATE</span>
-            <strong>Meera turns 30</strong>
-            <small>Saturday evening</small>
-          </div>
-          <div><p>Midnight Luxe</p><span>Birthday · Premium</span></div>
-        </div>
-      </div>
-    </section>
+        <LuxuryTemplateShowcase
+      onSelectTemplate={(name) => {
+        update("template", name);
+        setShowWizard(true);
+      }}
+    />
 
     <section className={styles.guestSection} id="guest-list">
       <div className={`${styles.guestIntro} ${styles.scrollReveal}`}>

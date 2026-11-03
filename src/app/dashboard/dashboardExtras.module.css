@@ -455,3 +455,62 @@
     font-size: 13px;
   }
 }
+
+/* Mobile Broadcast Suite & Modal Optimizations */
+@media (max-width: 600px) {
+  .modalBackdrop {
+    z-index: 65 !important;
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  .addModal {
+    border-radius: 22px 22px 0 0 !important;
+    padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: 90dvh !important;
+  }
+  .broadcastModal {
+    width: 100% !important;
+    max-height: 92dvh !important;
+    overflow-y: auto !important;
+    border-radius: 22px 22px 0 0 !important;
+    padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .broadcastModal h2 {
+    font-size: 21px !important;
+  }
+  .broadcastControlsRow {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .tonePills {
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+  .toneBtn, .toneActive {
+    min-height: 38px !important;
+    font-size: 11px !important;
+    padding: 8px 12px !important;
+  }
+  .quickAddRow {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 12px !important;
+  }
+  .quickInput {
+    font-size: 16px !important; /* iOS zoom prevention */
+    width: 100% !important;
+    padding: 10px 12px !important;
+  }
+  .quickAddBtn {
+    min-height: 44px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .queueSendBtn, .serverBroadcastBtn {
+    min-height: 46px !important;
+    font-size: 12px !important;
+  }
+}

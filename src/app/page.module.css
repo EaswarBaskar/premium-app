@@ -787,3 +787,49 @@
   color: #b38234;
   flex-shrink: 0;
 }
+
+/* Comprehensive Mobile & Touch Enhancements */
+@media (max-width: 800px) {
+  .finalPreview {
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 18px !important;
+    width: 100% !important;
+  }
+  .finalPreview .invitationMock {
+    width: min(350px, 100%) !important;
+    min-height: 400px !important;
+    transform: none !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .overlay {
+    z-index: 60 !important;
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  .wizard {
+    width: 100% !important;
+    max-height: 92dvh !important;
+    border-radius: 20px 20px 0 0 !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .wizardFooter {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: var(--paper) !important;
+    z-index: 10 !important;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05) !important;
+  }
+  .musicItem {
+    min-height: 52px;
+    padding: 10px 12px;
+  }
+  .musicPlayBtn {
+    width: 36px;
+    height: 36px;
+  }
+}

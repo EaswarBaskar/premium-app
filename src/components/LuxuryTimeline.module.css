@@ -266,3 +266,21 @@
   }
 }
 
+
+@media (max-width: 480px) {
+  .timelineSection {
+    padding: 0 8px;
+    margin: 24px auto;
+  }
+  .cardActions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+  .actionBtn {
+    justify-content: center;
+    width: 100%;
+    padding: 10px 12px;
+  }
+}

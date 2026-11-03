@@ -3,11 +3,14 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, CalendarDays, Check, CheckCheck, Clock, Download, Eye, Heart, MapPin, MessageCircle, PhoneCall, Plus, QrCode, RefreshCw, Send, Share2, Sparkles, Trash2, Upload, Users, X } from "lucide-react";
+import { ArrowUpRight, CalendarDays, CheckCheck, Clock, Download, Heart, MapPin, MessageCircle, PhoneCall, Plus, QrCode, RefreshCw, Send, Share2, Sparkles, Upload, Users, X } from "lucide-react";
 import baseStyles from "./dashboard.module.css";
 import extraStyles from "./dashboardExtras.module.css";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/browser";
 import BrandLogo from "@/components/BrandLogo";
+import BoardKpiGrid from "@/components/dashboard/BoardKpiGrid";
+import BoardGuestTable from "@/components/dashboard/BoardGuestTable";
+import GuestDrawer from "@/components/dashboard/GuestDrawer";
 
 const styles = { ...baseStyles, ...extraStyles };
 
@@ -59,8 +62,7 @@ export default function Dashboard() {
   const [invitation, setInvitation] = useState<HostInvitation | null>(null);
   const [userEmail, setUserEmail] = useState("");
   const [guests, setGuests] = useState<Guest[]>([]);
-  const [filter, setFilter] = useState("All guests");
-  const [showAdd, setShowAdd] = useState(false);
+    const [showAdd, setShowAdd] = useState(false);
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState<Guest | null>(null);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -78,6 +80,8 @@ export default function Dashboard() {
   const [newGuest, setNewGuest] = useState({ name: "", phone: "", group: "Friends", guests: "1", meal: "Vegetarian" });
   const [newEvent, setNewEvent] = useState({ name: "", details: "" });
   const [feedback, setFeedback] = useState("");
+  const [drawerGuest, setDrawerGuest] = useState<Guest | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // 1. Auth Initialization
   useEffect(() => {
@@ -218,8 +222,7 @@ export default function Dashboard() {
   // Derived calculations
   const totalSeats = guests.reduce((sum, guest) => sum + guest.guests, 0);
   const confirmedSeats = guests.filter((guest) => guest.status === "Confirmed").reduce((sum, guest) => sum + guest.guests, 0);
-  const visibleGuests = useMemo(() => filter === "All guests" ? guests : guests.filter((guest) => guest.status === filter), [filter, guests]);
-
+  
   const targetDate = invitation?.date;
   const countdownDays = useMemo(() => {
     if (!targetDate) return null;
@@ -351,6 +354,20 @@ function formatWaNumber(phone: string) {
 
   function toggleCheckIn(guest: Guest) {
     setGuests((current) => current.map((item) => item === guest ? { ...item, checkedIn: !item.checkedIn } : item));
+    if (drawerGuest && drawerGuest.phone === guest.phone) {
+      setDrawerGuest((prev) => prev ? { ...prev, checkedIn: !prev.checkedIn } : null);
+    }
+  }
+
+  function handleBulkCheckIn(selected: Guest[]) {
+    const phones = new Set(selected.map((g) => g.phone));
+    setGuests((current) => current.map((item) => phones.has(item.phone) ? { ...item, checkedIn: true } : item));
+    setFeedback(`Marked ${selected.length} guests as checked in!`);
+  }
+
+  function handleBulkWhatsApp() {
+    setShowBroadcast(true);
+    setQueueIndex(0);
   }
 
   function exportGuestList() {
@@ -555,101 +572,39 @@ function formatWaNumber(phone: string) {
           </div>
 
           {/* Metric Stats */}
-          <div className={styles.statGrid}>
-            <div>
-              <span>Total guests</span>
-              <strong>{totalSeats}</strong>
-              <small><Users size={13} /> {guests.length} guest entries</small>
-            </div>
-            <div>
-              <span>Confirmed</span>
-              <strong>{confirmedSeats}</strong>
-              <small className={styles.green}><Check size={13} /> Ready to celebrate</small>
-            </div>
-            <div>
-              <span>Pending replies</span>
-              <strong>{guests.filter((guest) => guest.status === "Pending").length}</strong>
-              <small className={styles.orange}><Send size={13} /> Need a reminder</small>
-            </div>
-            <div>
-              <span>Invitation views</span>
-              <strong>{invitation.views || 0}</strong>
-              <small className={styles.green}><Eye size={13} /> Live visitor count</small>
-            </div>
-          </div>
-
+          {/* BoardUI Analytical KPI Metrics */}
+          <BoardKpiGrid
+            totalSeats={totalSeats}
+            confirmedSeats={confirmedSeats}
+            pendingCount={guests.filter((guest) => guest.status === "Pending").length}
+            totalGuestsCount={guests.length}
+            attendingCount={guests.filter((guest) => guest.status === "Confirmed").length}
+            declinedCount={guests.filter((guest) => guest.status === "Declined").length}
+            views={invitation.views || 0}
+            onTriggerBroadcast={() => {
+              setQueueIndex(0);
+              setServerResult(null);
+              setShowBroadcast(true);
+            }}
+          />
           <div className={styles.columns}>
-            {/* Guest Management Table */}
-            <div className={styles.panel} id="guests">
-              <div className={styles.panelHead}>
-                <div>
-                  <div className={styles.kicker}>GUEST MANAGEMENT</div>
-                  <h2>Guest list</h2>
-                </div>
-                <div className={styles.panelTools}>
-                  <div className={styles.filters}>
-                    {["All guests", "Confirmed", "Maybe", "Declined", "Pending"].map((item) => (
-                      <button key={item} className={filter === item ? styles.filterActive : ""} onClick={() => setFilter(item)}>
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    className={styles.refreshIconBtn}
-                    onClick={refreshData}
-                    disabled={refreshing}
-                    title="Refresh live RSVPs and guest list"
-                  >
-                    <RefreshCw size={13} className={refreshing ? styles.spinning : ""} />
-                  </button>
-                  <button className={styles.addGuest} onClick={() => setShowAdd(true)}>
-                    <Plus size={14} /> Add guest
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.guestTable}>
-                <div className={`${styles.tableRow} ${styles.tableLabels}`}>
-                  <span>Guest / group</span>
-                  <span>Guests</span>
-                  <span>Actions</span>
-                </div>
-                {visibleGuests.length === 0 ? (
-                  <div className={styles.emptyGuestState}>
-                    <Users size={28} color="#a7553f" />
-                    <strong>No guests on your list yet</strong>
-                    <small>Click &ldquo;+ Add guest&rdquo; above to add friends and family, or share your invitation link so guests can RSVP directly!</small>
-                  </div>
-                ) : (
-                  visibleGuests.map((guest) => (
-                    <div className={styles.tableRow} key={`${guest.name}-${guest.phone}`}>
-                      <span className={styles.guestName}>
-                        <i>{guest.name.slice(0, 1)}</i>
-                        <strong>
-                          {guest.name}
-                          <small>{guest.group} · {guest.phone.startsWith("rsvp:") ? "Online RSVP" : guest.phone}</small>
-                        </strong>
-                      </span>
-                      <span>{guest.guests}</span>
-                      <span className={styles.rowActions}>
-                        <button className={guest.checkedIn ? styles.checked : styles.checkin} onClick={() => toggleCheckIn(guest)}>
-                          {guest.checkedIn ? <><Check size={12} /> Checked</> : "Check in"}
-                        </button>
-                        {!guest.phone.startsWith("rsvp:") && (
-                          <button className={styles.whatsapp} onClick={() => shareGuest(guest)} title={`Share with ${guest.name}`}>
-                            <MessageCircle size={13} />
-                          </button>
-                        )}
-                        <button className={styles.deleteGuest} onClick={() => removeGuest(guest)} title="Delete guest">
-                          <Trash2 size={13} />
-                        </button>
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            {/* BoardUI Advanced Guest Data Table */}
+            <BoardGuestTable
+              guests={guests}
+              onToggleCheckIn={toggleCheckIn}
+              onRemoveGuest={removeGuest}
+              onAddGuestClick={() => setShowAdd(true)}
+              onShareGuest={shareGuest}
+              onExportCsv={exportGuestList}
+              onSelectGuestForDrawer={(g) => {
+                setDrawerGuest(g);
+                setIsDrawerOpen(true);
+              }}
+              onBulkCheckIn={handleBulkCheckIn}
+              onBulkWhatsApp={handleBulkWhatsApp}
+              refreshing={refreshing}
+              onRefresh={refreshData}
+            />
 
             {/* Schedule & Venue QR Side Panels */}
             <div className={styles.sidePanels}>
@@ -1008,6 +963,18 @@ function formatWaNumber(phone: string) {
           </div>
         </div>
       )}
+      <GuestDrawer
+        guest={drawerGuest}
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setDrawerGuest(null);
+        }}
+        onToggleCheckIn={toggleCheckIn}
+        onDeleteGuest={removeGuest}
+        slug={activeSlug}
+        hostTitle={hostTitle}
+      />
     </main>
   );
 }

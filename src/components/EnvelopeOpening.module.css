@@ -585,3 +585,15 @@
   }
 }
 
+
+@media (max-width: 600px) {
+  .skipBtn {
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+  .tapPill {
+    padding: 10px 20px;
+    font-size: 12px;
+    min-height: 44px;
+  }
+}

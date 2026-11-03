@@ -34,6 +34,14 @@ function themeName(template = "Elegant Gold") {
   return map[norm] || "elegantGold";
 }
 
+export const STATIONERY_THEMES = [
+  { id: "royalIndian", label: "Royal Kalyanam", icon: "👑" },
+  { id: "gardenFloral", label: "Garden Botanical", icon: "🌿" },
+  { id: "midnightLuxe", label: "Midnight Luxe", icon: "✨" },
+  { id: "elegantGold", label: "Elegant Gold", icon: "✦" },
+  { id: "templeKalyanam", label: "Temple Doors", icon: "🪔" },
+];
+
 function formatPhone(phone?: string) {
   if (!phone) return "+91 98765 43210";
   const digits = phone.replace(/\D/g, "");
@@ -73,6 +81,8 @@ function calendarValue(value: Date) { return value.toISOString().replace(/[-:]/g
 export default function InviteClient({ invite, slug, initialWishes = [] }: { invite: Invite; slug: string; initialWishes?: Wish[] }) {
   const searchParams = useSearchParams();
   const guestName = searchParams.get("g")?.trim() || "";
+  const paramTheme = searchParams.get("theme")?.trim() || "";
+  const [userTheme, setUserTheme] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState("");
   const [showCover, setShowCover] = useState(true);
 
@@ -141,7 +151,16 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   const displayName = invite.eventType === "Birthday" ? invite.firstName : `${invite.firstName} & ${invite.secondName}`;
   const isFamilyEvent = ["wedding", "engagement", "reception"].includes((invite.eventType || "").toLowerCase());
   const contactLabel = isFamilyEvent ? "Contact family" : "Get in touch";
-  const theme = themeName(invite.template);
+  const theme = userTheme || (paramTheme ? themeName(paramTheme) : themeName(invite.template));
+
+  function handleSelectTheme(themeId: string) {
+    setUserTheme(themeId);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("theme", themeId);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }
   const events = invite.events?.length ? invite.events : [{ name: invite.eventType, date: invite.date, time: invite.time, venue: invite.venue, address: invite.address }];
   const copy = {
     open: "Tap to open your invitation",
@@ -289,6 +308,29 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
         </button>
       </div>
     </div>
+
+    {/* Interactive Stationery Style Switcher Bar in Guest View */}
+    <div className={styles.stationerySwitcherBar} role="toolbar" aria-label="Select Stationery Style">
+      <div className={styles.switcherLabel}>
+        <Sparkles size={13} />
+        <span>SELECT STATIONERY STYLE:</span>
+      </div>
+      <div className={styles.switcherList}>
+        {STATIONERY_THEMES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`${styles.switcherPill} ${theme === item.id ? styles.switcherPillActive : ""}`}
+            onClick={() => handleSelectTheme(item.id)}
+            title={`Switch style to ${item.label}`}
+          >
+            <span>{item.icon}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
     <section className={styles.modernInvite} ref={cardRef}><div className={styles.modernStory} style={invite.coverPhotoUrl ? { backgroundImage: `linear-gradient(#263b33dd,#263b33dd),url(${invite.coverPhotoUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}><div className={styles.storyBadge}><Sparkles size={14} /> {copy.save}</div><p className={styles.kicker}>{copy.invited}</p><p className={styles.together}>{copy.together}</p><h1>{displayName}</h1><p className={styles.inviteCopy}>{invite.eventType === "Birthday" ? `invite you to celebrate ${invite.age ? `their ${invite.age}th birthday` : "their birthday"}` : `joyfully invite you to celebrate their ${invite.eventType.toLowerCase()}`}</p><div className={styles.storyLine}><span /> {invite.date.split("-").reverse().join(" · ")} <span /></div><p className={styles.message}>{invite.message}</p><div className={styles.storyFooter}><span>A TRAXVA EXPERIENCE</span><span>01 / 01</span></div></div>
       <div className={styles.modernInfo}>
         <div className={styles.infoTop}>

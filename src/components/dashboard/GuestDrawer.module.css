@@ -1,0 +1,272 @@
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 19, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 60;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawerSheet {
+  width: min(440px, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  background: #ffffff;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.drawerHeader {
+  padding: 24px;
+  border-bottom: 1px solid #f0ebe1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: #faf8f5;
+}
+
+.drawerAvatarRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.drawerAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e8d7c8;
+  color: #895240;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drawerTitleBox h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #201e1b;
+  margin: 0 0 4px;
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e0d8cc;
+  color: #6a6358;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: #201e1b;
+  color: #ffffff;
+}
+
+.drawerBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+/* Info grid in drawer */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  background: #faf8f5;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #f0ebe1;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.infoLabel {
+  font-size: 11px;
+  color: #8c8376;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.infoVal {
+  font-size: 14px;
+  font-weight: 600;
+  color: #201e1b;
+}
+
+/* Checkin toggle section */
+.checkinCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f7f5f0;
+  border: 1px solid #e8e3da;
+}
+
+.checkinText strong {
+  display: block;
+  font-size: 13px;
+  color: #201e1b;
+}
+
+.checkinText small {
+  color: #7d756b;
+  font-size: 11px;
+}
+
+.checkinToggleBtn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btnChecked {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.btnUnchecked {
+  background: #ffffff;
+  color: #524e48;
+  border-color: #ded7cc;
+}
+
+.btnUnchecked:hover {
+  border-color: #059669;
+  color: #059669;
+}
+
+/* Action buttons */
+.actionStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.actionStackLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #8c8376;
+}
+
+.drawerWaBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #25d366;
+  color: #ffffff;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.drawerWaBtn:hover {
+  opacity: 0.92;
+}
+
+.drawerCopyBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #201e1b;
+  border: 1px solid #d9d1c3;
+  padding: 11px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawerCopyBtn:hover {
+  border-color: #a7553f;
+  color: #a7553f;
+}
+
+.drawerDeleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+  padding: 11px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: auto;
+  transition: all 0.2s ease;
+}
+
+.drawerDeleteBtn:hover {
+  background: #ffe4e6;
+}
+
+
+@media (max-width: 480px) {
+  .drawerSheet {
+    width: 100vw !important;
+    border-radius: 20px 20px 0 0;
+  }
+  .drawerHeader {
+    padding: 18px 16px;
+  }
+  .drawerBody {
+    padding: 18px 16px;
+    gap: 18px;
+  }
+  .infoGrid {
+    padding: 12px;
+    gap: 10px;
+  }
+  .drawerActionBtn,
+  .drawerWaBtn,
+  .drawerCopyBtn,
+  .drawerDeleteBtn {
+    min-height: 44px;
+  }
+}

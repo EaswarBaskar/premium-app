@@ -1918,3 +1918,176 @@
 .audioLabel {
   font-weight: 500;
 }
+
+/* Interactive Stationery Style Switcher Bar in Guest View */
+.stationerySwitcherBar {
+  max-width: 1180px;
+  margin: 18px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: color-mix(in srgb, var(--panel-bg, #f5f1e9) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 40%, transparent);
+  border-radius: 999px;
+  position: relative;
+  z-index: 3;
+  flex-wrap: wrap;
+}
+
+.switcherLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--accent, #b4945b);
+}
+
+.switcherList {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.switcherPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid color-mix(in srgb, var(--ink, #263b33) 15%, transparent);
+  color: var(--ink, #263b33);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  white-space: nowrap;
+}
+
+.switcherPill:hover {
+  background: #ffffff;
+  border-color: var(--accent, #d4b77d);
+  transform: translateY(-1px);
+}
+
+.switcherPillActive {
+  background: var(--story-bg, #263b33) !important;
+  color: var(--story-fg, #ffffff) !important;
+  border-color: var(--accent, #d4b77d) !important;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .stationerySwitcherBar {
+    border-radius: 16px;
+    padding: 12px 14px;
+    gap: 8px;
+    margin: 14px auto 0;
+  }
+  .switcherList {
+    width: 100%;
+    padding-bottom: 2px;
+  }
+}
+
+/* Mobile First Hardening for Guest Invitation View */
+@media (max-width: 600px) {
+  .invitePage {
+    padding: 12px 12px calc(95px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .inviteBack {
+    padding: 0 4px;
+    font-size: 11px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topActions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .replayEnvelopeBtn, .downloadTopBtn, .printTopBtn {
+    padding: 6px 10px;
+    font-size: 10px;
+    border-radius: 999px;
+  }
+  .stationerySwitcherBar {
+    margin: 12px auto 0 !important;
+    padding: 8px 12px !important;
+    border-radius: 14px !important;
+  }
+  .switcherList {
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  .switcherPill {
+    padding: 5px 10px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .modernInvite {
+    margin: 14px auto 18px !important;
+    border-radius: 20px !important;
+  }
+  .modernStory {
+    padding: 38px 20px 30px !important;
+    min-height: auto !important;
+  }
+  .storyBadge {
+    margin-bottom: 30px !important;
+  }
+  .modernInfo {
+    padding: 28px 20px !important;
+  }
+  .details {
+    margin: 24px 0 20px !important;
+    gap: 10px !important;
+  }
+  .details > div {
+    min-height: 56px !important;
+    padding: 12px 14px !important;
+  }
+  .guestActionsGrid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  .guestBtnPrimary {
+    grid-column: span 2 !important;
+  }
+  .guestBtnContact {
+    grid-column: span 2 !important;
+  }
+  .rsvpOverlay {
+    z-index: 55 !important;
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  .rsvpCard {
+    border-radius: 24px 24px 0 0 !important;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: 88dvh !important;
+    width: 100% !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .rsvpHintBanner {
+    bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+  }
+}

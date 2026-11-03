@@ -1,14 +1,27 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#171615",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://traxva.in"),
   title: { default: "TRAXVA · Digital invitations, beautifully told", template: "%s · TRAXVA" },
   description: "Create and share a beautiful digital invitation with TRAXVA — A Product by Eantrax.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "TRAXVA",
+  },
 };
 
 export default function RootLayout({
