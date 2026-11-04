@@ -70,7 +70,7 @@ export default function LuxuryTimeline({
     const icsContent = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//Invite7//CelebrationEvent//EN",
+      "PRODID:-//TRAXVA//CelebrationEvent//EN",
       "BEGIN:VEVENT",
       `UID:ceremony-${Date.now()}@invite7.in`,
       `DTSTAMP:${calendarValue(new Date())}`,

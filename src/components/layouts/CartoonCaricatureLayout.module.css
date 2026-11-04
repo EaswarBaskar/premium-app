@@ -1,0 +1,412 @@
+/* Cartoon Caricature & Doodle Invitation Layout */
+.cartoonShell {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  position: relative;
+  z-index: 1;
+  font-family: inherit;
+}
+
+/* 1. Cartoon Stage Header */
+.cartoonStage {
+  background: radial-gradient(circle at 50% 30%, #fffbf0 0%, #faedd5 100%);
+  border: 4px dashed #e59a43;
+  border-radius: 36px;
+  padding: 48px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(229, 154, 67, 0.18);
+}
+
+.stageRibbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8590c;
+  color: #fff;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 18px rgba(232, 89, 12, 0.3);
+  margin-bottom: 20px;
+}
+
+.cartoonTitle {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 600;
+  color: #4a2211;
+  margin: 0 0 10px;
+}
+
+.cartoonTagline {
+  font-size: 16px;
+  color: #7d4428;
+  max-width: 520px;
+  margin: 0 auto 30px;
+  font-style: italic;
+}
+
+/* 2. Illustrated Couple Stage & Auto-Rickshaw */
+.illustrationArea {
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+/* The Animated Doli / Auto-Rickshaw */
+.autoRickshaw {
+  position: relative;
+  width: 290px;
+  height: 190px;
+  background: #ffcc00;
+  border: 4px solid #332211;
+  border-radius: 30px 60px 18px 18px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: rickshawBounce 2s ease-in-out infinite;
+  margin: 0 auto;
+}
+
+@keyframes rickshawBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+.autoTopCanopy {
+  position: absolute;
+  top: -16px;
+  left: 20px;
+  right: 20px;
+  height: 20px;
+  background: #2b7a4b;
+  border: 3px solid #1a4d2e;
+  border-radius: 12px 12px 0 0;
+}
+
+.coupleInside {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.cartoonCharacter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.charHead {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #ffd8b3;
+  border: 3px solid #3d2314;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.groomTurban {
+  position: absolute;
+  top: -14px;
+  width: 56px;
+  height: 22px;
+  background: #e63946;
+  border: 2px solid #85131b;
+  border-radius: 14px 14px 0 0;
+}
+
+.groomKalgi {
+  position: absolute;
+  top: -24px;
+  right: 12px;
+  color: #ffb703;
+  font-size: 14px;
+}
+
+.brideDupatta {
+  position: absolute;
+  top: -6px;
+  width: 58px;
+  height: 18px;
+  background: #c1121f;
+  border: 2px solid #660708;
+  border-radius: 12px;
+}
+
+.charTorso {
+  width: 52px;
+  height: 48px;
+  border-radius: 10px 10px 0 0;
+  border: 3px solid #3d2314;
+  margin-top: -2px;
+}
+
+.groomSherwani {
+  background: #f4a261;
+}
+
+.brideLehenga {
+  background: #e63946;
+}
+
+.autoLicensePlate {
+  background: #fff;
+  border: 2px solid #332211;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #e8590c;
+  margin-top: 12px;
+}
+
+/* Jaimala Garland Toggle */
+.jaimalaArea {
+  margin-top: 24px;
+}
+
+.jaimalaBtn {
+  background: #e63946;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(230, 57, 70, 0.4);
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.jaimalaBtn:hover {
+  transform: scale(1.06);
+}
+
+.jaimalaGarlandActive {
+  position: absolute;
+  top: 48px;
+  left: 20px;
+  right: 20px;
+  font-size: 20px;
+  color: #ffb703;
+  text-shadow: 0 0 10px #ffb703;
+  animation: garlandDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes garlandDrop {
+  from { transform: translateY(-40px) scale(0.6); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* 3. Doodle "How We Met" Comic Grid */
+.doodleSection {
+  background: #fff;
+  border: 3px solid #3d2314;
+  border-radius: 28px;
+  padding: 40px 32px;
+  box-shadow: 8px 8px 0px #3d2314;
+}
+
+.doodleHead {
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.doodleHead h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 32px;
+  color: #3d2314;
+  margin: 0 0 6px;
+}
+
+.doodleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.doodleCard {
+  background: #fdfaf5;
+  border: 2px dashed #b8861b;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.doodleEmoji {
+  font-size: 42px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.doodleCard h3 {
+  font-size: 18px;
+  color: #4a2b1b;
+  margin: 0 0 8px;
+}
+
+.doodleCard p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #735c4b;
+  margin: 0;
+}
+
+/* 4. Illustrated Dress Code Guide */
+.dressSection {
+  background: #fff9f0;
+  border: 3px solid #ff9f1c;
+  border-radius: 28px;
+  padding: 36px 30px;
+  box-shadow: 8px 8px 0px #ff9f1c;
+}
+
+.dressGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.dressCard {
+  background: #fff;
+  border: 2px solid #e0c8aa;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+}
+
+.dressIcon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.dressCard strong {
+  display: block;
+  font-size: 16px;
+  color: #3d2314;
+  margin-bottom: 4px;
+}
+
+.dressCard span {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e8590c;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.dressCard small {
+  display: block;
+  font-size: 12px;
+  color: #7a6655;
+}
+
+/* 5. Comic Action Buttons */
+.cartoonActions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.comicPrimaryBtn {
+  background: #ff5400;
+  color: #fff;
+  border: 3px solid #3d2314;
+  border-radius: 999px;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px #3d2314;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comicPrimaryBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #3d2314;
+}
+
+.comicSecondaryBtn {
+  background: #ffd166;
+  color: #3d2314;
+  border: 3px solid #3d2314;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px #3d2314;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s ease;
+}
+
+.comicSecondaryBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #3d2314;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .doodleGrid,
+  .dressGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .cartoonStage {
+    padding: 32px 18px;
+    border-radius: 24px;
+  }
+  .doodleSection,
+  .dressSection {
+    padding: 24px 18px;
+  }
+  .autoRickshaw {
+    width: 250px;
+    height: 170px;
+  }
+  .comicPrimaryBtn,
+  .comicSecondaryBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+}
+

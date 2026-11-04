@@ -46,64 +46,64 @@ export default function MobileQuickDock({
   if (!enabled) return null;
 
   return (
-    <AnimatePresence>
-      {scrolled && (
-        <motion.aside
-          className={styles.dockContainer}
-          initial={{ opacity: 0, y: 40, scale: 0.94 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 40, scale: 0.94 }}
-          transition={{ type: "spring", stiffness: 350, damping: 28 }}
-          aria-label="Quick Actions"
-        >
-          <nav className={styles.dockInner}>
-            <button
-              type="button"
-              className={`${styles.dockBtn} ${styles.primaryRsvp}`}
-              onClick={onRsvpClick}
-              aria-label="Confirm attendance RSVP"
-            >
-              {!hasRsvpd && <span className={styles.pulseDot} aria-hidden="true" />}
-              <Heart size={16} />
-              <span>{hasRsvpd ? "RSVP Sent ✓" : "RSVP Now"}</span>
-            </button>
+    <div className={styles.dockWrapper} aria-label="Quick Actions">
+      <AnimatePresence>
+        {scrolled && (
+          <motion.aside
+            className={styles.dockContainer}
+            initial={{ opacity: 0, y: 35, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 35, scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 360, damping: 28 }}
+          >
+            <nav className={styles.dockInner}>
+              <button
+                type="button"
+                className={`${styles.dockBtn} ${styles.primaryRsvp}`}
+                onClick={onRsvpClick}
+                aria-label="Confirm attendance RSVP"
+              >
+                {!hasRsvpd && <span className={styles.pulseDot} aria-hidden="true" />}
+                <Heart size={16} />
+                <span>{hasRsvpd ? "RSVP Sent ✓" : "RSVP Now"}</span>
+              </button>
 
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.dockBtn}
-              aria-label="Get Directions to Venue"
-            >
-              <MapPin size={16} />
-              <span>Directions</span>
-            </a>
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.dockBtn}
+                aria-label="Get Directions to Venue"
+              >
+                <MapPin size={16} />
+                <span>Directions</span>
+              </a>
 
-            <button
-              type="button"
-              className={styles.dockBtn}
-              onClick={onCalendarClick}
-              aria-label="Add to Calendar"
-            >
-              <CalendarDays size={16} />
-              <span>Calendar</span>
-            </button>
-
-            {hasShagun && onShagunClick && (
               <button
                 type="button"
                 className={styles.dockBtn}
-                onClick={onShagunClick}
-                aria-label="Send Digital Shagun or Gift"
+                onClick={onCalendarClick}
+                aria-label="Add to Calendar"
               >
-                <Gift size={16} />
-                <span>Shagun</span>
+                <CalendarDays size={16} />
+                <span>Calendar</span>
               </button>
-            )}
-          </nav>
-        </motion.aside>
-      )}
-    </AnimatePresence>
+
+              {hasShagun && onShagunClick && (
+                <button
+                  type="button"
+                  className={styles.dockBtn}
+                  onClick={onShagunClick}
+                  aria-label="Send Digital Shagun or Gift"
+                >
+                  <Gift size={16} />
+                  <span>Shagun</span>
+                </button>
+              )}
+            </nav>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
-

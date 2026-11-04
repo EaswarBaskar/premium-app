@@ -11,6 +11,7 @@ import BrandLogo from "@/components/BrandLogo";
 import BoardKpiGrid from "@/components/dashboard/BoardKpiGrid";
 import BoardGuestTable from "@/components/dashboard/BoardGuestTable";
 import GuestDrawer from "@/components/dashboard/GuestDrawer";
+import HeartLoader from "@/components/HeartLoader";
 
 const styles = { ...baseStyles, ...extraStyles };
 
@@ -962,6 +963,19 @@ function formatWaNumber(phone: string) {
             </div>
           </div>
         </div>
+      )}
+
+      {serverSending && (
+        <HeartLoader
+          variant="fullscreen"
+          theme="gold"
+          messages={[
+            "Connecting to WhatsApp Business API...",
+            "Sending bespoke invitation links to guests...",
+            "Sharing the celebration joy...",
+          ]}
+          subtext="Automated WhatsApp Broadcast"
+        />
       )}
       <GuestDrawer
         guest={drawerGuest}

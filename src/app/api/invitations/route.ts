@@ -29,6 +29,7 @@ type PostInvitationBody = {
   musicUrl?: string | null;
   shagunUpi?: string | null;
   registryUrl?: string | null;
+  layoutType?: string | null;
 };
 
 export async function POST(request: Request) {
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
       music_url: body.musicUrl?.trim() || null,
       shagun_upi: body.shagunUpi?.trim() || null,
       registry_url: body.registryUrl?.trim() || null,
+      layout_type: body.layoutType || "classic",
       expires_at: expiresAt,
       views: 0,
       created_at: new Date().toISOString(),
@@ -137,6 +139,7 @@ export async function POST(request: Request) {
     music_url: body.musicUrl?.trim() || null,
     shagun_upi: body.shagunUpi?.trim() || null,
     registry_url: body.registryUrl?.trim() || null,
+    layout_type: body.layoutType || "classic",
     expires_at: expiresAt,
   };
 

@@ -82,11 +82,11 @@ export default async function InvitationPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ g?: string }>;
+  searchParams?: Promise<{ g?: string; guest?: string }>;
 }) {
   const { slug } = await params;
   const sp = searchParams ? await searchParams : {};
-  const guestName = sp.g ? sp.g.trim() : null;
+  const guestName = (sp.guest || sp.g)?.trim() || null;
 
   let place = "India";
   try {

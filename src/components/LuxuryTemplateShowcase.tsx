@@ -25,7 +25,7 @@ const TEMPLATES = [
     title: "Royal Kalyanam",
     category: "Wedding · Festive Gold & Velvet Maroon",
     chips: ["Mandala Trim", "Music Enabled", "Wax Seal"],
-    previewSlug: "arjun-priya-61c7769e?theme=royalIndian",
+    previewSlug: "arjun-priya-61c7769e?theme=royalIndian&demo=true",
   },
   {
     id: "garden-botanical",
@@ -43,7 +43,7 @@ const TEMPLATES = [
     title: "Garden Botanical",
     category: "Engagement & Reception · Forest Linen",
     chips: ["Laurel Arch", "RSVP Ready", "Dress Code"],
-    previewSlug: "arjun-priya-61c7769e?theme=gardenFloral",
+    previewSlug: "arjun-priya-61c7769e?theme=gardenFloral&demo=true",
   },
   {
     id: "midnight-luxe",
@@ -61,7 +61,7 @@ const TEMPLATES = [
     title: "Midnight Luxe",
     category: "Sangeet & Cocktail · Obsidian Noir",
     chips: ["Gold Foil", "3D Particles", "Digital Shagun"],
-    previewSlug: "arjun-priya-61c7769e?theme=midnightLuxe",
+    previewSlug: "arjun-priya-61c7769e?theme=midnightLuxe&demo=true",
   },
 ];
 

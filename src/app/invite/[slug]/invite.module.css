@@ -348,6 +348,26 @@
   border-color: var(--accent);
 }
 
+.exportStudioBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #dfb76c 0%, #b38838 100%);
+  color: #1a160d;
+  border: 1px solid #ebd8b3;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(223, 183, 108, 0.25);
+}
+.exportStudioBtn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
 /* Card Capture Mode for PNG export: exclude web-only controls */
 .cardCaptureMode .infoTop,
 .cardCaptureMode .modernActions,
@@ -991,8 +1011,11 @@
 .rsvpHintBanner {
   position: fixed;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+
   width: min(580px, calc(100vw - 32px));
   background: rgba(255, 253, 248, 0.96);
   backdrop-filter: blur(16px);
@@ -1126,7 +1149,7 @@
   .rsvpHintBanner {
     flex-direction: column;
     align-items: stretch;
-    bottom: 16px;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
     padding: 14px;
     gap: 12px;
   }
@@ -1430,7 +1453,7 @@
     justify-content: flex-start;
   }
   .floatingMusicBtn {
-    bottom: 16px;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
     right: 16px;
     padding: 8px 14px;
     font-size: 11px;
@@ -2018,7 +2041,7 @@
     width: 100%;
     margin-top: 6px;
   }
-  .replayEnvelopeBtn, .downloadTopBtn, .printTopBtn {
+  .replayEnvelopeBtn, .downloadTopBtn, .printTopBtn, .exportStudioBtn {
     padding: 6px 10px;
     font-size: 10px;
     border-radius: 999px;
@@ -2090,4 +2113,40 @@
     right: 12px !important;
     width: auto !important;
   }
+  .inviteFooter {
+    margin-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .floatingMusicBtn {
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
+    right: 14px !important;
+    padding: 6px 12px !important;
+    font-size: 10.5px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+  }
+}
+
+
+.layoutSwitcherBar {
+  max-width: 980px;
+  margin: 16px auto 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(223, 183, 108, 0.45);
+  border-radius: 18px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.layoutSwitcherHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #9f7431;
+  text-transform: uppercase;
 }

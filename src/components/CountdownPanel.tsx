@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { EVENTS, EventKey, addToCalendar, shareEvent, formatDate } from "@/lib/utils";
 import { motion } from "framer-motion";
 import styles from "./CountdownPanel.module.css";
@@ -8,8 +8,21 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export default function CountdownPanel({ eventKey }: { eventKey: EventKey }) {
-  const ev = EVENTS[eventKey];
+export interface CountdownPanelProps {
+  eventKey?: EventKey;
+  targetDate?: string;
+  title?: string;
+}
+
+export default function CountdownPanel({
+  eventKey = "wedding",
+  targetDate,
+  title,
+}: CountdownPanelProps) {
+  const ev = EVENTS[eventKey] || EVENTS.wedding;
+  const destinationDate = useMemo(() => targetDate ? new Date(targetDate) : ev.date, [targetDate, ev.date]);
+  const label = title || ev.label;
+
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -22,44 +35,47 @@ export default function CountdownPanel({ eventKey }: { eventKey: EventKey }) {
   useEffect(() => {
     function tick() {
       const now = new Date();
-      const diff = ev.date.getTime() - now.getTime();
-      
-      if (diff <= 0) {
+      const diff = destinationDate.getTime() - now.getTime();
+
+      if (diff <= 0 || Number.isNaN(diff)) {
         setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0, pct: 100, arrived: true });
         return;
       }
-      
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const mins = Math.floor((diff / (1000 * 60)) % 60);
       const secs = Math.floor((diff / 1000) % 60);
 
-      const totalSpan = ev.date.getTime() - ev.journeyStart.getTime();
-      const elapsed = now.getTime() - ev.journeyStart.getTime();
+      const journeyStart = ev.journeyStart || new Date(destinationDate.getTime() - 90 * 86400000);
+      const totalSpan = destinationDate.getTime() - journeyStart.getTime();
+      const elapsed = now.getTime() - journeyStart.getTime();
       let pct = totalSpan > 0 ? (elapsed / totalSpan) * 100 : 0;
       pct = Math.max(0, Math.min(100, pct));
-      
+
       setTimeLeft({ days, hours, mins, secs, pct, arrived: false });
     }
-    
+
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [ev]);
+  }, [destinationDate, ev]);
 
   if (!timeLeft) return null;
 
   return (
     <motion.div
-      key={eventKey}
+      key={targetDate || eventKey}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.4 }}
       className={styles.panel}
     >
-      <div className={styles.eventDate}>{formatDate(ev.date)}</div>
-      
+      <div className={styles.eventDate}>
+        {targetDate ? formatDate(destinationDate) : formatDate(ev.date)}
+      </div>
+
       {timeLeft.arrived ? (
         <div className={styles.arrived}>Today is the day 🎉</div>
       ) : (
@@ -73,7 +89,7 @@ export default function CountdownPanel({ eventKey }: { eventKey: EventKey }) {
 
       <div className={styles.progressWrap}>
         <div className={styles.progressNote}>
-          {timeLeft.arrived ? "The day has arrived" : `You're ${timeLeft.pct.toFixed(0)}% of the way to ${ev.label.toLowerCase()}`}
+          {timeLeft.arrived ? "The day has arrived" : `You're ${timeLeft.pct.toFixed(0)}% of the way to ${label.toLowerCase()}`}
         </div>
         <div className={styles.progressTrack}>
           <div className={styles.progressFill} style={{ width: `${timeLeft.pct}%` }} />

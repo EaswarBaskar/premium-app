@@ -104,6 +104,8 @@ export default function AdminPage() {
         const json = await res.json();
         setData(json);
         setLastSyncTime(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+      } else if (res.status === 401) {
+        setIsLocked(true);
       }
     } catch (err) {
       console.error("Failed to fetch admin data", err);
@@ -122,6 +124,8 @@ export default function AdminPage() {
           const json = await res.json();
           setData(json);
           setLastSyncTime(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+        } else if (res.status === 401 && active) {
+          setIsLocked(true);
         }
       } catch (err) {
         console.error("Failed to fetch admin data", err);

@@ -81,6 +81,37 @@ export default function LoginPage() {
           )}
         </h1>
         <p className={styles.intro}>Sign in to manage guests, RSVPs and your invitation.</p>
+        {!isSupabaseConfigured && (
+          <div style={{ background: "#fbf5ea", border: "1px solid #ebd8b3", borderRadius: "12px", padding: "14px 16px", marginBottom: "18px", textAlign: "left" }}>
+            <div style={{ fontSize: "12px", fontWeight: 700, color: "#8a662d", marginBottom: "4px" }}>
+              ✨ DEMO &amp; LOCAL MODE ACTIVE
+            </div>
+            <div style={{ fontSize: "12px", color: "#666", lineHeight: 1.4, marginBottom: "10px" }}>
+              Supabase credentials are not configured in this environment. You can enter the host dashboard immediately with demo celebration data.
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push(next())}
+              style={{
+                width: "100%",
+                padding: "10px 16px",
+                background: "#8a662d",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px"
+              }}
+            >
+              Enter Host Dashboard as Demo Host →
+            </button>
+          </div>
+        )}
         <button type="button" className={styles.googleButton} onClick={continueWithGoogle} disabled={busy}>
           <Globe2 size={16} /> Continue with Google
         </button>

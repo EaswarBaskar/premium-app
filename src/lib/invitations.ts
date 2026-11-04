@@ -24,6 +24,7 @@ export type InvitationRecord = {
   music_url?: string | null;
   shagun_upi?: string | null;
   registry_url?: string | null;
+  layout_type?: string | null;
 };
 
 export function invitationToClient(value: InvitationRecord) {
@@ -51,6 +52,7 @@ export function invitationToClient(value: InvitationRecord) {
     musicUrl: value.music_url || "",
     shagunUpi: value.shagun_upi || "",
     registryUrl: value.registry_url || "",
+    layoutType: (extra.layout_type || extra.layoutType || "classic") as string,
     plan: value.plan,
     expiresAt: value.expires_at ? new Date(value.expires_at).getTime() : undefined,
     views: typeof extra.views === "number" ? extra.views : 0,

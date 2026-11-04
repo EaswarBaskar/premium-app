@@ -1,0 +1,451 @@
+/* Cinematic Microsite Layout Styles */
+.micrositeShell {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 70px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 1. Cinematic Hero Banner */
+.heroBanner {
+  position: relative;
+  min-height: 580px;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 40px;
+  color: #fff;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 18, 16, 0.5) 0%,
+    rgba(14, 18, 16, 0.25) 40%,
+    rgba(14, 18, 16, 0.85) 100%
+  );
+  z-index: 1;
+}
+
+.heroTop,
+.heroCenter,
+.heroBottom {
+  position: relative;
+  z-index: 2;
+}
+
+.heroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.monogramCrest {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #f7eedf;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.heroCenter {
+  text-align: center;
+  margin: 40px 0;
+}
+
+.heroKicker {
+  font-size: 12px;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: #dfb76c;
+  font-weight: 600;
+  margin-bottom: 14px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.heroTitle {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(44px, 7vw, 84px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  margin: 0 0 16px;
+  color: #fff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.heroTagline {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: clamp(16px, 2.5vw, 22px);
+  color: #ede2d3;
+  max-width: 600px;
+  margin: 0 auto;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.heroBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  padding-top: 24px;
+}
+
+.heroDateBadge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.heroDateBadge span {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #d8c29d;
+}
+
+.heroDateBadge strong {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.heroCtaBtns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.heroPrimaryBtn {
+  background: #d4af37;
+  color: #1a160d;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.heroPrimaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(212, 175, 55, 0.5);
+}
+
+.heroSecondaryBtn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.heroSecondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* 2. Section Containers */
+.sectionBlock {
+  background: var(--info-bg, #fffdf9);
+  border: 1px solid color-mix(in srgb, var(--accent, #d4b77d) 30%, transparent);
+  border-radius: 24px;
+  padding: 48px 40px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.04);
+}
+
+.sectionHead {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 40px;
+}
+
+.sectionKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent, #b4945b);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.sectionHead h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 400;
+  color: var(--ink, #263b33);
+  margin: 0 0 8px;
+}
+
+.sectionHead p {
+  color: #797166;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 3. Love Story Timeline */
+.storyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  position: relative;
+}
+
+.storyCard {
+  background: #faf7f2;
+  border: 1px solid #ebd9c8;
+  border-radius: 18px;
+  padding: 28px 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.storyCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+  border-color: #d4af37;
+}
+
+.storyYearBadge {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--story-bg, #263b33);
+  color: var(--story-fg, #fff);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.storyCard h3 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink, #263b33);
+  margin: 0 0 10px;
+}
+
+.storyCard p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #6a6157;
+  margin: 0;
+  flex: 1;
+}
+
+/* 4. Bridal & Groom Squad */
+.squadGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.squadCard {
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e8e2d8;
+  border-radius: 18px;
+  padding: 24px 18px;
+  transition: transform 0.2s ease;
+}
+
+.squadCard:hover {
+  transform: translateY(-4px);
+}
+
+.squadAvatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8d7c8, #dfb76c);
+  color: #4a3328;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  border: 2px solid #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.squadCard strong {
+  display: block;
+  font-size: 15px;
+  color: #201e1b;
+  margin-bottom: 4px;
+}
+
+.squadRole {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #a7553f;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.squadCard small {
+  display: block;
+  font-size: 12px;
+  color: #7d756b;
+  line-height: 1.4;
+}
+
+/* 5. Travel & Accommodations */
+.travelGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.travelCard {
+  background: #faf8f5;
+  border: 1px solid #e5dfd5;
+  border-radius: 18px;
+  padding: 28px 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.travelIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0e6dc;
+  color: #a7553f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.travelContent h3 {
+  font-size: 17px;
+  color: #201e1b;
+  margin: 0 0 6px;
+}
+
+.travelContent p {
+  font-size: 13.5px;
+  color: #6a6258;
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+
+.travelAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #a7553f;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.travelAction:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .heroBanner {
+    min-height: 480px;
+    padding: 32px 24px;
+  }
+  .storyGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .squadGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .travelGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .micrositeShell {
+    gap: 36px;
+  }
+  .heroBanner {
+    min-height: 440px;
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+  .heroTitle {
+    font-size: 36px;
+  }
+  .heroBottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .heroCtaBtns {
+    flex-direction: column;
+    width: 100%;
+  }
+  .heroPrimaryBtn,
+  .heroSecondaryBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .sectionBlock {
+    padding: 28px 18px;
+    border-radius: 18px;
+  }
+  .squadGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+

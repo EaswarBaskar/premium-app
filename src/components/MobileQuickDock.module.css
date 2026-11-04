@@ -1,15 +1,27 @@
-.dockContainer {
+/* Fixed Wrapper for True Mathematical Centering across all viewports */
+.dockWrapper {
   position: fixed;
   bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 40;
-  width: min(440px, calc(100vw - 20px));
   pointer-events: none;
+  padding: 0 12px;
+}
+
+.dockContainer {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
 }
 
 .dockInner {
-  pointer-events: auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -108,10 +120,11 @@
   }
 }
 
+/* Mobile Responsiveness Tuning */
 @media (max-width: 420px) {
-  .dockContainer {
-    bottom: 12px;
-    width: calc(100vw - 20px);
+  .dockWrapper {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 0 8px;
   }
   .dockInner {
     padding: 6px 8px;
@@ -127,3 +140,25 @@
   }
 }
 
+@media (max-width: 360px) {
+  .dockWrapper {
+    padding: 0 6px;
+  }
+  .dockInner {
+    padding: 5px 6px;
+    gap: 3px;
+  }
+  .dockBtn {
+    padding: 6px 3px;
+    font-size: 9.5px;
+    letter-spacing: 0;
+  }
+  .dockBtn svg {
+    width: 14px;
+    height: 14px;
+  }
+  .pulseDot {
+    right: 8px;
+    top: 3px;
+  }
+}

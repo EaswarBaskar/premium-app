@@ -33,10 +33,18 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import ThreeCelebrationScene from "@/components/ThreeCelebrationScene";
 import BrandLogo from "@/components/BrandLogo";
 import LuxuryTemplateShowcase from "@/components/LuxuryTemplateShowcase";
+import HeartLoader from "@/components/HeartLoader";
 
 type EventType = "Wedding" | "Engagement" | "Birthday" | "Reception" | "Baby Shower" | "Other";
-type FormData = { eventType: EventType; firstName: string; secondName: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact: string; age: string; template: string; coverPhotoUrl: string; galleryUrls: string[]; events: { name: string; date: string; time: string; venue: string; address: string; maps?: string }[]; dressCode: string; travelInfo: string; musicUrl: string; shagunUpi: string; registryUrl: string };
+type FormData = { eventType: EventType; firstName: string; secondName: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact: string; age: string; template: string; coverPhotoUrl: string; galleryUrls: string[]; events: { name: string; date: string; time: string; venue: string; address: string; maps?: string }[]; dressCode: string; travelInfo: string; musicUrl: string; shagunUpi: string; registryUrl: string; layoutType?: string };
 
+export const ARCHITECTURE_LAYOUTS = [
+  { id: "classic", title: "Classic Stationery", icon: "💌", desc: "Refined foil-stamped card with envelope & seal" },
+  { id: "cinematic", title: "Cinematic Microsite", icon: "🎬", desc: "Full storybook website, hero photo & bridal squad" },
+  { id: "cartoon", title: "Cartoon & Caricature", icon: "🎨", desc: "Floral rickshaw, animated avatars & Jaimala garland mini-game" },
+  { id: "royalScroll", title: "Rajwadi Farman", icon: "📜", desc: "Ancient royal proclamation with carved gold rollers & shlokas" },
+  { id: "magazine", title: "Haute Magazine", icon: "✨", desc: "Vogue / Vanity Fair high-fashion editorial spread" },
+];
 export const CURATED_MUSIC = [
   { id: "shehnai", title: "Royal Shehnai & Sitar", tag: "Indian Traditional", url: "/audio/shehnai-celebration.wav" },
   { id: "strings", title: "Romantic Strings & Cello", tag: "Warm & Emotional", url: "/audio/romantic-strings.wav" },
@@ -53,7 +61,7 @@ const eventTypes: { name: EventType; icon: string; copy: string }[] = [
   { name: "Other", icon: "✧", copy: "Your moment, your way" },
 ];
 
-const initialForm: FormData = { eventType: "Wedding", firstName: "Arjun", secondName: "Priya", date: "2026-12-12", time: "19:00", venue: "The Courtyard, Jaipur", address: "12 Palace Road, Jaipur", maps: "https://maps.google.com", message: "We would love to celebrate this special day with you.", contact: "9876543210", age: "", template: "Elegant Gold", coverPhotoUrl: "", galleryUrls: [], events: [], dressCode: "", travelInfo: "", musicUrl: "/audio/shehnai-celebration.wav", shagunUpi: "", registryUrl: "" };
+const initialForm: FormData = { eventType: "Wedding", firstName: "Arjun", secondName: "Priya", date: "2026-12-12", time: "19:00", venue: "The Courtyard, Jaipur", address: "12 Palace Road, Jaipur", maps: "https://maps.google.com", message: "We would love to celebrate this special day with you.", contact: "9876543210", age: "", template: "Elegant Gold", coverPhotoUrl: "", galleryUrls: [], events: [], dressCode: "", travelInfo: "", musicUrl: "/audio/shehnai-celebration.wav", shagunUpi: "", registryUrl: "", layoutType: "classic" };
 
 function prettyDate(value: string) {
   if (!value) return "12 December 2026";
@@ -94,7 +102,7 @@ function InvitationMock({ form, compact = false, onPhotoUpload }: { form: FormDa
 
   return <div className={`${styles.invitationMock} ${compact ? styles.compact : ""}`} data-theme={normalizedTheme}>
     <div className={styles.mockGlow} />
-    <div className={styles.mockTopline}>INVITE7 · YOUR MOMENT, BEAUTIFULLY TOLD</div>
+    <div className={styles.mockTopline}>TRAXVA · YOUR MOMENT, BEAUTIFULLY TOLD</div>
     <div className={styles.mockOrnament}>{ornament}</div>
     <p className={styles.mockEyebrow}>You&apos;re invited</p>
     <p className={styles.mockTogether}>Together with their families</p>
@@ -130,6 +138,8 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [publishError, setPublishError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [previewPlaying, setPreviewPlaying] = useState<string | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -197,11 +207,18 @@ export default function Home() {
 
   const update = (key: keyof FormData, value: string) => setForm((current) => ({ ...current, [key]: value }));
   async function uploadPhoto(file: File) {
-    const body = new FormData(); body.append("file", file);
-    const response = await fetch("/api/uploads", { method: "POST", body });
-    const result = await response.json();
-    if (!response.ok) { setPublishError(result.error || "Could not upload the photo."); return; }
-    setForm((current) => ({ ...current, coverPhotoUrl: result.url, galleryUrls: [...current.galleryUrls, result.url] }));
+    setIsUploadingPhoto(true);
+    try {
+      const body = new FormData(); body.append("file", file);
+      const response = await fetch("/api/uploads", { method: "POST", body });
+      const result = await response.json();
+      if (!response.ok) { setPublishError(result.error || "Could not upload the photo."); return; }
+      setForm((current) => ({ ...current, coverPhotoUrl: result.url, galleryUrls: [...current.galleryUrls, result.url] }));
+    } catch {
+      setPublishError("Could not upload the photo.");
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   }
   const templates = form.eventType === "Birthday" ? ["Fun & Bright", "Midnight Luxe", "Minimal Joy"] : ["Elegant Gold", "Royal Indian", "Modern Ivory", "Garden Floral", "Tamil Heritage", "Temple Kalyanam"];
   const generatedSlug = useMemo(() => invitationSlug(form.firstName, form.secondName), [form.firstName, form.secondName]);
@@ -215,25 +232,32 @@ export default function Home() {
       setPublishError("Please complete the required name, date, time and venue fields before publishing.");
       return;
     }
-    const response = await fetch("/api/invitations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, secondName: form.eventType === "Birthday" ? "" : form.secondName, template, plan }) });
-    const result = await response.json();
-    if (!response.ok) {
-      if (response.status === 401) {
-        try { localStorage.setItem("invite7-pending-invitation", JSON.stringify({ form, template })); } catch {}
-        setPublishError("Please sign in before publishing your invitation.");
-        router.push("/login?next=/");
+    setIsPublishing(true);
+    try {
+      const response = await fetch("/api/invitations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, secondName: form.eventType === "Birthday" ? "" : form.secondName, template, layoutType: form.layoutType || "classic", plan }) });
+      const result = await response.json();
+      if (!response.ok) {
+        if (response.status === 401) {
+          try { localStorage.setItem("invite7-pending-invitation", JSON.stringify({ form, template })); } catch {}
+          setPublishError("Please sign in before publishing your invitation.");
+          router.push("/login?next=/");
+          return;
+        }
+        setPublishError(result.error || "Could not publish the invitation.");
         return;
       }
-      setPublishError(result.error || "Could not publish the invitation.");
-      return;
+      setPublishError("");
+      setPublishedSlug(result.slug);
+      setPublished(true);
+      try {
+        localStorage.setItem("invite7-active-invitation-slug", result.slug);
+        localStorage.removeItem("invite7-pending-invitation");
+      } catch {}
+    } catch {
+      setPublishError("An unexpected error occurred while publishing.");
+    } finally {
+      setIsPublishing(false);
     }
-    setPublishError("");
-    setPublishedSlug(result.slug);
-    setPublished(true);
-    try {
-      localStorage.setItem("invite7-active-invitation-slug", result.slug);
-      localStorage.removeItem("invite7-pending-invitation");
-    } catch {}
   }
 
   function copyLink() {
@@ -556,7 +580,52 @@ export default function Home() {
                   <label className={styles.fullField}>UPI ID for Digital Shagun <span>(GPay / PhonePe / Paytm / BHIM)</span><input placeholder="e.g. host@okhdfcbank or 9876543210@paytm" value={form.shagunUpi} onChange={(e) => update("shagunUpi", e.target.value.trim())} /></label>
                   <label className={styles.fullField}>Gift Registry Link <span>(Amazon Wishlist, etc.)</span><input placeholder="https://www.amazon.in/... or wishlist link" value={form.registryUrl} onChange={(e) => update("registryUrl", e.target.value.trim())} /></label>
                 </div>
-              </div></>}{step === 3 && <><h3>Choose your invitation style</h3><p className={styles.formHint}>A little visual soul for your big moment.</p><div className={styles.designList}>{templates.map((name, index) => { const normKey = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); const swatchClass = (styles as Record<string, string>)[`swatch_${normKey}`] || (styles as Record<string, string>)[`swatch${index}`]; return <button key={name} className={`${styles.designChoice} ${template === name ? styles.selectedChoice : ""}`} onClick={() => selectTemplate(name)}><span className={`${styles.designSwatch} ${swatchClass}`} /><div><strong>{name}</strong><small>{templateDescriptions[name] || "Warm, timeless & golden"}</small></div>{template === name && <Check size={16} />}</button>; })}</div>
+              </div></>}{step === 3 && <>
+    <h3>Choose your invitation architecture</h3>
+    <p className={styles.formHint}>Select how your guests experience your celebration story.</p>
+    <div className={styles.designList} style={{ marginBottom: "26px" }}>
+      {ARCHITECTURE_LAYOUTS.map((arch) => (
+        <button
+          key={arch.id}
+          type="button"
+          className={`${styles.designChoice} ${(form.layoutType || "classic") === arch.id ? styles.selectedChoice : ""}`}
+          onClick={() => update("layoutType", arch.id)}
+        >
+          <span style={{ fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center", width: "42px", height: "42px", borderRadius: "10px", background: "#fbf5ea" }}>
+            {arch.icon}
+          </span>
+          <div>
+            <strong>{arch.title}</strong>
+            <small>{arch.desc}</small>
+          </div>
+          {(form.layoutType || "classic") === arch.id && <Check size={16} />}
+        </button>
+      ))}
+    </div>
+
+    <h3>Choose stationery foil theme</h3>
+    <p className={styles.formHint}>A little visual soul for your big moment.</p>
+    <div className={styles.designList}>
+      {templates.map((name, index) => {
+        const normKey = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+        const swatchClass = (styles as Record<string, string>)[`swatch_${normKey}`] || (styles as Record<string, string>)[`swatch${index}`];
+        return (
+          <button
+            key={name}
+            type="button"
+            className={`${styles.designChoice} ${template === name ? styles.selectedChoice : ""}`}
+            onClick={() => selectTemplate(name)}
+          >
+            <span className={`${styles.designSwatch} ${swatchClass}`} />
+            <div>
+              <strong>{name}</strong>
+              <small>{templateDescriptions[name] || "Warm, timeless & golden"}</small>
+            </div>
+            {template === name && <Check size={16} />}
+          </button>
+        );
+      })}
+    </div>
               <div className={styles.musicBox}>
                 <div className={styles.musicHeader}><Volume2 size={16} /> <strong>Curated Background Music</strong><small>Plays when guests break the wax seal</small></div>
                 <div className={styles.musicList}>
@@ -592,5 +661,31 @@ export default function Home() {
                   })}
                 </div>
               </div></>}{step === 4 && <><h3>One last look</h3><p className={styles.formHint}>This is exactly what your guests will see.</p><div className={styles.finalPreview}><InvitationMock form={form} onPhotoUpload={uploadPhoto} /></div></>}</div><div className={styles.previewColumn}><div className={styles.previewLabel}><span>LIVE PREVIEW</span><span><Sparkles size={12} /> Updates as you type</span></div><InvitationMock form={form} compact={step !== 4} onPhotoUpload={uploadPhoto} /></div></div><div className={styles.wizardFooter}>{step > 1 ? <button className={styles.backButton} onClick={() => setStep(step - 1)}><ChevronLeft size={16} /> Back</button> : <span />}{publishError && <p role="alert" style={{ color: "#c2593f", fontSize: "12px", margin: "0 12px", fontWeight: 500 }}>{publishError}</p>}{step < 4 ? <button className={styles.nextButton} onClick={() => setStep(step + 1)}>Continue <ChevronRight size={16} /></button> : <button className={styles.publishButton} onClick={publish}>Publish invitation <ArrowRight size={16} /></button>}</div></>}</div></div>}
+
+      {isPublishing && (
+        <HeartLoader
+          variant="fullscreen"
+          theme="gold"
+          messages={[
+            "Binding celebration memories...",
+            "Forging your bespoke invitation link...",
+            "Sealing stationery with golden foil...",
+            "Your celebration is almost live...",
+          ]}
+          subtext="Crafting your bespoke invitation"
+        />
+      )}
+      {isUploadingPhoto && (
+        <HeartLoader
+          variant="fullscreen"
+          theme="gold"
+          size="sm"
+          messages={[
+            "Uploading celebration photo...",
+            "Polishing image resolution...",
+          ]}
+          subtext="Please wait a moment"
+        />
+      )}
   </main>;
 }

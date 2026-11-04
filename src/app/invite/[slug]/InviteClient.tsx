@@ -13,8 +13,14 @@ import EnvelopeOpening from "@/components/EnvelopeOpening";
 import MobileQuickDock from "@/components/MobileQuickDock";
 import ShagunModal from "@/components/ShagunModal";
 import LuxuryTimeline from "@/components/LuxuryTimeline";
+import HeartLoader from "@/components/HeartLoader";
+import CinematicMicrositeLayout from "@/components/layouts/CinematicMicrositeLayout";
+import CartoonCaricatureLayout from "@/components/layouts/CartoonCaricatureLayout";
+import RoyalScrollLayout from "@/components/layouts/RoyalScrollLayout";
+import MagazineEditorialLayout from "@/components/layouts/MagazineEditorialLayout";
+import ExportStudioModal from "@/components/ExportStudioModal";
 
-export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; shagunUpi?: string; registryUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number> };
+export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; shagunUpi?: string; registryUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number>; layoutType?: string };
 export type InviteEvent = { name: string; date: string; time: string; venue: string; address?: string };
 export type Wish = { id: string; name: string; message: string; createdAt: string };
 
@@ -40,6 +46,14 @@ export const STATIONERY_THEMES = [
   { id: "midnightLuxe", label: "Midnight Luxe", icon: "✨" },
   { id: "elegantGold", label: "Elegant Gold", icon: "✦" },
   { id: "templeKalyanam", label: "Temple Doors", icon: "🪔" },
+];
+
+export const LAYOUT_OPTIONS = [
+  { id: "classic", label: "Classic Stationery", icon: "💌" },
+  { id: "cinematic", label: "Cinematic Microsite", icon: "🎬" },
+  { id: "cartoon", label: "Cartoon & Doodle", icon: "🎨" },
+  { id: "royalscroll", label: "Rajwadi Scroll", icon: "📜" },
+  { id: "magazine", label: "Haute Magazine", icon: "✨" },
 ];
 
 function formatPhone(phone?: string) {
@@ -80,7 +94,7 @@ function calendarValue(value: Date) { return value.toISOString().replace(/[-:]/g
 
 export default function InviteClient({ invite, slug, initialWishes = [] }: { invite: Invite; slug: string; initialWishes?: Wish[] }) {
   const searchParams = useSearchParams();
-  const guestName = searchParams.get("g")?.trim() || "";
+  const guestName = (searchParams.get("guest") || searchParams.get("g") || "").trim();
   const paramTheme = searchParams.get("theme")?.trim() || "";
   const [userTheme, setUserTheme] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState("");
@@ -109,6 +123,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   const [sent, setSent] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [rsvpError, setRsvpError] = useState("");
+  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvp, setRsvp] = useState({ name: guestName, guestCount: "1", response: "attending", eventName: "", message: "" });
   const [remaining, setRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, arrived: false });
   const [expired, setExpired] = useState(false);
@@ -121,6 +136,8 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   const [downloading, setDownloading] = useState(false);
   const [showRsvpHint, setShowRsvpHint] = useState(false);
   const [hintDismissed, setHintDismissed] = useState(false);
+  const [showExportStudio, setShowExportStudio] = useState(false);
+  const [userLayout, setUserLayout] = useState<string | null>(null);
   const cardRef = useRef<HTMLElement>(null);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
@@ -151,13 +168,32 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   const displayName = invite.eventType === "Birthday" ? invite.firstName : `${invite.firstName} & ${invite.secondName}`;
   const isFamilyEvent = ["wedding", "engagement", "reception"].includes((invite.eventType || "").toLowerCase());
   const contactLabel = isFamilyEvent ? "Contact family" : "Get in touch";
-  const theme = userTheme || (paramTheme ? themeName(paramTheme) : themeName(invite.template));
+  const isDemo = searchParams.get("demo") === "true" || searchParams.get("view") === "demo";
+  const theme = isDemo
+    ? (userTheme || (paramTheme ? themeName(paramTheme) : themeName(invite.template)))
+    : themeName(invite.template);
 
   function handleSelectTheme(themeId: string) {
+    if (!isDemo) return;
     setUserTheme(themeId);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("theme", themeId);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }
+
+  const rawLayout = isDemo
+    ? (userLayout || searchParams.get("layout") || invite.layoutType || "classic")
+    : (invite.layoutType || searchParams.get("layout") || "classic");
+  const activeLayout = (rawLayout || "classic").toLowerCase().replace(/[^a-z]/g, "");
+
+  function handleSelectLayout(layoutId: string) {
+    if (!isDemo) return;
+    setUserLayout(layoutId);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("layout", layoutId);
       window.history.replaceState({}, "", url.toString());
     }
   }
@@ -208,33 +244,40 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setRsvpError("");
-    const response = await fetch(`/api/invitations/${encodeURIComponent(slug)}/rsvp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...rsvp, eventName: rsvp.eventName || events[0]?.name }),
-    });
-    if (!response.ok) {
-      const body = await response.json();
-      setRsvpError(body.error || "Could not send RSVP.");
-      return;
-    }
-    setSent(true);
-    setConfetti(true);
-    window.setTimeout(() => setConfetti(false), 2600);
-    if (rsvp.message && rsvp.message.trim()) {
-      setWishes((prev) => [
-        {
-          id: crypto.randomUUID(),
-          name: rsvp.name.trim(),
-          message: rsvp.message.trim(),
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
+    setIsSubmittingRsvp(true);
+    try {
+      const response = await fetch(`/api/invitations/${encodeURIComponent(slug)}/rsvp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...rsvp, eventName: rsvp.eventName || events[0]?.name }),
+      });
+      if (!response.ok) {
+        const body = await response.json();
+        setRsvpError(body.error || "Could not send RSVP.");
+        return;
+      }
+      setSent(true);
+      setConfetti(true);
+      window.setTimeout(() => setConfetti(false), 2600);
+      if (rsvp.message && rsvp.message.trim()) {
+        setWishes((prev) => [
+          {
+            id: crypto.randomUUID(),
+            name: rsvp.name.trim(),
+            message: rsvp.message.trim(),
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
+    } catch {
+      setRsvpError("Could not send RSVP.");
+    } finally {
+      setIsSubmittingRsvp(false);
     }
   }
-  function addToCalendar() { const eventsIcs = events.map((event, index) => { const start = new Date(`${event.date}T${event.time || "19:00"}`); const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); return ["BEGIN:VEVENT", `UID:invite7-${slug}-${index}@invite7.in`, `DTSTAMP:${calendarValue(new Date())}`, `DTSTART:${calendarValue(start)}`, `DTEND:${calendarValue(end)}`, `SUMMARY:${icsText(`${displayName} · ${event.name}`)}`, `LOCATION:${icsText(`${event.venue}, ${event.address || ""}`)}`, `DESCRIPTION:${icsText(invite.message)}`, "END:VEVENT"].join("\r\n"); }).join("\r\n"); const calendar = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite7//Invitation//EN", eventsIcs, "END:VCALENDAR"].join("\r\n"); const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = `${invite.firstName}-events.ics`; link.click(); URL.revokeObjectURL(url); }
-  if (expired) return <main className={styles.expired}><div className={styles.expiredCard}><div className={styles.kicker}>INVITE7</div><h1>This invitation<br /><em>has expired.</em></h1><p>The invitation link is no longer active.</p><Link href="/">Create your own invitation <Send size={14} /></Link></div></main>;
+  function addToCalendar() { const eventsIcs = events.map((event, index) => { const start = new Date(`${event.date}T${event.time || "19:00"}`); const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); return ["BEGIN:VEVENT", `UID:invite7-${slug}-${index}@invite7.in`, `DTSTAMP:${calendarValue(new Date())}`, `DTSTART:${calendarValue(start)}`, `DTEND:${calendarValue(end)}`, `SUMMARY:${icsText(`${displayName} · ${event.name}`)}`, `LOCATION:${icsText(`${event.venue}, ${event.address || ""}`)}`, `DESCRIPTION:${icsText(invite.message)}`, "END:VEVENT"].join("\r\n"); }).join("\r\n"); const calendar = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//TRAXVA//Invitation//EN", eventsIcs, "END:VCALENDAR"].join("\r\n"); const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = `${invite.firstName}-events.ics`; link.click(); URL.revokeObjectURL(url); }
+  if (expired) return <main className={styles.expired}><div className={styles.expiredCard}><div className={styles.kicker}>TRAXVA</div><h1>This invitation<br /><em>has expired.</em></h1><p>The invitation link is no longer active.</p><Link href="/">Create your own invitation <Send size={14} /></Link></div></main>;
   return <main className={styles.invitePage} data-theme={theme}>
     <ThreeCelebrationScene variant="ambient" speed={0.8} />
     {confetti && <div className={styles.confetti} aria-hidden="true">{Array.from({ length: 24 }, (_, index) => <i key={index} />)}</div>}
@@ -294,6 +337,14 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
       <div className={styles.topActions}>
         <button
           type="button"
+          className={styles.exportStudioBtn}
+          onClick={() => setShowExportStudio(true)}
+          title="Multi-Format Export Studio (Reels, VIP Guest Cards, 300 DPI PDF)"
+        >
+          <Sparkles size={13} /> Export Studio
+        </button>
+        <button
+          type="button"
           className={styles.replayEnvelopeBtn}
           onClick={() => setShowCover(true)}
           title="Replay Envelope Opening Animation"
@@ -309,29 +360,103 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
       </div>
     </div>
 
-    {/* Interactive Stationery Style Switcher Bar in Guest View */}
-    <div className={styles.stationerySwitcherBar} role="toolbar" aria-label="Select Stationery Style">
-      <div className={styles.switcherLabel}>
-        <Sparkles size={13} />
-        <span>SELECT STATIONERY STYLE:</span>
-      </div>
-      <div className={styles.switcherList}>
-        {STATIONERY_THEMES.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`${styles.switcherPill} ${theme === item.id ? styles.switcherPillActive : ""}`}
-            onClick={() => handleSelectTheme(item.id)}
-            title={`Switch style to ${item.label}`}
-          >
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
+    {/* Interactive Switcher Bar - ONLY in Demo / Showcase Mode */}
+    {isDemo && (
+      <div className={styles.layoutSwitcherBar} role="toolbar" aria-label="Demo Preview · Select Layout and Style">
+        <div className={styles.layoutSwitcherHeader}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <Sparkles size={13} />
+            <span>DEMO PREVIEW · CHOOSE INVITATION ARCHITECTURE:</span>
+          </div>
+          <span style={{ fontSize: "10px", color: "#8a662d", letterSpacing: "0.5px" }}>GUEST MODE: LOCKED TO HOST&apos;S CHOICE</span>
+        </div>
+        <div className={styles.switcherList} style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" }}>
+          {LAYOUT_OPTIONS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`${styles.switcherPill} ${activeLayout === item.id ? styles.switcherPillActive : ""}`}
+              onClick={() => handleSelectLayout(item.id)}
+              title={`Switch layout to ${item.label}`}
+            >
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
 
-    <section className={styles.modernInvite} ref={cardRef}><div className={styles.modernStory} style={invite.coverPhotoUrl ? { backgroundImage: `linear-gradient(#263b33dd,#263b33dd),url(${invite.coverPhotoUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}><div className={styles.storyBadge}><Sparkles size={14} /> {copy.save}</div><p className={styles.kicker}>{copy.invited}</p><p className={styles.together}>{copy.together}</p><h1>{displayName}</h1><p className={styles.inviteCopy}>{invite.eventType === "Birthday" ? `invite you to celebrate ${invite.age ? `their ${invite.age}th birthday` : "their birthday"}` : `joyfully invite you to celebrate their ${invite.eventType.toLowerCase()}`}</p><div className={styles.storyLine}><span /> {invite.date.split("-").reverse().join(" · ")} <span /></div><p className={styles.message}>{invite.message}</p><div className={styles.storyFooter}><span>A TRAXVA EXPERIENCE</span><span>01 / 01</span></div></div>
+        {/* If Classic Stationery is active, also offer the 5 Stationery Foil Themes */}
+        {activeLayout === "classic" && (
+          <div style={{ borderTop: "1px dashed rgba(223, 183, 108, 0.4)", paddingTop: "8px", marginTop: "2px" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "1px", color: "#666", marginBottom: "6px", textTransform: "uppercase" }}>
+              Classic Stationery Foil Theme:
+            </div>
+            <div className={styles.switcherList} style={{ display: "flex", gap: "6px", overflowX: "auto" }}>
+              {STATIONERY_THEMES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`${styles.switcherPill} ${theme === item.id ? styles.switcherPillActive : ""}`}
+                  onClick={() => handleSelectTheme(item.id)}
+                  title={`Switch style to ${item.label}`}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    {activeLayout === "cinematic" ? (
+      <CinematicMicrositeLayout
+        invite={invite}
+        displayName={displayName}
+        onRsvpClick={() => setShowRsvp(true)}
+        onCalendarClick={addToCalendar}
+        onShagunClick={() => setShowShagunModal(true)}
+        dateLabel={dateLabel}
+        timeLabel={timeLabel}
+        targetDate={`${invite.date}T${invite.time || "19:00"}`}
+      />
+    ) : activeLayout === "cartoon" ? (
+      <CartoonCaricatureLayout
+        invite={invite}
+        displayName={displayName}
+        onRsvpClick={() => setShowRsvp(true)}
+        onCalendarClick={addToCalendar}
+        onShagunClick={() => setShowShagunModal(true)}
+        dateLabel={dateLabel}
+        timeLabel={timeLabel}
+        targetDate={`${invite.date}T${invite.time || "19:00"}`}
+      />
+    ) : activeLayout === "royalscroll" ? (
+      <RoyalScrollLayout
+        invite={invite}
+        displayName={displayName}
+        onRsvpClick={() => setShowRsvp(true)}
+        onCalendarClick={addToCalendar}
+        onShagunClick={() => setShowShagunModal(true)}
+        dateLabel={dateLabel}
+        timeLabel={timeLabel}
+        targetDate={`${invite.date}T${invite.time || "19:00"}`}
+      />
+    ) : activeLayout === "magazine" ? (
+      <MagazineEditorialLayout
+        invite={invite}
+        displayName={displayName}
+        onRsvpClick={() => setShowRsvp(true)}
+        onCalendarClick={addToCalendar}
+        onShagunClick={() => setShowShagunModal(true)}
+        dateLabel={dateLabel}
+        timeLabel={timeLabel}
+        targetDate={`${invite.date}T${invite.time || "19:00"}`}
+      />
+    ) : (
+      <>
+        <section className={styles.modernInvite} ref={cardRef}><div className={styles.modernStory} style={invite.coverPhotoUrl ? { backgroundImage: `linear-gradient(#263b33dd,#263b33dd),url(${invite.coverPhotoUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}><div className={styles.storyBadge}><Sparkles size={14} /> {copy.save}</div><p className={styles.kicker}>{copy.invited}</p><p className={styles.together}>{copy.together}</p><h1>{displayName}</h1><p className={styles.inviteCopy}>{invite.eventType === "Birthday" ? `invite you to celebrate ${invite.age ? `their ${invite.age}th birthday` : "their birthday"}` : `joyfully invite you to celebrate their ${invite.eventType.toLowerCase()}`}</p><div className={styles.storyLine}><span /> {invite.date.split("-").reverse().join(" · ")} <span /></div><p className={styles.message}>{invite.message}</p><div className={styles.storyFooter}><span>A TRAXVA EXPERIENCE</span><span>01 / 01</span></div></div>
       <div className={styles.modernInfo}>
         <div className={styles.infoTop}>
           <span className={styles.live}>
@@ -479,6 +604,8 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
           )}
         </div>
       </section>
+    )}
+      </>
     )}
 
     {/* ✨ Live Wishes & Blessings Wall */}
@@ -823,7 +950,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
     <MobileQuickDock
       enabled={!showCover}
       hasRsvpd={sent}
-      mapsUrl={invite.maps || "https://maps.google.com"}
+      mapsUrl={invite.maps || (invite.venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${invite.venue}, ${invite.address || ""}`)}` : "https://maps.google.com")}
       onRsvpClick={() => {
         setShowRsvp(true);
         setShowRsvpHint(false);
@@ -843,5 +970,25 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
         registryUrl={invite.registryUrl}
       />
     )}
+
+    <ExportStudioModal
+      isOpen={showExportStudio}
+      onClose={() => setShowExportStudio(false)}
+      invite={invite}
+      displayName={displayName}
+      slug={slug}
+    />
+      {isSubmittingRsvp && (
+        <HeartLoader
+          variant="fullscreen"
+          theme={theme === "royalIndian" || theme === "templeKalyanam" ? "royal" : "gold"}
+          messages={[
+            "Delivering your blessings to the family...",
+            "Confirming celebration attendance...",
+            "Sealing with love and warm hospitality...",
+          ]}
+          subtext="Submitting your RSVP"
+        />
+      )}
   </main>;
 }

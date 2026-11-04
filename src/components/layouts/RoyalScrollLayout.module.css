@@ -1,0 +1,284 @@
+/* Royal Rajwadi Farman Scroll Layout */
+.scrollShell {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 1. The Physical Scroll Construction */
+.scrollContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Top Carved Gold Wooden Roller */
+.rollerTop,
+.rollerBottom {
+  width: min(780px, 100%);
+  height: 28px;
+  background: linear-gradient(180deg, #dfb76c 0%, #8a6526 50%, #dfb76c 100%);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.finialLeft,
+.finialRight {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f9e7b9 0%, #b8861b 70%, #593e0b 100%);
+  border: 2px solid #dfb76c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  margin-top: -5px;
+}
+.finialLeft { margin-left: -24px; }
+.finialRight { margin-right: -24px; }
+
+/* The Parchment Body */
+.parchmentBody {
+  width: min(720px, calc(100% - 24px));
+  background: #fbf5e6;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 80%),
+    linear-gradient(180deg, #f5ebd3 0%, #fbf6ea 30%, #fbf6ea 70%, #f5ebd3 100%);
+  border-left: 6px double #b8861b;
+  border-right: 6px double #b8861b;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  padding: 56px 48px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  margin: -6px 0;
+}
+
+/* Inner Ornate Gold Border */
+.innerBorder {
+  border: 2px solid #b8861b;
+  border-radius: 12px;
+  padding: 36px 28px;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(184, 134, 27, 0.08);
+}
+
+.cornerMotif {
+  position: absolute;
+  color: #b8861b;
+  font-size: 16px;
+  line-height: 1;
+}
+.tl { top: 8px; left: 8px; }
+.tr { top: 8px; right: 8px; }
+.bl { bottom: 8px; left: 8px; }
+.br { bottom: 8px; right: 8px; }
+
+/* Sanskrit Header */
+.shlokaBox {
+  margin-bottom: 24px;
+}
+
+.ganeshaSymbol {
+  font-size: 38px;
+  color: #8b1828;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.sanskritText {
+  font-family: Georgia, serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #8b1828;
+  letter-spacing: 1.5px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.royalBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #b8861b;
+  border-top: 1px solid rgba(184, 134, 27, 0.3);
+  border-bottom: 1px solid rgba(184, 134, 27, 0.3);
+  padding: 4px 18px;
+  margin: 18px 0;
+}
+
+.royalTitle {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(38px, 5.5vw, 64px);
+  font-weight: 400;
+  color: #5c0f1b;
+  margin: 14px 0 10px;
+  letter-spacing: -1px;
+}
+
+.royalProclamation {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #594736;
+  max-width: 520px;
+  margin: 0 auto 30px;
+}
+
+/* Auspicious Muhurtham Seal */
+.muhurthamSeal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.muhurthamLine {
+  height: 1px;
+  background: #b8861b;
+  flex: 1;
+}
+
+.sealCircle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #6b0f1a;
+  border: 3px double #dfb76c;
+  color: #dfb76c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 6px 18px rgba(107, 15, 26, 0.4);
+}
+
+.sealCircle span:first-child {
+  font-size: 18px;
+}
+
+/* Event Itinerary Summary in Farman */
+.farmanDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 26px 0;
+  padding: 20px;
+  background: rgba(212, 175, 55, 0.08);
+  border-radius: 8px;
+  border: 1px dashed rgba(184, 134, 27, 0.35);
+}
+
+.farmanDetails p {
+  margin: 0;
+  font-size: 15px;
+  color: #4a3627;
+}
+
+.farmanDetails strong {
+  color: #6b0f1a;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 18px;
+}
+
+/* Farman Action Buttons */
+.farmanActions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.farmanPrimaryBtn {
+  background: #6b0f1a;
+  color: #fbeccb;
+  border: 2px solid #dfb76c;
+  border-radius: 999px;
+  padding: 13px 30px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(107, 15, 26, 0.35);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.farmanPrimaryBtn:hover {
+  transform: translateY(-2px);
+  background: #801321;
+}
+
+.farmanSecondaryBtn {
+  background: #fff;
+  color: #6b0f1a;
+  border: 1px solid #b8861b;
+  border-radius: 999px;
+  padding: 13px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.farmanSecondaryBtn:hover {
+  background: #fdf6e6;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .parchmentBody {
+    padding: 36px 18px;
+    width: calc(100% - 16px);
+  }
+  .innerBorder {
+    padding: 24px 14px;
+  }
+  .sanskritText {
+    font-size: 12.5px;
+  }
+  .royalTitle {
+    font-size: 34px;
+  }
+  .farmanActions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .farmanPrimaryBtn,
+  .farmanSecondaryBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 46px;
+  }
+  .finialLeft,
+  .finialRight {
+    width: 28px;
+    height: 28px;
+  }
+  .finialLeft { margin-left: -16px; }
+  .finialRight { margin-right: -16px; }
+}
+
