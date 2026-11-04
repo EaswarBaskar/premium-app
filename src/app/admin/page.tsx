@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import styles from "./admin.module.css";
 import BrandLogo from "@/components/BrandLogo";
+import AdminVisitorGlobe from "@/components/AdminVisitorGlobe";
 
 type EnrichedInvitation = {
   id: string;
@@ -86,7 +87,7 @@ export default function AdminPage() {
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastSyncTime, setLastSyncTime] = useState("");
-  const [activeTab, setActiveTab] = useState<"invitations" | "rsvps" | "whatsapp" | "settings">("invitations");
+  const [activeTab, setActiveTab] = useState<"invitations" | "rsvps" | "globe" | "whatsapp" | "settings">("invitations");
   const [search, setSearch] = useState("");
   const [templateFilter, setTemplateFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -351,14 +352,30 @@ export default function AdminPage() {
             <div className={styles.kicker}>PLATFORM MANAGEMENT</div>
             <h1>Superadmin Portal</h1>
           </div>
-          <button
-            type="button"
-            onClick={() => loadData()}
-            className={styles.actionBtn}
-            style={{ background: "#fff", padding: "8px 14px", fontSize: "12px" }}
-          >
-            <RefreshCw size={13} /> Refresh Data
-          </button>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab(activeTab === "globe" ? "invitations" : "globe")}
+              className={styles.actionBtn}
+              style={{
+                background: activeTab === "globe" ? "#171615" : "#fff",
+                color: activeTab === "globe" ? "#fff" : "#171615",
+                padding: "8px 14px",
+                fontSize: "12px",
+                borderColor: activeTab === "globe" ? "#171615" : "#e5dfd6",
+              }}
+            >
+              <Globe2 size={13} /> {activeTab === "globe" ? "Exit Globe View" : "3D Visitor Globe"}
+            </button>
+            <button
+              type="button"
+              onClick={() => loadData()}
+              className={styles.actionBtn}
+              style={{ background: "#fff", padding: "8px 14px", fontSize: "12px" }}
+            >
+              <RefreshCw size={13} /> Refresh Data
+            </button>
+          </div>
         </div>
 
         {/* Global KPIs */}
@@ -375,8 +392,18 @@ export default function AdminPage() {
             <span>{data?.metrics.attendingRsvps || 0} attending · {data?.metrics.declinedRsvps || 0} declined</span>
           </div>
 
-          <div className={styles.kpiCard}>
-            <small>Global Page Views</small>
+          <div
+            className={styles.kpiCard}
+            onClick={() => setActiveTab("globe")}
+            style={{ cursor: "pointer", position: "relative" }}
+            title="Click to explore interactive 3D Visitor Globe"
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <small>Global Page Views</small>
+              <span style={{ fontSize: "9px", background: "rgba(212, 175, 55, 0.18)", color: "#b4945b", padding: "2px 7px", borderRadius: "999px", fontWeight: 700 }}>
+                3D GLOBE ↗
+              </span>
+            </div>
             <strong style={{ color: "#b4945b" }}>{data?.metrics.totalViews || 0}</strong>
             <span>{Object.keys(data?.metrics.globalPlaces || {}).length > 0 ? Object.entries(data?.metrics.globalPlaces || {}).slice(0, 3).map(([p, c]) => `${p} (${c})`).join(" · ") : "Across all live invitations"}</span>
           </div>
@@ -403,6 +430,13 @@ export default function AdminPage() {
             onClick={() => setActiveTab("rsvps")}
           >
             <Heart size={15} /> Master RSVP Stream ({data?.rsvps.length || 0})
+          </button>
+          <button
+            type="button"
+            className={`${styles.tabBtn} ${activeTab === "globe" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("globe")}
+          >
+            <Globe2 size={15} /> 3D Visitor Globe
           </button>
           <button
             type="button"
@@ -604,6 +638,26 @@ export default function AdminPage() {
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {/* TAB: 3D LIVE VISITOR GLOBE */}
+        {activeTab === "globe" && (
+          <div>
+            <div className={styles.tableHeader} style={{ marginBottom: "18px" }}>
+              <div>
+                <h3 style={{ fontFamily: "Georgia, serif", fontSize: "1.28rem", margin: "0 0 4px", color: "#171615" }}>
+                  Global Audience Telemetry &amp; Live Visits
+                </h3>
+                <p style={{ margin: 0, fontSize: "12px", color: "#746e64" }}>
+                  Interactive 3D geospatial distribution of guests opening invitations, reviewing event locations, and confirming RSVPs worldwide.
+                </p>
+              </div>
+            </div>
+            <AdminVisitorGlobe
+              globalPlaces={data?.metrics.globalPlaces}
+              totalViews={data?.metrics.totalViews}
+            />
           </div>
         )}
 

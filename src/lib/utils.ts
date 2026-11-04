@@ -1,9 +1,22 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+export type ClassValue = string | number | boolean | undefined | null | { [key: string]: boolean | undefined | null } | ClassValue[];
 
-/** Combines Tailwind utility classes without conflicting declarations. */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+/** Combines class names cleanly without external dependencies. */
+export function cn(...inputs: ClassValue[]): string {
+  const classes: string[] = [];
+  for (const item of inputs) {
+    if (!item) continue;
+    if (typeof item === "string" || typeof item === "number") {
+      classes.push(String(item));
+    } else if (Array.isArray(item)) {
+      const inner = cn(...item);
+      if (inner) classes.push(inner);
+    } else if (typeof item === "object") {
+      for (const [key, val] of Object.entries(item)) {
+        if (val) classes.push(key);
+      }
+    }
+  }
+  return classes.join(" ");
 }
 
 export const EVENTS = {

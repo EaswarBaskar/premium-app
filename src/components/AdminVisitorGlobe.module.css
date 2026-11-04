@@ -1,0 +1,481 @@
+.globeWrapper {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+  background: #0b0f19;
+  border: 1px solid #1e293b;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  margin-bottom: 28px;
+  color: #f1f5f9;
+}
+
+/* ===================================================
+   CANVAS PANEL (LEFT)
+   =================================================== */
+.canvasPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 50%, #151e32 0%, #080c14 100%);
+  border-right: 1px solid #1e293b;
+  min-height: 540px;
+  overflow: hidden;
+}
+
+.canvasHeader {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.canvasTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.globeIcon {
+  color: #dfb76c;
+}
+
+.canvasTitle strong {
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  color: #f8fafc;
+}
+
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #34d399;
+  font-weight: 600;
+}
+
+.pulseDot {
+  animation: pulseBeacon 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseBeacon {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.canvasControls {
+  display: flex;
+  gap: 8px;
+}
+
+.ctrlBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ctrlBtn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.ctrlActive {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #dfb76c;
+}
+
+.webglMount {
+  width: 100%;
+  height: 100%;
+  min-height: 540px;
+  cursor: grab;
+}
+
+.webglMount:active {
+  cursor: grabbing;
+}
+
+.cityTooltip {
+  position: absolute;
+  top: 70px;
+  left: 20px;
+  z-index: 15;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: tooltipFadeIn 0.2s ease-out;
+  pointer-events: none;
+  min-width: 180px;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltipTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.tooltipFlag {
+  font-size: 1.5rem;
+}
+
+.tooltipTop strong {
+  display: block;
+  font-size: 0.92rem;
+  color: #f8fafc;
+}
+
+.tooltipTop small {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.tooltipStats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: #dfb76c;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 6px;
+}
+
+.tooltipPill {
+  color: #94a3b8;
+  font-size: 0.7rem;
+}
+
+.canvasHint {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.72rem;
+  color: #64748b;
+  letter-spacing: 0.4px;
+  pointer-events: none;
+}
+
+/* ===================================================
+   INTELLIGENCE SIDEBAR (RIGHT)
+   =================================================== */
+.intelPanel {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: #0f172a;
+  gap: 18px;
+}
+
+.miniStatsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.miniStatCard {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.miniStatCard small {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.miniStatCard strong {
+  font-family: Georgia, serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+  color: #dfb76c;
+}
+
+.miniStatCard span {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* Filter Bar */
+.filterBar {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 12px;
+}
+
+.filterPill {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterPill:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+}
+
+.filterActive {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.45);
+  color: #dfb76c;
+}
+
+/* City Leaderboard */
+.cityListContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  padding: 0 8px;
+}
+
+.cityList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.cityList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cityList::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.cityRow {
+  display: grid;
+  grid-template-columns: 24px 28px 1fr 65px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cityRow:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(212, 175, 55, 0.3);
+  transform: translateX(3px);
+}
+
+.cityRowSelected {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #dfb76c;
+}
+
+.cityRank {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+}
+
+.cityFlag {
+  font-size: 1.1rem;
+}
+
+.cityMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.cityNameRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.cityNameRow strong {
+  font-size: 0.82rem;
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+.cityNameRow small {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.barTrack {
+  width: 100%;
+  height: 3px;
+  background: #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #dfb76c, #10b981);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.cityNumbers {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.cityNumbers strong {
+  font-size: 0.84rem;
+  color: #dfb76c;
+}
+
+.cityNumbers small {
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+/* Live Activity Stream */
+.liveActivityBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px dashed rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: #dfb76c;
+}
+
+.activityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: #cbd5e1;
+}
+
+.activityIcon {
+  color: #10b981;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.activityItem p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.activityItem strong {
+  color: #f8fafc;
+}
+
+.activityItem small {
+  display: block;
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ===================================================
+   RESPONSIVENESS
+   =================================================== */
+@media (max-width: 960px) {
+  .globeWrapper {
+    grid-template-columns: 1fr;
+  }
+  .canvasPanel {
+    border-right: none;
+    border-bottom: 1px solid #1e293b;
+    min-height: 440px;
+  }
+  .webglMount {
+    min-height: 440px;
+  }
+}
