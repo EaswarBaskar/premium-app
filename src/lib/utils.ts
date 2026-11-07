@@ -19,57 +19,104 @@ export function cn(...inputs: ClassValue[]): string {
   return classes.join(" ");
 }
 
-export const EVENTS = {
-  engagement: {
-    date: new Date('2026-10-30T10:00:00'),
-    journeyStart: new Date(), 
-    label: 'Engagement Day',
-    title: 'Easwar & Pavithra — Engagement'
-  },
-  wedding: {
-    date: new Date('2027-02-26T10:00:00'),
-    journeyStart: new Date('2026-10-30T10:00:00'),
-    label: 'Wedding Day',
-    title: 'Easwar & Pavithra — Wedding'
+export type EventKey = "engagement" | "wedding";
+
+export interface DynamicCalendarEvent {
+  title?: string;
+  date?: Date | string;
+  venue?: string;
+  description?: string;
+  url?: string;
+}
+
+export function formatDate(d: Date | string): string {
+  const dateObj = typeof d === "string" ? new Date(d) : d;
+  if (!dateObj || Number.isNaN(dateObj.getTime())) {
+    return "Date to be announced";
   }
-} as const;
-
-export type EventKey = keyof typeof EVENTS;
-
-export function formatDate(d: Date) {
-  return d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+  return dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
 
-function toICSDate(d: Date) {
-  return d.toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+function toICSDate(d: Date): string {
+  return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 }
 
-export function addToCalendar(key: EventKey) {
-  const ev = EVENTS[key];
-  const start = toICSDate(ev.date);
-  const endDate = new Date(ev.date.getTime() + 2*60*60*1000);
+/**
+ * Exports a standard .ics calendar invite dynamically using the active event details.
+ */
+export function addToCalendar(event?: DynamicCalendarEvent | string) {
+  let title = "Celebration & Auspicious Gathering";
+  let targetDate = new Date(Date.now() + 30 * 86400000);
+  let venue = "";
+  let description = "Save the date for our celebration!";
+
+  if (typeof event === "object" && event !== null) {
+    if (event.title) title = event.title;
+    if (event.date) {
+      const parsed = typeof event.date === "string" ? new Date(event.date) : event.date;
+      if (!Number.isNaN(parsed.getTime())) targetDate = parsed;
+    }
+    if (event.venue) venue = event.venue;
+    if (event.description) description = event.description;
+  } else if (typeof event === "string" && event.trim()) {
+    title = event.trim();
+  }
+
+  const start = toICSDate(targetDate);
+  const endDate = new Date(targetDate.getTime() + 3 * 60 * 60 * 1000);
   const end = toICSDate(endDate);
-  const ics = [
-    'BEGIN:VCALENDAR','VERSION:2.0','BEGIN:VEVENT',
-    'SUMMARY:' + ev.title,
-    'DTSTART:' + start,
-    'DTEND:' + end,
-    'DESCRIPTION:Save the date!',
-    'END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
-  const blob = new Blob([ics], {type:'text/calendar'});
-  const link = document.createElement('a');
+
+  const icsLines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//TRAXVA//Digital Celebrations//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `SUMMARY:${title.replace(/[\r\n]+/g, " ")}`,
+    `DTSTART:${start}`,
+    `DTEND:${end}`,
+    `DESCRIPTION:${description.replace(/[\r\n]+/g, " ")}`,
+  ];
+
+  if (venue) {
+    icsLines.push(`LOCATION:${venue.replace(/[\r\n]+/g, " ")}`);
+  }
+
+  icsLines.push("STATUS:CONFIRMED", "END:VEVENT", "END:VCALENDAR");
+
+  const ics = icsLines.join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = key + '.ics';
+  const cleanFileName = (title.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase().slice(0, 30) || "celebration") + ".ics";
+  link.download = cleanFileName;
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 
-export function shareEvent(key: EventKey) {
-  const ev = EVENTS[key];
-  const text = `${ev.title} — ${formatDate(ev.date)}`;
-  if (navigator.share) {
-    navigator.share({ title: ev.title, text: text, url: window.location.href }).catch(()=>{});
-  } else {
-    navigator.clipboard.writeText(text + ' ' + window.location.href);
+/**
+ * Shares the celebration link dynamically via Web Share API or Clipboard.
+ */
+export function shareEvent(event?: DynamicCalendarEvent | string) {
+  let title = "Celebration Invitation";
+  let dateStr = "";
+
+  if (typeof event === "object" && event !== null) {
+    if (event.title) title = event.title;
+    if (event.date) dateStr = ` — ${formatDate(event.date)}`;
+  } else if (typeof event === "string" && event.trim()) {
+    title = event.trim();
+  }
+
+  const text = `${title}${dateStr}`;
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "https://traxva.in";
+
+  if (typeof navigator !== "undefined" && navigator.share) {
+    navigator.share({ title, text, url: shareUrl }).catch(() => {});
+  } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+    navigator.clipboard.writeText(`${text} ${shareUrl}`).catch(() => {});
   }
 }

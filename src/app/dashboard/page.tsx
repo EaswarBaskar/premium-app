@@ -665,7 +665,7 @@ function formatWaNumber(phone: string) {
             <p>We&apos;ll create a personal WhatsApp invite for them.</p>
             <label>
               Full name
-              <input autoFocus required value={newGuest.name} onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })} placeholder="Priya Menon" />
+              <input autoFocus required value={newGuest.name} onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })} placeholder="e.g. Ramesh Kumar" />
             </label>
             <label>
               WhatsApp number <span>(10-digit mobile)</span>

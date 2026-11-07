@@ -287,7 +287,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
       <audio
         ref={audioRef}
         src={invite.musicUrl}
-        preload="auto"
+        preload="none"
         loop
         onPlay={() => setIsPlayingMusic(true)}
         onPause={() => setIsPlayingMusic(false)}
@@ -735,7 +735,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
                     required
                     value={rsvp.name}
                     onChange={(event) => setRsvp({ ...rsvp, name: event.target.value })}
-                    placeholder="e.g. Priya & Rajesh"
+                    placeholder="e.g. Rahul Sharma & Family"
                   />
                 </label>
                 <label>

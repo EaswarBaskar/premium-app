@@ -527,10 +527,11 @@
 }
 
 .tapPill {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #7a5416;
   padding: 8px 18px;
   border-radius: 999px;
+  font: inherit;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -539,7 +540,9 @@
   gap: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(223, 183, 108, 0.5);
+  cursor: pointer;
   animation: pillBounce 2.5s ease-in-out infinite;
+  touch-action: manipulation;
 }
 
 @keyframes pillBounce {

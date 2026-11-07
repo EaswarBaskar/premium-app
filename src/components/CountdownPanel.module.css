@@ -1,122 +1,227 @@
 .panel {
   display: flex;
   flex-direction: column;
+  background: radial-gradient(ellipse at top, #1c2b23 0%, #0d1512 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.28),
+    0 4px 14px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 40px 36px 34px;
+  color: #ffffff;
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% -10%, rgba(223, 183, 108, 0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.header {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 26px;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: #dfb76c;
+  font-weight: 700;
+}
+
+.title {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 500;
+  color: #ffffff;
+  margin: 8px 0 6px;
+  letter-spacing: -0.5px;
 }
 
 .eventDate {
-  margin-top: 22px;
-  font-size: 0.85rem;
-  color: var(--gold-light);
-  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #dfcaa2;
+  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .countdown {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 20px;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
 }
 
 .unit {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  padding: 14px 4px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 16px;
+  padding: 18px 8px 14px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.unit:hover {
+  transform: translateY(-3px);
+  border-color: rgba(212, 175, 55, 0.6);
 }
 
 .num {
-  font-family: var(--font-cormorant-garamond), serif;
-  font-size: 2.1rem;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(30px, 5vw, 44px);
   font-weight: 600;
-  color: var(--ivory);
+  color: #f7eedf;
   display: block;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 14px rgba(223, 183, 108, 0.4);
 }
 
 .lbl {
-  font-size: 0.65rem;
-  color: rgba(247, 239, 227, 0.6);
-  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #dfb76c;
+  margin-top: 8px;
   display: block;
 }
 
 .progressWrap {
-  margin-top: 26px;
-  text-align: left;
+  margin-top: 28px;
+  position: relative;
+  z-index: 2;
 }
 
 .progressNote {
-  font-size: 0.8rem;
-  color: rgba(247, 239, 227, 0.75);
+  font-size: 12px;
+  color: #dfcaa2;
+  letter-spacing: 0.4px;
   margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .progressTrack {
-  height: 6px;
-  border-radius: 6px;
+  height: 8px;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .progressFill {
   height: 100%;
-  border-radius: 6px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-light));
-  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b4945b 0%, #dfb76c 60%, #fff 100%);
+  box-shadow: 0 0 12px rgba(223, 183, 108, 0.7);
   transition: width 1s ease;
 }
 
 .actions {
-  margin-top: 26px;
+  margin-top: 30px;
   display: flex;
-  gap: 10px;
+  gap: 14px;
   justify-content: center;
+  position: relative;
+  z-index: 2;
+  flex-wrap: wrap;
 }
 
 .btn {
-  font-family: var(--font-inter), sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--plum);
-  background: var(--gold-light);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a160d;
+  background: linear-gradient(135deg, #dfb76c 0%, #c49a4e 100%);
   border: none;
-  padding: 11px 18px;
-  border-radius: 30px;
+  padding: 12px 24px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 18px rgba(223, 183, 108, 0.35);
 }
 
 .btn:hover {
-  background: var(--gold);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(223, 183, 108, 0.5);
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--gold-light);
+  outline: 2px solid #dfb76c;
   outline-offset: 3px;
 }
 
 .btn.secondary {
-  background: transparent;
-  color: var(--ivory);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7eedf;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: none;
 }
 
 .btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(212, 175, 55, 0.55);
 }
 
 .arrived {
-  font-family: var(--font-cormorant-garamond), serif;
-  font-size: 1.6rem;
-  color: var(--gold-light);
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.8rem;
+  color: #dfb76c;
   margin-top: 18px;
-  grid-column: 1 / -1;
+  text-align: center;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 600px) {
+  .panel {
+    padding: 28px 18px 24px;
+    border-radius: 18px;
+  }
+  .countdown {
+    gap: 8px;
+  }
+  .unit {
+    padding: 12px 4px 10px;
+    border-radius: 12px;
+  }
   .num {
-    font-size: 1.7rem;
+    font-size: 24px;
+  }
+  .lbl {
+    font-size: 9px;
+    letter-spacing: 1.2px;
+  }
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
   }
 }

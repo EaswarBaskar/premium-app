@@ -6,6 +6,7 @@ import styles from "./LuxuryTemplateShowcase.module.css";
 
 export interface LuxuryTemplateShowcaseProps {
   onSelectTemplate?: (templateName: string) => void;
+  onOpenWizard?: () => void;
 }
 
 const TEMPLATES = [
@@ -17,15 +18,15 @@ const TEMPLATES = [
     crestIcon: "❖",
     kicker: "SHUBH VIVAH · CELEBRATION",
     eyebrow: "Together with their families",
-    firstName: "Arjun",
-    secondName: "Priya",
+    firstName: "Aarav",
+    secondName: "Meera",
     tagline: "Request the honour of your presence & blessings",
     date: "12 · 12 · 2026",
     venue: "The Courtyard Palace, Jaipur",
     title: "Royal Kalyanam",
     category: "Wedding · Festive Gold & Velvet Maroon",
     chips: ["Mandala Trim", "Music Enabled", "Wax Seal"],
-    previewSlug: "arjun-priya-61c7769e?theme=royalIndian&demo=true",
+    previewSlug: "demo?theme=royalIndian",
   },
   {
     id: "garden-botanical",
@@ -43,7 +44,7 @@ const TEMPLATES = [
     title: "Garden Botanical",
     category: "Engagement & Reception · Forest Linen",
     chips: ["Laurel Arch", "RSVP Ready", "Dress Code"],
-    previewSlug: "arjun-priya-61c7769e?theme=gardenFloral&demo=true",
+    previewSlug: "demo?theme=gardenFloral",
   },
   {
     id: "midnight-luxe",
@@ -61,12 +62,13 @@ const TEMPLATES = [
     title: "Midnight Luxe",
     category: "Sangeet & Cocktail · Obsidian Noir",
     chips: ["Gold Foil", "3D Particles", "Digital Shagun"],
-    previewSlug: "arjun-priya-61c7769e?theme=midnightLuxe&demo=true",
+    previewSlug: "demo?theme=midnightLuxe",
   },
 ];
 
 export default function LuxuryTemplateShowcase({
   onSelectTemplate,
+  onOpenWizard,
 }: LuxuryTemplateShowcaseProps) {
   return (
     <section className={styles.showcaseSection} id="templates" aria-label="Curated Luxury Stationery Designs">
@@ -74,7 +76,7 @@ export default function LuxuryTemplateShowcase({
       <div className={styles.sectionHeader}>
         <div>
           <div className={styles.kicker}>
-            <Sparkles size={13} />
+            <Sparkles size={13} aria-hidden="true" />
             <span>THE TRAXVA COUTURE COLLECTION</span>
           </div>
           <h2>
@@ -82,9 +84,14 @@ export default function LuxuryTemplateShowcase({
             <em>crafted with feeling.</em>
           </h2>
         </div>
-        <a href="#wizard" className={styles.headerAction}>
-          Explore all stationery designs <ArrowRight size={15} />
-        </a>
+        <button
+          type="button"
+          className={styles.headerAction}
+          onClick={() => (onOpenWizard ? onOpenWizard() : onSelectTemplate?.("Elegant Gold"))}
+          style={{ background: "none", border: 0, cursor: "pointer", font: "inherit", padding: 0 }}
+        >
+          Explore all stationery designs <ArrowRight size={15} aria-hidden="true" />
+        </button>
       </div>
 
       {/* 3-Column Luxury Cards */}
@@ -138,8 +145,9 @@ export default function LuxuryTemplateShowcase({
                   href={`/invite/${tmpl.previewSlug}`}
                   target="_blank"
                   className={styles.previewActionBtn}
+                  aria-label={`Live Guest Preview of ${tmpl.title}`}
                 >
-                  <ExternalLink size={14} /> Live Guest Preview ↗
+                  <ExternalLink size={14} aria-hidden="true" /> Live Guest Preview ↗
                 </Link>
                 {onSelectTemplate && (
                   <button
@@ -173,4 +181,3 @@ export default function LuxuryTemplateShowcase({
     </section>
   );
 }
-

@@ -33,6 +33,7 @@ export default function CartoonCaricatureLayout({
   targetDate,
 }: CartoonLayoutProps) {
   const [hasExchangedGarland, setHasExchangedGarland] = useState(false);
+  const yearBadge = invite.date ? invite.date.split("-")[0] : new Date().getFullYear();
 
   return (
     <div className={styles.cartoonShell}>
@@ -44,7 +45,7 @@ export default function CartoonCaricatureLayout({
 
         <h1 className={styles.cartoonTitle}>{displayName}</h1>
         <p className={styles.cartoonTagline}>
-          Pack your bags, bring your best dance moves, and get ready for the craziest celebration of the year!
+          {invite.message || "Pack your bags, bring your best dance moves, and join us for an unforgettable celebration!"}
         </p>
         <div style={{ display: "inline-flex", gap: "10px", background: "#fff", border: "2px solid #222", padding: "6px 16px", borderRadius: "999px", fontSize: "13px", fontWeight: 700, margin: "10px auto 0", boxShadow: "2px 2px 0 #222" }}>
           <span>📅 {dateLabel(invite.date)}</span>
@@ -83,7 +84,7 @@ export default function CartoonCaricatureLayout({
             </div>
 
             <div className={styles.autoLicensePlate}>
-              JUST HITCHED · {invite.date.split("-")[0] || "2026"}
+              JUST HITCHED · {yearBadge}
             </div>
           </div>
 
@@ -127,37 +128,15 @@ export default function CartoonCaricatureLayout({
       </section>
 
       {/* 2. Live Countdown */}
-      <CountdownPanel targetDate={targetDate} title="Wedding Countdown Starts Now!" />
+      {targetDate && (
+        <CountdownPanel
+          targetDate={targetDate}
+          title="Celebration Countdown Starts Now!"
+          venue={invite.venue}
+        />
+      )}
 
-      {/* 3. Comic "How It Happened" Doodle Strip */}
-      <section className={styles.doodleSection}>
-        <div className={styles.doodleHead}>
-          <h2>How It All Started 💬</h2>
-          <p style={{ color: "#7a6355", fontSize: "14px" }}>A 3-step summary of our happily-ever-after adventure.</p>
-        </div>
-
-        <div className={styles.doodleGrid}>
-          <div className={styles.doodleCard}>
-            <div className={styles.doodleEmoji}>☕</div>
-            <h3>Chapter 1: The Chai Date</h3>
-            <p>They met over masala chai. She ordered samosas, he pretended he liked elaichi, and conversation lasted until the cafe closed.</p>
-          </div>
-
-          <div className={styles.doodleCard}>
-            <div className={styles.doodleEmoji}>🛵</div>
-            <h3>Chapter 2: Road Trips &amp; Maggi</h3>
-            <p>Countless scooter rides, burnt midnight Maggi noodles, and realized they couldn&apos;t live without each other&apos;s bad jokes.</p>
-          </div>
-
-          <div className={styles.doodleCard}>
-            <div className={styles.doodleEmoji}>💍</div>
-            <h3>Chapter 3: The Big Question</h3>
-            <p>He finally planned the dream proposal, dropped to one knee, and through tears and laughter, she yelled YES!</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Event Schedule Timeline */}
+      {/* 3. Event Schedule Timeline */}
       <LuxuryTimeline
         events={
           invite.events?.length
@@ -177,40 +156,25 @@ export default function CartoonCaricatureLayout({
         globalDressCode={invite.dressCode}
       />
 
-      {/* 5. What to Wear / Cartoon Dress Code Swatches */}
-      <section className={styles.dressSection}>
-        <div style={{ textAlign: "center" }}>
-          <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "28px", color: "#3d2314", margin: "0 0 6px" }}>
-            Dress To Impress! 👗👔
-          </h2>
-          <p style={{ color: "#7a6355", fontSize: "14px", margin: 0 }}>
-            Here is the festive dress mood board for the celebration days:
-          </p>
-        </div>
-
-        <div className={styles.dressGrid}>
-          <div className={styles.dressCard}>
-            <div className={styles.dressIcon}>☀️</div>
-            <span>Day 1 · Haldi</span>
-            <strong>Yellow Sunshine</strong>
-            <small>Bright yellow kurtas, sunny lehengas &amp; marigold vibes.</small>
+      {/* 4. What to Wear / Host Dress Code (Rendered only if dress code provided) */}
+      {invite.dressCode && (
+        <section className={styles.dressSection}>
+          <div style={{ textAlign: "center" }}>
+            <h2 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontSize: "28px", color: "#3d2314", margin: "0 0 6px" }}>
+              Dress To Impress! 👗👔
+            </h2>
+            <p style={{ color: "#7a6355", fontSize: "14px", margin: 0 }}>
+              Dress code recommended for our celebration:
+            </p>
           </div>
 
-          <div className={styles.dressCard}>
-            <div className={styles.dressIcon}>✨</div>
-            <span>Day 2 · Sangeet</span>
-            <strong>Bollywood Bling</strong>
-            <small>Sequins, shimmer, Indo-Western sherwanis &amp; dance shoes!</small>
+          <div style={{ marginTop: "20px", background: "#fff", border: "2px solid #222", borderRadius: "16px", padding: "20px", textAlign: "center", boxShadow: "3px 3px 0 #222" }}>
+            <span style={{ fontSize: "26px" }}>✨</span>
+            <h3 style={{ margin: "8px 0 4px", fontSize: "18px", color: "#222" }}>{invite.dressCode}</h3>
+            <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>Bring your brightest smiles and celebratory spirits!</p>
           </div>
-
-          <div className={styles.dressCard}>
-            <div className={styles.dressIcon}>👑</div>
-            <span>Day 3 · Muhurtham / Pheras</span>
-            <strong>Royal Traditional</strong>
-            <small>Kanjivaram silks, royal pastels, turbans &amp; regal ethnic elegance.</small>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

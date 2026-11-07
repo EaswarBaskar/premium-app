@@ -10,17 +10,34 @@ function redirectWithNext(request: NextRequest) {
 
 function hasAdminCredentials(request: NextRequest): boolean {
   const sessionCookie = request.cookies.get("traxva_admin_session")?.value;
-  if (sessionCookie && sessionCookie.split(".").length === 3) {
-    return true;
-  }
   const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ") && authHeader.slice(7).trim().split(".").length === 3) {
-    return true;
-  }
   const headerPasscode = request.headers.get("x-admin-passcode")?.trim();
+
+  // Reject immediately if no credentials are provided
+  if (!sessionCookie && !authHeader && !headerPasscode) {
+    return false;
+  }
+
+  // Verify structure: <base36-timestamp>.<32-char hex nonce>.<64-char hex hmac>
+  if (sessionCookie) {
+    const parts = sessionCookie.split(".");
+    if (parts.length === 3 && parts[0].length >= 4 && parts[1].length === 32 && parts[2].length === 64) {
+      return true;
+    }
+  }
+
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7).trim();
+    const parts = token.split(".");
+    if (parts.length === 3 && parts[0].length >= 4 && parts[1].length === 32 && parts[2].length === 64) {
+      return true;
+    }
+  }
+
   if (headerPasscode && headerPasscode.length >= 6) {
     return true;
   }
+
   return false;
 }
 

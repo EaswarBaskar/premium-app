@@ -63,14 +63,14 @@ export default function RoyalScrollLayout({
             </div>
 
             <div className={styles.royalBadge}>
-              ROYAL WEDDING PROCLAMATION
+              ROYAL CELEBRATION PROCLAMATION
             </div>
 
             <h1 className={styles.royalTitle}>{displayName}</h1>
 
             <p className={styles.royalProclamation}>
-              By the divine grace of the Almighty and the cherished blessings of our revered ancestors,
-              we humbly request the honour of your auspicious presence and heartfelt blessings on the sacred occasion of our wedding.
+              {invite.message ||
+                "By the divine grace of the Almighty and the cherished blessings of our revered ancestors, we humbly request the honour of your auspicious presence and heartfelt blessings on this sacred occasion."}
             </p>
 
             {/* Auspicious Muhurtham Wax Seal */}
@@ -92,9 +92,9 @@ export default function RoyalScrollLayout({
                 <strong>Shubh Muhurtham:</strong> {timeLabel(invite.time)}
               </p>
               <p>
-                <strong>Royal Venue:</strong> {invite.venue}
+                <strong>Royal Venue:</strong> {invite.venue || "Venue to be announced"}
               </p>
-              <small style={{ color: "#77634f" }}>{invite.address}</small>
+              {invite.address && <small style={{ color: "#77634f" }}>{invite.address}</small>}
             </div>
 
             <div className={styles.farmanActions}>
@@ -137,7 +137,13 @@ export default function RoyalScrollLayout({
       </div>
 
       {/* 2. Live Countdown to the Muhurtham */}
-      <CountdownPanel targetDate={targetDate} title="Auspicious Muhurtham Countdown" />
+      {targetDate && (
+        <CountdownPanel
+          targetDate={targetDate}
+          title="Auspicious Muhurtham Countdown"
+          venue={invite.venue}
+        />
+      )}
 
       {/* 3. Detailed Ceremony Timeline */}
       <LuxuryTimeline
@@ -146,7 +152,7 @@ export default function RoyalScrollLayout({
             ? invite.events
             : [
                 {
-                  name: invite.eventType || "Wedding Celebration",
+                  name: invite.eventType || "Celebration",
                   date: invite.date,
                   time: invite.time,
                   venue: invite.venue,

@@ -259,7 +259,7 @@ export default function ExportStudioModal({
                   id="vipGuestInput"
                   type="text"
                   className={styles.vipInput}
-                  placeholder="e.g. Mr. & Mrs. Sharma, Rohit & Priya..."
+                  placeholder="e.g. Mr. & Mrs. Sharma, The Kapoor Family..."
                   value={vipGuestName}
                   onChange={(e) => setVipGuestName(e.target.value)}
                 />

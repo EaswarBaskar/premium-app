@@ -232,10 +232,18 @@ export default function EnvelopeOpening({
           {/* Tap Prompt Hint */}
           {openingState === "idle" && (
             <div className={styles.tapPrompt}>
-              <span className={styles.tapPill}>
+              <button
+                type="button"
+                className={styles.tapPill}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpen();
+                }}
+                aria-label="Tap to open invitation"
+              >
                 <span className={styles.tapPulseDot} />
                 TAP TO OPEN INVITATION
-              </span>
+              </button>
             </div>
           )}
         </div>

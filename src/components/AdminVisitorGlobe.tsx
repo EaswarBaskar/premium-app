@@ -357,7 +357,7 @@ export default function AdminVisitorGlobe({
           <div className={styles.activityItem}>
             <div className={styles.activityDot} />
             <div>
-              <p>Guest opened Arjun &amp; Priya invitation from <strong>Mumbai</strong></p>
+              <p>Guest opened celebration invitation from <strong>Mumbai</strong></p>
               <small>3 mins ago · iPhone 15 Pro</small>
             </div>
           </div>

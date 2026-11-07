@@ -7,7 +7,6 @@ import styles from "./ThreeCelebrationScene.module.css";
 export interface ThreeCelebrationProps {
   variant?: "hero" | "ambient" | "rings";
   position?: "auto" | "right" | "center";
-  showBadge?: boolean;
   className?: string;
   speed?: number;
 }
@@ -25,7 +24,6 @@ function checkWebGLSupport(): boolean {
 export default function ThreeCelebrationScene({
   variant = "hero",
   position = "auto",
-  showBadge = false,
   className = "",
   speed = 1,
 }: ThreeCelebrationProps) {
@@ -377,14 +375,7 @@ export default function ThreeCelebrationScene({
   if (!isSupported) return null;
 
   return (
-    <div ref={mountRef} className={`${styles.canvasContainer} ${className}`} aria-hidden="true">
-      {showBadge && (
-        <div className={styles.badgeOverlay}>
-          <span className={styles.badgeDot} />
-          Three.js 3D WebGL Atmosphere
-        </div>
-      )}
-    </div>
+    <div ref={mountRef} className={`${styles.canvasContainer} ${className}`} aria-hidden="true" />
   );
 }
 

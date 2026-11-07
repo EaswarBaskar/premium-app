@@ -41,7 +41,7 @@ export default function MagazineEditorialLayout({
           "linear-gradient(135deg, #1f2421 0%, #111 100%)",
       };
 
-  const weddingYear = invite.date ? invite.date.split("-")[0] : "2026";
+  const weddingYear = invite.date ? invite.date.split("-")[0] : String(new Date().getFullYear());
   const dressCodeColors = [
     { name: "Champagne Gold", hex: "#dfb76c" },
     { name: "Emerald Noir", hex: "#1f3a2b" },
@@ -59,7 +59,7 @@ export default function MagazineEditorialLayout({
           <span>ISSUE N° 01</span>
         </div>
 
-        <h1 className={styles.mastheadTitle}>THE WEDDING</h1>
+        <h1 className={styles.mastheadTitle}>THE CELEBRATION</h1>
 
         <div className={styles.coverImageArea} style={coverBg}>
           <div className={styles.coverOverlay} />
@@ -76,14 +76,14 @@ export default function MagazineEditorialLayout({
         <div className={styles.coverFooter}>
           <div className={styles.barcodeArea}>
             <span>||| | | |||| | ||| |||| |</span>
-            <span>{invite.slug || "VOGUE-TRAXVA"}</span>
+            <span>{invite.slug || "TRAXVA-VIP"}</span>
           </div>
           <div>
             <strong>DATE:</strong> {dateLabel(invite.date)} ·{" "}
             <strong>TIME:</strong> {timeLabel(invite.time)} ·{" "}
-            <strong>VENUE:</strong> {invite.venue}
+            <strong>VENUE:</strong> {invite.venue || "To be announced"}
           </div>
-          <div>PRICELESS · BY INVITATION ONLY</div>
+          <div>BY INVITATION ONLY</div>
         </div>
       </article>
 
@@ -93,103 +93,110 @@ export default function MagazineEditorialLayout({
           <span style={{ fontSize: "11px", letterSpacing: "2.5px", textTransform: "uppercase", color: "#888", fontWeight: 700 }}>
             FEATURE ARTICLE · CELEBRATION DISPATCH
           </span>
-          <h3>A Modern Love Story in Fine Print</h3>
+          <h3>A Celebration in Fine Print</h3>
           <p style={{ fontSize: "14px", color: "#666", margin: 0, fontStyle: "italic" }}>
-            Written on the occasion of the union of {displayName}
+            Written on the joyous occasion of the celebration of {displayName}
           </p>
         </div>
 
         <div className={styles.columnsGrid}>
           <p>
-            {invite.firstName} and {invite.secondName} warmly request the honor of your presence as they begin this new chapter. Set against the breathtaking architecture of {invite.venue}, this celebration marks not just an event, but a symphony of traditions re-imagined for the modern connoisseur. Every detail—from bespoke floral installations to curated banquets—has been tailored to make this gathering an unforgettable experience for our cherished guests.
+            {displayName} warmly requests the honor of your gracious presence as we embark on this monumental milestone.
+            {invite.venue ? ` Set against the breathtaking ambience of ${invite.venue}, this celebration marks not just an event, but a symphony of traditions curated with contemporary elegance.` : " Join us as we celebrate fellowship, timeless memories, and joyful company."}
           </p>
           <p>
-            Join us for an evening of black-tie elegance, joyful celebrations, and timeless fellowship. Guests are encouraged to immerse themselves in the festivities, share their fondest blessings, and partake in the grand ceremonies that honor both heritage and contemporary grace.
+            {invite.message
+              ? invite.message
+              : "Guests are encouraged to immerse themselves in the festivities, share their fondest blessings, and partake in the grand ceremonies that honor both heritage and contemporary grace."}
           </p>
         </div>
 
         {/* Live Countdown in Editorial Style */}
-        <div style={{ marginTop: "32px", padding: "20px 0", borderTop: "1px solid #eee", borderBottom: "1px solid #eee" }}>
-          <CountdownPanel targetDate={targetDate} />
-        </div>
-
-        {/* Mood Board Palette */}
-        <div className={styles.moodPalette}>
-          <h4>ATTIRE &amp; MOOD BOARD PALETTE {invite.dressCode ? `· ${invite.dressCode}` : "· BLACK TIE & LUXE ETHNIC"}</h4>
-          <div className={styles.paletteSwatches}>
-            {dressCodeColors.map((color) => (
-              <div key={color.name} className={styles.swatchItem}>
-                <span
-                  className={styles.swatchCircle}
-                  style={{ backgroundColor: color.hex }}
-                />
-                <span>{color.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Ceremony Itinerary */}
-        {invite.events && invite.events.length > 0 && (
-          <div style={{ marginTop: "36px" }}>
-            <h4 style={{ fontSize: "11px", letterSpacing: "2.5px", textTransform: "uppercase", color: "#666", marginBottom: "18px" }}>
-              ITINERARY OF SOIRÉES
-            </h4>
-            <LuxuryTimeline
-        events={
-          invite.events?.length
-            ? invite.events
-            : [
-                {
-                  name: invite.eventType || "Wedding Celebration",
-                  date: invite.date,
-                  time: invite.time,
-                  venue: invite.venue,
-                  address: invite.address,
-                },
-              ]
-        }
-        displayName={displayName}
-        onRsvpEvent={() => onRsvpClick()}
-        globalDressCode={invite.dressCode}
-      />
+        {targetDate && (
+          <div style={{ marginTop: "32px", padding: "20px 0", borderTop: "1px solid #eee", borderBottom: "1px solid #eee" }}>
+            <CountdownPanel targetDate={targetDate} title={`Counting Down to ${displayName}`} venue={invite.venue} />
           </div>
         )}
 
-        {/* Venue Location Details */}
-        <div
-          style={{
-            marginTop: "32px",
-            background: "#f9f8f6",
-            border: "1px solid #eae6df",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, fontSize: "14px", textTransform: "uppercase", letterSpacing: "1px" }}>
-            <MapPin size={16} /> Destination &amp; Venue
+        {/* Mood Board Palette if dress code is specified */}
+        {invite.dressCode && (
+          <div className={styles.moodPalette}>
+            <h4>ATTIRE &amp; MOOD BOARD PALETTE · {invite.dressCode}</h4>
+            <div className={styles.paletteSwatches}>
+              {dressCodeColors.map((color) => (
+                <div key={color.name} className={styles.swatchItem}>
+                  <span
+                    className={styles.swatchCircle}
+                    style={{ backgroundColor: color.hex }}
+                  />
+                  <span>{color.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ fontSize: "16px", fontWeight: 600 }}>{invite.venue}</div>
-          <div style={{ fontSize: "13px", color: "#666" }}>{invite.address}</div>
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
-            <a
-              href={sanitizeUrl(invite.maps) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${invite.venue}, ${invite.address}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.outlineBtn}
-              style={{ fontSize: "11px", padding: "8px 18px" }}
-            >
-              <MapPin size={13} /> View on Google Maps ↗
-            </a>
-            {invite.travelInfo && (
-              <span style={{ fontSize: "12px", color: "#777", alignSelf: "center" }}>
-                ℹ️ {invite.travelInfo}
-              </span>
-            )}
-          </div>
+        )}
+
+        {/* Ceremony Itinerary */}
+        <div style={{ marginTop: "36px" }}>
+          <h4 style={{ fontSize: "11px", letterSpacing: "2.5px", textTransform: "uppercase", color: "#666", marginBottom: "18px" }}>
+            ITINERARY OF SOIRÉES
+          </h4>
+          <LuxuryTimeline
+            events={
+              invite.events?.length
+                ? invite.events
+                : [
+                    {
+                      name: invite.eventType || "Celebration",
+                      date: invite.date,
+                      time: invite.time,
+                      venue: invite.venue,
+                      address: invite.address,
+                    },
+                  ]
+            }
+            displayName={displayName}
+            onRsvpEvent={() => onRsvpClick()}
+            globalDressCode={invite.dressCode}
+          />
         </div>
+
+        {/* Venue Location Details */}
+        {(invite.venue || invite.address) && (
+          <div
+            style={{
+              marginTop: "32px",
+              background: "#f9f8f6",
+              border: "1px solid #eae6df",
+              padding: "24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, fontSize: "14px", textTransform: "uppercase", letterSpacing: "1px" }}>
+              <MapPin size={16} /> Destination &amp; Venue
+            </div>
+            {invite.venue && <div style={{ fontSize: "16px", fontWeight: 600 }}>{invite.venue}</div>}
+            {invite.address && <div style={{ fontSize: "13px", color: "#666" }}>{invite.address}</div>}
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+              <a
+                href={sanitizeUrl(invite.maps) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${invite.venue || ""}, ${invite.address || ""}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.outlineBtn}
+                style={{ fontSize: "11px", padding: "8px 18px" }}
+              >
+                <MapPin size={13} /> View on Google Maps ↗
+              </a>
+              {invite.travelInfo && (
+                <span style={{ fontSize: "12px", color: "#777", alignSelf: "center" }}>
+                  ℹ️ {invite.travelInfo}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Editorial Action Bar */}
         <div className={styles.editorialActions}>
