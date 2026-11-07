@@ -185,12 +185,26 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const ip = getClientIp(request);
+  const rateLimit = checkRateLimit(`admin-delete:${ip}`, { windowMs: 10 * 60 * 1000, max: 20 });
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: "Too many delete requests." }, { status: 429, headers: rateLimit.headers });
+  }
+
   const isAuthed = await verifyAdminAuth(request);
-  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
+  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401, headers: rateLimit.headers });
   const { searchParams } = new URL(request.url);
   const rawSlug = searchParams.get("slug");
   const slug = rawSlug ? sanitizeSlug(rawSlug) : null;
-  if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
+  if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400, headers: rateLimit.headers });
+
+  // Protected system demo slugs cannot be deleted
+  if (slug === "demo" || slug.startsWith("demo-")) {
+    return NextResponse.json(
+      { error: "Protected system demo invitations cannot be deleted." },
+      { status: 403, headers: rateLimit.headers }
+    );
+  }
 
   const supabase = getSupabaseAdmin();
   if (supabase) {
@@ -201,19 +215,28 @@ export async function DELETE(request: Request) {
 
   // Always delete from local store to guarantee dual-write synchronization
   localStore.deleteInvitation(slug);
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true }, { headers: rateLimit.headers });
 }
 
 export async function PATCH(request: Request) {
+  const ip = getClientIp(request);
+  const rateLimit = checkRateLimit(`admin-patch:${ip}`, { windowMs: 10 * 60 * 1000, max: 30 });
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: "Too many modification requests." }, { status: 429, headers: rateLimit.headers });
+  }
+
   const isAuthed = await verifyAdminAuth(request);
-  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
+  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401, headers: rateLimit.headers });
   const body = (await request.json().catch(() => ({}))) as { slug?: string; action?: string; extraDays?: number };
   const { slug: rawSlug, action = "extend", extraDays = 7 } = body;
   const slug = rawSlug ? sanitizeSlug(rawSlug) : null;
-  if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
+  if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400, headers: rateLimit.headers });
 
-  if (action !== "extend") return NextResponse.json({ success: true });
+  if (action !== "extend") return NextResponse.json({ success: true }, { headers: rateLimit.headers });
   const days = Number(extraDays) || 7;
+  if (days < 1 || days > 365) {
+    return NextResponse.json({ error: "Extension days must be between 1 and 365." }, { status: 400, headers: rateLimit.headers });
+  }
   const localExpiry = localStore.extendValidity(slug, days);
 
   const supabase = getSupabaseAdmin();
@@ -223,9 +246,9 @@ export async function PATCH(request: Request) {
       const currentExpiry = inv?.expires_at ? new Date(inv.expires_at).getTime() : Date.now();
       const newExpiry = new Date(Math.max(Date.now(), currentExpiry) + days * 86400000).toISOString();
       await supabase.from("invitations").update({ expires_at: newExpiry }).eq("slug", slug.toLowerCase());
-      return NextResponse.json({ success: true, expiresAt: newExpiry });
+      return NextResponse.json({ success: true, expiresAt: newExpiry }, { headers: rateLimit.headers });
     } catch {}
   }
 
-  return NextResponse.json({ success: true, expiresAt: localExpiry });
+  return NextResponse.json({ success: true, expiresAt: localExpiry }, { headers: rateLimit.headers });
 }

@@ -81,6 +81,10 @@ export const CURATED_MUSIC = [
   { id: "none", title: "No Background Music", tag: "Muted", url: "" },
 ];
 
+const NOW_TS = Date.now();
+const MIN_DATE_STR = new Date(NOW_TS - 30 * 86400000).toISOString().split("T")[0];
+const MAX_DATE_STR = new Date(NOW_TS + 5 * 365 * 86400000).toISOString().split("T")[0];
+
 const eventTypes: { name: EventType; icon: string; copy: string }[] = [
   { name: "Wedding", icon: "✦", copy: "For the beginning of forever" },
   { name: "Engagement", icon: "♡", copy: "A beautiful promise" },
@@ -342,8 +346,71 @@ export default function Home() {
     setForm((current) => ({ ...current, template: newTemplate }));
   }
 
-  const update = (key: keyof FormData, value: string) =>
+  const update = (key: keyof FormData, value: string) => {
+    setPublishError("");
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  function validateStep(currentStep: number): boolean {
+    if (currentStep === 1) {
+      if (!form.eventType) {
+        setPublishError("Please choose what you are celebrating to continue.");
+        return false;
+      }
+      setPublishError("");
+      return true;
+    }
+    if (currentStep === 2) {
+      if (!form.firstName.trim()) {
+        setPublishError(
+          form.eventType === "Birthday"
+            ? "Please enter the celebrant's name."
+            : "Please enter the first name."
+        );
+        return false;
+      }
+      if (form.eventType !== "Birthday" && !form.secondName.trim()) {
+        setPublishError("Please enter the second name or partner's name.");
+        return false;
+      }
+      if (!form.date) {
+        setPublishError("Please select the celebration date.");
+        return false;
+      }
+      const parsed = new Date(form.date);
+      const minDate = new Date(Date.now() - 90 * 86400000);
+      const maxDate = new Date(Date.now() + 5 * 365 * 86400000);
+      if (isNaN(parsed.getTime()) || parsed < minDate || parsed > maxDate) {
+        setPublishError("Celebration date must be within the next 5 years.");
+        return false;
+      }
+      if (!form.time) {
+        setPublishError("Please choose an event start time.");
+        return false;
+      }
+      if (!form.venue.trim()) {
+        setPublishError("Please enter the venue name.");
+        return false;
+      }
+      if (form.contact && form.contact.replace(/\D/g, "").length !== 10) {
+        setPublishError("Host WhatsApp number must be a valid 10-digit mobile number.");
+        return false;
+      }
+      if (
+        form.shagunUpi &&
+        !/^[a-zA-Z0-9.\-_]{2,64}@[a-zA-Z]{2,32}$/.test(form.shagunUpi.trim())
+      ) {
+        setPublishError(
+          "UPI ID format is invalid (e.g. host@okhdfcbank or 9876543210@paytm)."
+        );
+        return false;
+      }
+      setPublishError("");
+      return true;
+    }
+    setPublishError("");
+    return true;
+  }
 
   async function uploadPhoto(file: File) {
     setIsUploadingPhoto(true);
@@ -1279,11 +1346,13 @@ export default function Home() {
                         <p className={styles.formHint}>These details bring your invitation to life.</p>
                         <div className={styles.formGrid}>
                           <label htmlFor="wizard-firstName">
-                            {form.eventType === "Birthday" ? "Celebrant name" : "First name"}
+                            {form.eventType === "Birthday" ? "Celebrant name *" : "First name *"}
                             <input
                               id="wizard-firstName"
                               name="firstName"
                               autoComplete="given-name"
+                              maxLength={80}
+                              required
                               value={form.firstName}
                               onChange={(e) => update("firstName", e.target.value)}
                               placeholder={form.eventType === "Birthday" ? "e.g. Aarav" : "e.g. Rahul"}
@@ -1291,11 +1360,13 @@ export default function Home() {
                           </label>
 
                           <label htmlFor="wizard-secondName">
-                            {form.eventType === "Birthday" ? "Age" : "Second name"}
+                            {form.eventType === "Birthday" ? "Age" : "Second name *"}
                             <input
                               id="wizard-secondName"
                               name="secondName"
                               autoComplete="family-name"
+                              maxLength={80}
+                              required={form.eventType !== "Birthday"}
                               value={form.eventType === "Birthday" ? form.age : form.secondName}
                               onChange={(e) =>
                                 update(form.eventType === "Birthday" ? "age" : "secondName", e.target.value)
@@ -1305,33 +1376,39 @@ export default function Home() {
                           </label>
 
                           <label htmlFor="wizard-date">
-                            Date
+                            Date *
                             <input
                               id="wizard-date"
                               name="date"
                               type="date"
+                              required
+                              min={MIN_DATE_STR}
+                              max={MAX_DATE_STR}
                               value={form.date}
                               onChange={(e) => update("date", e.target.value)}
                             />
                           </label>
 
                           <label htmlFor="wizard-time">
-                            Time
+                            Time *
                             <input
                               id="wizard-time"
                               name="time"
                               type="time"
+                              required
                               value={form.time}
                               onChange={(e) => update("time", e.target.value)}
                             />
                           </label>
 
                           <label htmlFor="wizard-venue" className={styles.fullField}>
-                            Venue name
+                            Venue name *
                             <input
                               id="wizard-venue"
                               name="venue"
                               autoComplete="organization"
+                              maxLength={150}
+                              required
                               value={form.venue}
                               onChange={(e) => update("venue", e.target.value)}
                               placeholder="e.g. The Taj Palace, Mumbai"
@@ -1344,6 +1421,7 @@ export default function Home() {
                               id="wizard-address"
                               name="address"
                               autoComplete="street-address"
+                              maxLength={250}
                               value={form.address}
                               onChange={(e) => update("address", e.target.value)}
                               placeholder="e.g. Apollo Bunder, Colaba, Mumbai"
@@ -1373,6 +1451,7 @@ export default function Home() {
                             <input
                               id="wizard-maps"
                               name="maps"
+                              maxLength={300}
                               value={form.maps}
                               onChange={(e) => update("maps", e.target.value)}
                               placeholder="https://maps.app.goo.gl/..."
@@ -1385,7 +1464,7 @@ export default function Home() {
                               id="wizard-photo"
                               name="photo"
                               type="file"
-                              accept="image/*"
+                              accept="image/jpeg,image/png,image/webp,image/gif"
                               onChange={(e) => {
                                 const f = e.target.files?.[0];
                                 if (f) uploadPhoto(f);
@@ -1398,6 +1477,7 @@ export default function Home() {
                             <textarea
                               id="wizard-message"
                               name="message"
+                              maxLength={1500}
                               value={form.message}
                               onChange={(e) => update("message", e.target.value)}
                               placeholder="We would love to celebrate this special day with you..."
@@ -1413,6 +1493,7 @@ export default function Home() {
                               <input
                                 id="wizard-shagunUpi"
                                 name="shagunUpi"
+                                maxLength={80}
                                 placeholder="e.g. host@okhdfcbank or 9876543210@paytm"
                                 value={form.shagunUpi}
                                 onChange={(e) => update("shagunUpi", e.target.value.trim())}
@@ -1423,6 +1504,7 @@ export default function Home() {
                               <input
                                 id="wizard-registryUrl"
                                 name="registryUrl"
+                                maxLength={300}
                                 placeholder="https://www.amazon.in/... or wishlist link"
                                 value={form.registryUrl}
                                 onChange={(e) => update("registryUrl", e.target.value.trim())}
@@ -1674,12 +1756,26 @@ export default function Home() {
                     </p>
                   )}
                   {step < 4 ? (
-                    <button type="button" className={styles.nextButton} onClick={() => setStep(step + 1)}>
+                    <button
+                      type="button"
+                      className={styles.nextButton}
+                      onClick={() => {
+                        if (validateStep(step)) {
+                          setStep(step + 1);
+                        }
+                      }}
+                    >
                       Continue <ChevronRight size={16} />
                     </button>
                   ) : (
-                    <button type="button" className={styles.publishButton} onClick={publish}>
-                      Publish invitation <ArrowRight size={16} />
+                    <button
+                      type="button"
+                      className={styles.publishButton}
+                      onClick={publish}
+                      disabled={isPublishing}
+                    >
+                      {isPublishing ? "Publishing celebration..." : "Publish invitation"}{" "}
+                      <ArrowRight size={16} />
                     </button>
                   )}
                 </div>

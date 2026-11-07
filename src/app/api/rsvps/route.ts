@@ -25,13 +25,33 @@ export async function GET(request: Request) {
 
   // 1. In local demo mode (when Supabase is not configured)
   if (!supabase) {
-    const list = localStore.getRsvps();
-    if (slug) {
-      const inv = localStore.getInvitationBySlug(slug);
-      const filtered = list.filter((r) => r.invitation_id === slug || (inv && r.invitation_id === inv.id));
-      return NextResponse.json(filtered, { headers: rateLimit.headers });
+    if (!slug) {
+      // Viewing all RSVPs across all invitations strictly requires admin credentials
+      if (!isAdmin) {
+        return NextResponse.json(
+          { error: "Unauthorized. Administrator credentials required to view global RSVP records." },
+          { status: 401, headers: rateLimit.headers }
+        );
+      }
+      return NextResponse.json(localStore.getRsvps(), { headers: rateLimit.headers });
     }
-    return NextResponse.json(list, { headers: rateLimit.headers });
+
+    const inv = localStore.getInvitationBySlug(slug);
+    if (!inv) {
+      return NextResponse.json({ error: "Invitation not found." }, { status: 404, headers: rateLimit.headers });
+    }
+
+    // In local mode, verify admin or local owner
+    if (!isAdmin && inv.owner_id && inv.owner_id !== "local-user") {
+      return NextResponse.json(
+        { error: "Access denied. You do not own this invitation." },
+        { status: 403, headers: rateLimit.headers }
+      );
+    }
+
+    const list = localStore.getRsvps();
+    const filtered = list.filter((r) => r.invitation_id === slug || r.invitation_id === inv.id);
+    return NextResponse.json(filtered, { headers: rateLimit.headers });
   }
 
   // 2. In live mode: user must be authenticated or be an admin

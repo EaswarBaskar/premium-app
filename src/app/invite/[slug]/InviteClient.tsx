@@ -128,6 +128,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
   const [rsvp, setRsvp] = useState({ name: guestName, guestCount: "1", response: "attending", eventName: "", message: "" });
   const [remaining, setRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, arrived: false });
   const [expired, setExpired] = useState(false);
+  const [isCelebrationConcluded, setIsCelebrationConcluded] = useState(false);
   const isHostView = searchParams.get("view") === "host";
   const [wishes, setWishes] = useState<Wish[]>(initialWishes);
   const [copiedUpi, setCopiedUpi] = useState(false);
@@ -242,6 +243,16 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
 
   useEffect(() => { const tick = () => { const difference = new Date(`${invite.date}T${invite.time || "19:00"}`).getTime() - Date.now(); setRemaining(difference <= 0 || Number.isNaN(difference) ? { days: 0, hours: 0, minutes: 0, seconds: 0, arrived: true } : { days: Math.floor(difference / 86400000), hours: Math.floor(difference / 3600000) % 24, minutes: Math.floor(difference / 60000) % 60, seconds: Math.floor(difference / 1000) % 60, arrived: false }); }; tick(); const timer = window.setInterval(tick, 1000); return () => window.clearInterval(timer); }, [invite.date, invite.time]);
   useEffect(() => { const timer = window.setTimeout(() => setExpired(Boolean(invite.expiresAt && invite.expiresAt < Date.now())), 0); return () => window.clearTimeout(timer); }, [invite.expiresAt]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (!invite.date) return;
+      const eventTime = new Date(`${invite.date}T23:59:59`).getTime();
+      if (!isNaN(eventTime) && eventTime + 3 * 86400000 < Date.now()) {
+        setIsCelebrationConcluded(true);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [invite.date]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setRsvpError("");
@@ -705,7 +716,14 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
       <div className={styles.rsvpOverlay} onClick={() => setShowRsvp(false)}>
         <div className={styles.rsvpCard} role="dialog" aria-modal="true" aria-labelledby="rsvp-title" onClick={(e) => e.stopPropagation()}>
           <button className={styles.close} aria-label="Close RSVP" onClick={() => setShowRsvp(false)}>×</button>
-          {sent ? (
+          {isCelebrationConcluded ? (
+            <div className={styles.sent}>
+              <div style={{ background: "rgba(223, 183, 108, 0.15)", color: "#dfb76c" }}>✦</div>
+              <h2>Celebration Concluded</h2>
+              <p>RSVPs for this celebration are now closed as the event date has passed. Thank you for your heartfelt love and blessings!</p>
+              <button onClick={() => setShowRsvp(false)}>Close</button>
+            </div>
+          ) : sent ? (
             <div className={styles.sent}>
               <div><Check /></div>
               <h2>Thank you for letting us know.</h2>
@@ -733,6 +751,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
                   {copy.name}
                   <input
                     required
+                    maxLength={80}
                     value={rsvp.name}
                     onChange={(event) => setRsvp({ ...rsvp, name: event.target.value })}
                     placeholder="e.g. Rahul Sharma & Family"
@@ -754,6 +773,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
                 <label>
                   Warm wishes & message for {displayName} <span className={styles.optionalTag}>(Optional)</span>
                   <textarea
+                    maxLength={500}
                     value={rsvp.message}
                     onChange={(event) => setRsvp({ ...rsvp, message: event.target.value })}
                     placeholder="Write your wishes, blessings, or a note for the family here (e.g. Heartiest congratulations! So excited to celebrate with you all!)..."
@@ -764,7 +784,9 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
                   </span>
                 </label>
                 {rsvpError && <p className={styles.formError} role="alert">{rsvpError}</p>}
-                <button type="submit">Confirm & Send RSVP <Send size={15} /></button>
+                <button type="submit" disabled={isSubmittingRsvp}>
+                  {isSubmittingRsvp ? "Sending RSVP..." : "Confirm & Send RSVP"} <Send size={15} />
+                </button>
               </form>
             </>
           )}

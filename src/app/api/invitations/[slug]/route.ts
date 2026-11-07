@@ -79,10 +79,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
       return NextResponse.json({ error: "Authentication required to update invitation." }, { status: 401, headers: rateLimit.headers });
     }
 
-    // Check ownership in Supabase
+    // Check ownership & expiry in Supabase
     const { data: existingInvite } = await supabase
       .from("invitations")
-      .select("id, owner_id")
+      .select("id, owner_id, expires_at")
       .eq("slug", slug.toLowerCase())
       .maybeSingle();
 
@@ -90,6 +90,26 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
       if (!isAdmin && existingInvite.owner_id && existingInvite.owner_id !== userId) {
         return NextResponse.json({ error: "Access denied. You do not own this invitation." }, { status: 403, headers: rateLimit.headers });
       }
+      if (!isAdmin && existingInvite.expires_at && new Date(existingInvite.expires_at).getTime() < Date.now()) {
+        return NextResponse.json(
+          { error: "This invitation has expired and cannot be modified. Please renew or contact support." },
+          { status: 410, headers: rateLimit.headers }
+        );
+      }
+    }
+  }
+
+  // Check local store ownership and expiry
+  const localTarget = localStore.getInvitationBySlug(slug);
+  if (localTarget) {
+    if (!isAdmin && localTarget.owner_id && localTarget.owner_id !== "local-user" && localTarget.owner_id !== userId) {
+      return NextResponse.json({ error: "Access denied. You do not own this invitation." }, { status: 403, headers: rateLimit.headers });
+    }
+    if (!isAdmin && localTarget.expires_at && new Date(localTarget.expires_at).getTime() < Date.now()) {
+      return NextResponse.json(
+        { error: "This invitation has expired and cannot be modified." },
+        { status: 410, headers: rateLimit.headers }
+      );
     }
   }
 
@@ -97,21 +117,48 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
   const sanitizedUpdates: Partial<ExtendedInvitationRecord> = {};
 
   const firstNameInput = rawBody.first_name ?? rawBody.firstName;
-  if (typeof firstNameInput === "string") sanitizedUpdates.first_name = sanitizeText(firstNameInput, 100);
+  if (typeof firstNameInput === "string") sanitizedUpdates.first_name = sanitizeText(firstNameInput, 80);
 
   const secondNameInput = rawBody.second_name ?? rawBody.secondName;
-  if (typeof secondNameInput === "string") sanitizedUpdates.second_name = sanitizeText(secondNameInput, 100);
+  if (typeof secondNameInput === "string") sanitizedUpdates.second_name = sanitizeText(secondNameInput, 80);
 
   const eventTypeInput = rawBody.event_type ?? rawBody.eventType;
   if (typeof eventTypeInput === "string") sanitizedUpdates.event_type = sanitizeText(eventTypeInput, 50);
 
-  if (typeof rawBody.date === "string") sanitizedUpdates.date = sanitizeText(rawBody.date, 30);
+  if (typeof rawBody.date === "string") {
+    const rawDate = rawBody.date.trim();
+    const parsed = new Date(rawDate);
+    const minDate = new Date(Date.now() - 90 * 86400000);
+    const maxDate = new Date(Date.now() + 5 * 365 * 86400000);
+    if (isNaN(parsed.getTime()) || parsed < minDate || parsed > maxDate) {
+      return NextResponse.json(
+        { error: "Date must be a valid celebration date within the next 5 years." },
+        { status: 400, headers: rateLimit.headers }
+      );
+    }
+    sanitizedUpdates.date = sanitizeText(rawDate, 30);
+  }
   if (typeof rawBody.time === "string") sanitizedUpdates.time = sanitizeText(rawBody.time, 30);
-  if (typeof rawBody.venue === "string") sanitizedUpdates.venue = sanitizeText(rawBody.venue, 200);
+  if (typeof rawBody.venue === "string") sanitizedUpdates.venue = sanitizeText(rawBody.venue, 150);
   if (typeof rawBody.address === "string") sanitizedUpdates.address = sanitizeText(rawBody.address, 300);
-  if (typeof rawBody.message === "string") sanitizedUpdates.message = sanitizeText(rawBody.message, 2000);
+  if (typeof rawBody.message === "string") sanitizedUpdates.message = sanitizeText(rawBody.message, 1500);
   if (typeof rawBody.template === "string") sanitizedUpdates.template = sanitizeText(rawBody.template, 50);
-  if (typeof rawBody.plan === "string") sanitizedUpdates.plan = sanitizeText(rawBody.plan, 30);
+
+  const planInput = rawBody.plan;
+  if (typeof planInput === "string") {
+    const p = planInput.toLowerCase().trim();
+    if (["starter", "signature", "keepsake"].includes(p)) {
+      sanitizedUpdates.plan = p;
+    }
+  }
+
+  const layoutInput = rawBody.layout_type ?? rawBody.layoutType;
+  if (typeof layoutInput === "string") {
+    const l = layoutInput.toLowerCase().trim();
+    if (["classic", "cinematic", "cartoon", "royalscroll", "magazine"].includes(l)) {
+      sanitizedUpdates.layout_type = l;
+    }
+  }
 
   const dressCodeInput = rawBody.dress_code ?? rawBody.dressCode;
   if (typeof dressCodeInput === "string") sanitizedUpdates.dress_code = sanitizeText(dressCodeInput, 100);

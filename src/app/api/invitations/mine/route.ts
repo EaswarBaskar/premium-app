@@ -28,7 +28,15 @@ export async function GET(request: Request) {
   if (!supabase) {
     if (requestedSlug) {
       const inv = localStore.getInvitationBySlug(requestedSlug);
-      if (inv) return NextResponse.json(invitationToClient(inv), { headers: rateLimit.headers });
+      if (inv) {
+        if (inv.owner_id && inv.owner_id !== "local-user") {
+          return NextResponse.json(
+            { error: "Access denied. You do not own this invitation." },
+            { status: 403, headers: rateLimit.headers }
+          );
+        }
+        return NextResponse.json(invitationToClient(inv), { headers: rateLimit.headers });
+      }
     }
     const local = localStore.getLatestInvitation();
     return NextResponse.json(local ? invitationToClient(local) : null, { headers: rateLimit.headers });

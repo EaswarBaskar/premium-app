@@ -10,6 +10,26 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/gif",
 ]);
 
+function isValidImageBytes(buffer: Buffer, mimeType: string): boolean {
+  if (buffer.length < 12) return false;
+  if (mimeType === "image/jpeg") {
+    return buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  }
+  if (mimeType === "image/png") {
+    return buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+  }
+  if (mimeType === "image/gif") {
+    return buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38;
+  }
+  if (mimeType === "image/webp") {
+    return (
+      buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+      buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50
+    );
+  }
+  return false;
+}
+
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   const rateLimit = checkRateLimit(`uploads:${ip}`, {
@@ -48,6 +68,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Images must be smaller than 8 MB." }, { status: 400, headers: rateLimit.headers });
   }
 
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  // Content sniffing verification: check magic byte signatures
+  if (!isValidImageBytes(buffer, file.type)) {
+    return NextResponse.json(
+      { error: "Corrupted or invalid image file. File content does not match allowed image headers." },
+      { status: 400, headers: rateLimit.headers }
+    );
+  }
+
   const supabase = getSupabaseAdmin();
   if (supabase) {
     const authClient = await createSupabaseServerClient();
@@ -63,7 +94,7 @@ export async function POST(request: Request) {
 
       const { error } = await supabase.storage
         .from("invitation-assets")
-        .upload(path, Buffer.from(await file.arrayBuffer()), {
+        .upload(path, buffer, {
           contentType: file.type,
           upsert: false,
         });
@@ -76,7 +107,6 @@ export async function POST(request: Request) {
   }
 
   // Fallback for unauthenticated preview or demo/local mode: return as sanitized data URL
-  const buffer = Buffer.from(await file.arrayBuffer());
   const dataUrl = `data:${file.type};base64,${buffer.toString("base64")}`;
   return NextResponse.json({ url: dataUrl }, { headers: rateLimit.headers });
 }

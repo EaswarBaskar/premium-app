@@ -1106,3 +1106,192 @@
   }
 }
 
+/* ===================================================
+   STEP 4 REVIEW SUMMARY & WIZARD POLISH
+   =================================================== */
+
+.reviewSummaryWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.reviewCard {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(70, 53, 44, 0.04);
+}
+
+.reviewRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  padding-bottom: 8px;
+}
+
+.reviewRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reviewLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.reviewValue {
+  text-align: right;
+  color: var(--ink);
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.reviewSubAddress {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.reviewPhotoBox {
+  background: #fbf9f5;
+  border: 1px dashed #d5ccbe;
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reviewPhotoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.reviewPhotoHeader strong {
+  display: block;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.reviewPhotoHeader small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.reviewUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.reviewUploadBtn:hover {
+  background: var(--paper);
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+}
+
+.reviewPhotoThumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 500;
+}
+
+.reviewPhotoThumb img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+.reviewQuickNav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.reviewQuickNav span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.reviewQuickBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reviewQuickBtns button {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reviewQuickBtns button:hover {
+  background: #ffffff;
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* Ensure preview column never overflows or breaks the footer */
+.previewColumn {
+  position: relative;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 28px !important;
+}
+
+.previewColumn .invitationMock {
+  margin-bottom: 0 !important;
+  transform: scale(0.82) !important;
+  transform-origin: top center !important;
+}
+
+.wizardFooter {
+  position: relative;
+  z-index: 25 !important;
+  background: var(--paper) !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+

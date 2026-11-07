@@ -80,28 +80,46 @@ export async function POST(request: Request) {
     );
   }
 
-  if (rawFirstName.length > 100 || String(body.secondName || "").length > 100 || String(body.message || "").length > 2000) {
+  // Date boundary restriction: cannot be > 90 days in past or > 5 years in future
+  const parsedDate = new Date(rawDate);
+  const minDate = new Date(Date.now() - 90 * 86400000);
+  const maxDate = new Date(Date.now() + 5 * 365 * 86400000);
+  if (isNaN(parsedDate.getTime()) || parsedDate < minDate || parsedDate > maxDate) {
     return NextResponse.json(
-      { error: "Some invitation fields are too long." },
+      { error: "Event date must be a valid celebration date within the next 5 years." },
       { status: 400, headers: rateLimit.headers }
     );
   }
 
+  if (rawFirstName.length > 80 || String(body.secondName || "").length > 80 || String(body.message || "").length > 2000) {
+    return NextResponse.json(
+      { error: "Some invitation fields are too long (name max 80 chars, message max 2000 chars)." },
+      { status: 400, headers: rateLimit.headers }
+    );
+  }
+
+  // Plan and Layout restriction
+  const rawPlan = String(body.plan || "starter").toLowerCase().trim();
+  const plan = ["starter", "signature", "keepsake"].includes(rawPlan) ? rawPlan : "starter";
+
+  const rawLayout = String(body.layoutType || "classic").toLowerCase().trim();
+  const layoutType = ["classic", "cinematic", "cartoon", "royalscroll", "magazine"].includes(rawLayout)
+    ? rawLayout
+    : "classic";
+
   // Sanitize all text fields
-  const firstName = sanitizeText(rawFirstName, 100);
-  const secondName = body.secondName ? sanitizeText(body.secondName, 100) : null;
+  const firstName = sanitizeText(rawFirstName, 80);
+  const secondName = body.secondName ? sanitizeText(body.secondName, 80) : null;
   const age = body.age ? sanitizeText(body.age, 20) : null;
   const date = sanitizeText(rawDate, 30);
   const time = sanitizeText(rawTime, 30);
-  const venue = sanitizeText(rawVenue, 200);
+  const venue = sanitizeText(rawVenue, 150);
   const eventType = sanitizeText(body.eventType || "Wedding", 50);
   const address = sanitizeText(body.address || "", 300);
-  const message = sanitizeText(body.message || "", 2000);
+  const message = sanitizeText(body.message || "", 1500);
   const template = sanitizeText(body.template || "Elegant Gold", 50);
-  const plan = sanitizeText(body.plan || "starter", 30);
   const dressCode = body.dressCode ? sanitizeText(body.dressCode, 100) : null;
   const travelInfo = body.travelInfo ? sanitizeText(body.travelInfo, 500) : null;
-  const layoutType = sanitizeText(body.layoutType || "classic", 40);
 
   // Sanitize URLs, UPI, Phone
   const maps = sanitizeUrl(body.maps);
@@ -128,7 +146,12 @@ export async function POST(request: Request) {
       }))
     : [];
 
-  const prefix = [slugPart(firstName), slugPart(secondName || age)].filter(Boolean).join("-") || "invitation";
+  const rawPrefix = [slugPart(firstName), slugPart(secondName || age)].filter(Boolean).join("-") || "invitation";
+  const RESERVED_SLUGS = new Set([
+    "admin", "api", "auth", "login", "logout", "dashboard", "create", "invite",
+    "demo", "terms", "privacy", "settings", "static", "pricing", "faq", "contact"
+  ]);
+  const prefix = RESERVED_SLUGS.has(rawPrefix) ? `celebrate-${rawPrefix}` : rawPrefix;
   const slug = `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
   const days = plan === "keepsake" ? 30 : plan === "signature" ? 7 : 3;
   const expiresAt = new Date(Date.now() + days * 86400000).toISOString();

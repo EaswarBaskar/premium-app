@@ -37,8 +37,23 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     return NextResponse.json({ error: "Your name is required." }, { status: 400, headers: rateLimit.headers });
   }
 
-  const name = sanitizeText(rawName, 120);
-  const message = typeof body.message === "string" ? sanitizeText(body.message, 1000) : "";
+  if (rawName.length < 2 || rawName.length > 80) {
+    return NextResponse.json(
+      { error: "Guest name must be between 2 and 80 characters." },
+      { status: 400, headers: rateLimit.headers }
+    );
+  }
+
+  const rawMessage = typeof body.message === "string" ? body.message.trim() : "";
+  if (rawMessage.length > 500) {
+    return NextResponse.json(
+      { error: "Message cannot exceed 500 characters." },
+      { status: 400, headers: rateLimit.headers }
+    );
+  }
+
+  const name = sanitizeText(rawName, 80);
+  const message = sanitizeText(rawMessage, 500);
   const eventName = typeof body.eventName === "string" ? sanitizeText(body.eventName, 120) : null;
 
   const guestCount = Number(body.guestCount);
@@ -48,12 +63,34 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
   const response = ["attending", "maybe", "declined"].includes(String(body.response)) ? String(body.response) : "attending";
 
+  function checkEventClosed(expiresAt?: string | null, date?: string | null): string | null {
+    if (expiresAt) {
+      const expiry = new Date(expiresAt).getTime();
+      if (!isNaN(expiry) && expiry < Date.now()) {
+        return "This invitation has expired. RSVPs are no longer being accepted.";
+      }
+    }
+    if (date) {
+      const eventTime = new Date(`${date}T23:59:59`).getTime();
+      if (!isNaN(eventTime) && eventTime + 3 * 86400000 < Date.now()) {
+        return "RSVPs for this celebration are now closed as the event date has concluded.";
+      }
+    }
+    return null;
+  }
+
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     const invite = localStore.getInvitationBySlug(slug);
     if (!invite) {
       return NextResponse.json({ error: "Invitation not found." }, { status: 404, headers: rateLimit.headers });
     }
+
+    const closedReason = checkEventClosed(invite.expires_at, invite.date);
+    if (closedReason) {
+      return NextResponse.json({ error: closedReason }, { status: 410, headers: rateLimit.headers });
+    }
+
     localStore.saveRsvp({
       id: crypto.randomUUID(),
       invitation_id: invite.id,
@@ -69,7 +106,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
   const { data: invite } = await supabase
     .from("invitations")
-    .select("id, expires_at")
+    .select("id, expires_at, date")
     .eq("slug", slug.toLowerCase())
     .maybeSingle();
 
@@ -78,6 +115,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (!local) {
       return NextResponse.json({ error: "Invitation not found." }, { status: 404, headers: rateLimit.headers });
     }
+
+    const closedReason = checkEventClosed(local.expires_at, local.date);
+    if (closedReason) {
+      return NextResponse.json({ error: closedReason }, { status: 410, headers: rateLimit.headers });
+    }
+
     localStore.saveRsvp({
       id: crypto.randomUUID(),
       invitation_id: local.id,
@@ -91,8 +134,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     return NextResponse.json({ ok: true }, { headers: rateLimit.headers });
   }
 
-  if (invite.expires_at && new Date(invite.expires_at).getTime() < Date.now()) {
-    return NextResponse.json({ error: "This invitation has expired." }, { status: 410, headers: rateLimit.headers });
+  const closedReason = checkEventClosed(invite.expires_at, invite.date);
+  if (closedReason) {
+    return NextResponse.json({ error: closedReason }, { status: 410, headers: rateLimit.headers });
   }
 
   const payload: Record<string, unknown> = {

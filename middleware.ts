@@ -41,25 +41,69 @@ function hasAdminCredentials(request: NextRequest): boolean {
   return false;
 }
 
+function applySecurityHeaders(res: NextResponse): NextResponse {
+  res.headers.set("X-Frame-Options", "SAMEORIGIN");
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  );
+  res.headers.set("X-XSS-Protection", "1; mode=block");
+  return res;
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   let response = NextResponse.next({ request });
 
-  // 1. Admin API Route Protection
+  // 1. Cross-Origin Mutation Restriction (CSRF Protection for API routes)
+  if (
+    pathname.startsWith("/api/") &&
+    !["GET", "HEAD", "OPTIONS"].includes(request.method)
+  ) {
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host");
+    if (origin && host) {
+      try {
+        const originUrl = new URL(origin);
+        if (originUrl.host !== host && !originUrl.host.includes("localhost") && !originUrl.host.includes("127.0.0.1")) {
+          return applySecurityHeaders(
+            NextResponse.json(
+              { error: "Forbidden: Cross-origin request blocked." },
+              { status: 403 }
+            )
+          );
+        }
+      } catch {}
+    }
+  }
+
+  // 2. Admin API Route Protection
   if (pathname.startsWith("/api/admin")) {
-    // Public authentication routes (login, status, logout)
+    // Public authentication status/login endpoint
     if (pathname !== "/api/admin/auth") {
       if (!hasAdminCredentials(request)) {
-        return NextResponse.json(
-          { error: "Unauthorized. Administrator authentication required." },
-          { status: 401 }
+        return applySecurityHeaders(
+          NextResponse.json(
+            { error: "Unauthorized. Administrator authentication required." },
+            { status: 401 }
+          )
         );
       }
     }
-    return response;
+    return applySecurityHeaders(response);
   }
 
-  // 2. Supabase Auth Session Refresh & Dashboard Route Protection
+  // 3. Admin Page Lock Protection
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    const configuredPasscode = process.env.ADMIN_PASSCODE?.trim();
+    if (configuredPasscode && !hasAdminCredentials(request)) {
+      // Let the client page render the admin passcode lock screen
+    }
+  }
+
+  // 4. Supabase Auth Session Refresh & Dashboard Route Protection
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
@@ -69,7 +113,7 @@ export async function middleware(request: NextRequest) {
 
   if (!url || !key) {
     // When Supabase is not configured, allow local demo mode to operate smoothly
-    return response;
+    return applySecurityHeaders(response);
   }
 
   const supabase = createServerClient(url, key, {
@@ -83,14 +127,21 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (pathname.startsWith("/dashboard") && !user) {
-    return redirectWithNext(request);
+    return applySecurityHeaders(redirectWithNext(request));
   }
 
-  return response;
+  return applySecurityHeaders(response);
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/rsvps/:path*", "/api/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/api/:path*",
+  ],
 };

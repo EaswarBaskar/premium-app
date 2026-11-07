@@ -30,12 +30,9 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(14, 18, 16, 0.5) 0%,
-    rgba(14, 18, 16, 0.25) 40%,
-    rgba(14, 18, 16, 0.85) 100%
-  );
+  background: 
+    radial-gradient(circle at 50% 42%, rgba(223, 183, 108, 0.15) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(14, 22, 18, 0.55) 0%, rgba(10, 16, 13, 0.3) 45%, rgba(8, 12, 10, 0.92) 100%);
   z-index: 1;
 }
 
@@ -43,7 +40,163 @@
 .heroCenter,
 .heroBottom {
   position: relative;
+  z-index: 3;
+}
+
+/* Background Palace Archway & Rotating Mandala */
+.palaceArchBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
   z-index: 2;
+}
+
+.mandalaHalo {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: min(540px, 92vw);
+  height: min(540px, 92vw);
+  transform: translate(-50%, -50%);
+  animation: spinMandala 50s linear infinite;
+  pointer-events: none;
+  opacity: 0.65;
+  filter: drop-shadow(0 0 25px rgba(223, 183, 108, 0.3));
+}
+
+@keyframes spinMandala {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.royalArchSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Ambient Floating Sparkles Layer */
+.sparklesLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.floatingSparkle {
+  position: absolute;
+  color: #dfb76c;
+  animation: floatSparkle 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes floatSparkle {
+  0% {
+    transform: translateY(0) scale(0.85);
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-14px) scale(1.2);
+  }
+  100% {
+    transform: translateY(-28px) scale(0.9);
+    opacity: 0.45;
+  }
+}
+
+/* Falling Celebration Petals */
+.petalShowerContainer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.fallingPetal {
+  position: absolute;
+  top: -30px;
+  user-select: none;
+  animation: fallFlutter linear forwards;
+}
+
+@keyframes fallFlutter {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.75);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateY(680px) rotate(360deg) scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* Hero Decorative Flourish Divider */
+.heroFlourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 12px auto 16px;
+  max-width: 320px;
+}
+
+.flourishLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(223, 183, 108, 0.75), transparent);
+}
+
+.flourishMotif {
+  color: #dfb76c;
+  font-size: 13px;
+  letter-spacing: 4px;
+}
+
+/* Interactive Blessing Shower Button */
+.blessingBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(223, 183, 108, 0.15);
+  border: 1px solid rgba(223, 183, 108, 0.55);
+  color: #f7eedf;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 0 10px rgba(223, 183, 108, 0.12);
+  transition: all 0.25s ease;
+}
+
+.blessingBtn:hover {
+  background: rgba(223, 183, 108, 0.3);
+  border-color: #dfb76c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(223, 183, 108, 0.4);
+}
+
+.blessingBtn:active {
+  transform: scale(0.96);
 }
 
 .heroTop {
@@ -87,13 +240,15 @@
 
 .heroTitle {
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(44px, 7vw, 84px);
-  font-weight: 400;
+  font-size: clamp(48px, 7.5vw, 86px);
+  font-weight: 500;
   line-height: 1.05;
-  letter-spacing: -1.5px;
-  margin: 0 0 16px;
-  color: #fff;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  letter-spacing: -1px;
+  margin: 0 0 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #faedd8 55%, #dfb76c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 35px rgba(223, 183, 108, 0.28));
 }
 
 .heroTagline {
