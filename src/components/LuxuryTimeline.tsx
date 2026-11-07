@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDays, Clock, Heart, MapPin, Sparkles } from "lucide-react";
+import { sanitizeUrl } from "@/lib/sanitize";
 import styles from "./LuxuryTimeline.module.css";
 import type { InviteEvent } from "@/app/invite/[slug]/InviteClient";
 
@@ -106,7 +107,7 @@ export default function LuxuryTimeline({
         {events.map((event, idx) => {
           const icon = getCeremonyIcon(event.name);
           const mapsUrl =
-            (event as { maps?: string }).maps ||
+            sanitizeUrl((event as { maps?: string }).maps) ||
             `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${event.venue} ${event.address || ""}`)}`;
           const eventDressCode = (event as { dressCode?: string }).dressCode || globalDressCode;
 

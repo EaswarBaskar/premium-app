@@ -19,6 +19,7 @@ import CartoonCaricatureLayout from "@/components/layouts/CartoonCaricatureLayou
 import RoyalScrollLayout from "@/components/layouts/RoyalScrollLayout";
 import MagazineEditorialLayout from "@/components/layouts/MagazineEditorialLayout";
 import ExportStudioModal from "@/components/ExportStudioModal";
+import { sanitizeUrl } from "@/lib/sanitize";
 
 export type Invite = { id?: string; slug?: string; eventType: string; firstName: string; secondName: string; age?: string; date: string; time: string; venue: string; address: string; maps: string; message: string; contact?: string; template?: string; coverPhotoUrl?: string; galleryUrls?: string[]; events?: InviteEvent[]; dressCode?: string; travelInfo?: string; musicUrl?: string; shagunUpi?: string; registryUrl?: string; expiresAt?: number; views?: number; viewsByPlace?: Record<string, number>; layoutType?: string };
 export type InviteEvent = { name: string; date: string; time: string; venue: string; address?: string };
@@ -482,7 +483,7 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
               >
                 <Heart size={14} /> Confirm Attendance (RSVP)
               </button>
-              <a href={invite.maps || "https://maps.google.com"} target="_blank" rel="noreferrer" className={styles.guestBtn}>
+              <a href={sanitizeUrl(invite.maps, "https://maps.google.com") || "https://maps.google.com"} target="_blank" rel="noopener noreferrer" className={styles.guestBtn}>
                 <MapPin size={13} /> Directions
               </a>
               <button type="button" onClick={addToCalendar} className={styles.guestBtn}>
@@ -591,13 +592,13 @@ export default function InviteClient({ invite, slug, initialWishes = [] }: { inv
             </div>
           )}
 
-          {invite.registryUrl && (
+          {sanitizeUrl(invite.registryUrl) && (
             <div className={styles.registryBox}>
               <div>
                 <strong>Gift Wishlist &amp; Registry</strong>
                 <small>Curated celebration gift registry.</small>
               </div>
-              <a href={invite.registryUrl} target="_blank" rel="noreferrer" className={styles.registryBtn}>
+              <a href={sanitizeUrl(invite.registryUrl)!} target="_blank" rel="noopener noreferrer" className={styles.registryBtn}>
                 Browse Gift Registry <ExternalLink size={14} />
               </a>
             </div>

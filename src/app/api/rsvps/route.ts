@@ -2,43 +2,83 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { createSupabaseServerClient } from "@/lib/supabase/auth-server";
 import { localStore } from "@/lib/local-store";
+import { verifyAdminAuth } from "@/lib/admin-auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sanitizeSlug } from "@/lib/sanitize";
 
 export async function GET(request: Request) {
+  const ip = getClientIp(request);
+  const rateLimit = checkRateLimit(`rsvps-get:${ip}`, { windowMs: 60 * 1000, max: 60 });
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down." },
+      { status: 429, headers: rateLimit.headers }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
-  const slug = searchParams.get("slug")?.trim().toLowerCase();
+  const rawSlug = searchParams.get("slug");
+  const slug = rawSlug ? sanitizeSlug(rawSlug) : null;
 
   const supabase = getSupabaseAdmin();
+  const isAdmin = await verifyAdminAuth(request);
+
+  // 1. In local demo mode (when Supabase is not configured)
   if (!supabase) {
     const list = localStore.getRsvps();
     if (slug) {
       const inv = localStore.getInvitationBySlug(slug);
       const filtered = list.filter((r) => r.invitation_id === slug || (inv && r.invitation_id === inv.id));
-      return NextResponse.json(filtered);
+      return NextResponse.json(filtered, { headers: rateLimit.headers });
     }
-    return NextResponse.json(list);
+    return NextResponse.json(list, { headers: rateLimit.headers });
   }
 
+  // 2. In live mode: user must be authenticated or be an admin
   const authClient = await createSupabaseServerClient();
   const { data: { user } } = await authClient.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+
+  if (!isAdmin && !user) {
+    return NextResponse.json({ error: "Unauthorized access to RSVP records." }, { status: 401, headers: rateLimit.headers });
+  }
 
   let invitationIds: string[] = [];
 
   if (slug) {
-    // Specifically target this invitation
+    // Check ownership of this specific slug
     try {
-      const { data: inv } = await supabase.from("invitations").select("id").eq("slug", slug).maybeSingle();
+      const { data: inv } = await supabase
+        .from("invitations")
+        .select("id, owner_id")
+        .eq("slug", slug)
+        .maybeSingle();
+
       if (inv) {
+        // Enforce IDOR protection: only the owner or an admin can view RSVPs
+        if (!isAdmin && inv.owner_id && inv.owner_id !== user?.id) {
+          return NextResponse.json({ error: "Access denied. You do not own this invitation." }, { status: 403, headers: rateLimit.headers });
+        }
         invitationIds = [inv.id];
       }
     } catch {}
 
     const localInv = localStore.getInvitationBySlug(slug);
-    if (localInv && !invitationIds.includes(localInv.id)) {
-      invitationIds.push(localInv.id);
+    if (localInv) {
+      if (!isAdmin && localInv.owner_id && localInv.owner_id !== "local-user" && localInv.owner_id !== user?.id) {
+        return NextResponse.json({ error: "Access denied. You do not own this invitation." }, { status: 403, headers: rateLimit.headers });
+      }
+      if (!invitationIds.includes(localInv.id)) {
+        invitationIds.push(localInv.id);
+      }
     }
-  } else {
-    // Find all invitations owned by this user
+  } else if (isAdmin) {
+    // Admin can view all RSVPs
+    try {
+      const { data: allInvites } = await supabase.from("invitations").select("id");
+      invitationIds = (allInvites || []).map((row: { id: string }) => row.id);
+    } catch {}
+  } else if (user) {
+    // Find all invitations owned by this specific authenticated user
     try {
       const { data: userInvites } = await supabase.from("invitations").select("id").eq("owner_id", user.id);
       invitationIds = (userInvites || []).map((row: { id: string }) => row.id);
@@ -49,8 +89,10 @@ export async function GET(request: Request) {
     invitationIds = [...new Set([...invitationIds, ...localIds])];
   }
 
-  // If no invitations found for this user/slug, return empty array immediately (NEVER return other people's RSVPs)
-  if (!invitationIds.length) return NextResponse.json([]);
+  // If no invitations found for this user/slug, return empty array immediately
+  if (!invitationIds.length) {
+    return NextResponse.json([], { headers: rateLimit.headers });
+  }
 
   let data: Array<{ id: string; [key: string]: unknown }> = [];
   try {
@@ -75,7 +117,7 @@ export async function GET(request: Request) {
   } catch {}
 
   // Include any localStore RSVPs for these invitation IDs or slug
-  const localRsvps = localStore.getRsvps().filter((r) => 
+  const localRsvps = localStore.getRsvps().filter((r) =>
     invitationIds.includes(r.invitation_id) || (slug && r.invitation_id === slug)
   );
 
@@ -87,5 +129,5 @@ export async function GET(request: Request) {
     return true;
   });
 
-  return NextResponse.json(deduped);
+  return NextResponse.json(deduped, { headers: rateLimit.headers });
 }

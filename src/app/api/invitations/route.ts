@@ -2,9 +2,16 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { createSupabaseServerClient } from "@/lib/supabase/auth-server";
 import { localStore, type ExtendedInvitationRecord } from "@/lib/local-store";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sanitizePhone, sanitizeText, sanitizeUpi, sanitizeUrl } from "@/lib/sanitize";
 
 function slugPart(value: unknown) {
-  return String(value || "").trim().normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+  return String(value || "")
+    .trim()
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
 }
 
 type PostInvitationBody = {
@@ -33,45 +40,97 @@ type PostInvitationBody = {
 };
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const rateLimit = checkRateLimit(`invitations-create:${ip}`, {
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 15,                  // Max 15 creations
+  });
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: "Too many invitations created recently. Please wait before creating more." },
+      { status: 429, headers: rateLimit.headers }
+    );
+  }
+
   let body: PostInvitationBody;
   try {
     body = (await request.json()) as PostInvitationBody;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400, headers: rateLimit.headers });
   }
+
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request payload." }, { status: 400, headers: rateLimit.headers });
   }
+
   if (JSON.stringify(body).length > 2000000) {
-    return NextResponse.json({ error: "Invitation data is too large." }, { status: 413 });
-  }
-  if (
-    typeof body.firstName !== "string" ||
-    !body.firstName.trim() ||
-    !body.date ||
-    !body.time ||
-    typeof body.venue !== "string" ||
-    !body.venue.trim()
-  ) {
-    return NextResponse.json({ error: "Name, date, time and venue are required." }, { status: 400 });
-  }
-  if (
-    body.firstName.trim().length > 100 ||
-    String(body.secondName || "").length > 100 ||
-    String(body.message || "").length > 2000
-  ) {
-    return NextResponse.json({ error: "Some invitation fields are too long." }, { status: 400 });
+    return NextResponse.json({ error: "Invitation data is too large." }, { status: 413, headers: rateLimit.headers });
   }
 
-  const firstName = body.firstName.trim();
-  const date = body.date;
-  const time = body.time;
-  const venue = body.venue.trim();
-  const eventType = body.eventType || "Wedding";
+  const rawFirstName = typeof body.firstName === "string" ? body.firstName.trim() : "";
+  const rawDate = typeof body.date === "string" ? body.date.trim() : "";
+  const rawTime = typeof body.time === "string" ? body.time.trim() : "";
+  const rawVenue = typeof body.venue === "string" ? body.venue.trim() : "";
 
-  const prefix = [slugPart(body.firstName), slugPart(body.secondName || body.age)].filter(Boolean).join("-") || "invitation";
+  if (!rawFirstName || !rawDate || !rawTime || !rawVenue) {
+    return NextResponse.json(
+      { error: "Name, date, time and venue are required." },
+      { status: 400, headers: rateLimit.headers }
+    );
+  }
+
+  if (rawFirstName.length > 100 || String(body.secondName || "").length > 100 || String(body.message || "").length > 2000) {
+    return NextResponse.json(
+      { error: "Some invitation fields are too long." },
+      { status: 400, headers: rateLimit.headers }
+    );
+  }
+
+  // Sanitize all text fields
+  const firstName = sanitizeText(rawFirstName, 100);
+  const secondName = body.secondName ? sanitizeText(body.secondName, 100) : null;
+  const age = body.age ? sanitizeText(body.age, 20) : null;
+  const date = sanitizeText(rawDate, 30);
+  const time = sanitizeText(rawTime, 30);
+  const venue = sanitizeText(rawVenue, 200);
+  const eventType = sanitizeText(body.eventType || "Wedding", 50);
+  const address = sanitizeText(body.address || "", 300);
+  const message = sanitizeText(body.message || "", 2000);
+  const template = sanitizeText(body.template || "Elegant Gold", 50);
+  const plan = sanitizeText(body.plan || "starter", 30);
+  const dressCode = body.dressCode ? sanitizeText(body.dressCode, 100) : null;
+  const travelInfo = body.travelInfo ? sanitizeText(body.travelInfo, 500) : null;
+  const layoutType = sanitizeText(body.layoutType || "classic", 40);
+
+  // Sanitize URLs, UPI, Phone
+  const maps = sanitizeUrl(body.maps);
+  const coverPhotoUrl = sanitizeUrl(body.coverPhotoUrl);
+  const musicUrl = sanitizeUrl(body.musicUrl);
+  const registryUrl = sanitizeUrl(body.registryUrl);
+  const shagunUpi = sanitizeUpi(body.shagunUpi);
+  const contact = sanitizePhone(body.contact);
+
+  const galleryUrls = Array.isArray(body.galleryUrls)
+    ? body.galleryUrls
+        .map((u) => sanitizeUrl(u))
+        .filter((u): u is string => Boolean(u))
+        .slice(0, 20)
+    : [];
+
+  const events = Array.isArray(body.events)
+    ? body.events.slice(0, 10).map((ev) => ({
+        name: sanitizeText(ev?.name, 80),
+        date: sanitizeText(ev?.date, 30),
+        time: sanitizeText(ev?.time, 30),
+        venue: sanitizeText(ev?.venue, 150),
+        address: sanitizeText(ev?.address, 200),
+      }))
+    : [];
+
+  const prefix = [slugPart(firstName), slugPart(secondName || age)].filter(Boolean).join("-") || "invitation";
   const slug = `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
-  const days = body.plan === "keepsake" ? 30 : body.plan === "signature" ? 7 : 3;
+  const days = plan === "keepsake" ? 30 : plan === "signature" ? 7 : 3;
   const expiresAt = new Date(Date.now() + days * 86400000).toISOString();
 
   const supabase = getSupabaseAdmin();
@@ -83,32 +142,32 @@ export async function POST(request: Request) {
       slug,
       event_type: eventType,
       first_name: firstName,
-      second_name: body.secondName?.trim() || null,
-      age: body.age || null,
+      second_name: secondName,
+      age,
       date,
       time,
       venue,
-      address: body.address?.trim() || "",
-      maps: body.maps?.trim() || null,
-      message: body.message?.trim() || "",
-      contact: body.contact?.trim() || null,
-      template: body.template || "Elegant Gold",
-      plan: body.plan || "starter",
-      cover_photo_url: body.coverPhotoUrl?.trim() || null,
-      gallery_urls: Array.isArray(body.galleryUrls) ? body.galleryUrls : [],
-      events: Array.isArray(body.events) ? body.events : [],
-      dress_code: body.dressCode?.trim() || null,
-      travel_info: body.travelInfo?.trim() || null,
-      music_url: body.musicUrl?.trim() || null,
-      shagun_upi: body.shagunUpi?.trim() || null,
-      registry_url: body.registryUrl?.trim() || null,
-      layout_type: body.layoutType || "classic",
+      address,
+      maps,
+      message,
+      contact,
+      template,
+      plan,
+      cover_photo_url: coverPhotoUrl,
+      gallery_urls: galleryUrls,
+      events,
+      dress_code: dressCode,
+      travel_info: travelInfo,
+      music_url: musicUrl,
+      shagun_upi: shagunUpi,
+      registry_url: registryUrl,
+      layout_type: layoutType,
       expires_at: expiresAt,
       views: 0,
       created_at: new Date().toISOString(),
     };
     localStore.saveInvitation(record);
-    return NextResponse.json({ id: record.id, slug: record.slug });
+    return NextResponse.json({ id: record.id, slug: record.slug }, { headers: rateLimit.headers });
   }
 
   const authClient = await createSupabaseServerClient();
@@ -120,34 +179,32 @@ export async function POST(request: Request) {
     slug,
     event_type: eventType,
     first_name: firstName,
-    second_name: body.secondName?.trim() || null,
-    age: body.age || null,
+    second_name: secondName,
+    age,
     date,
     time,
     venue,
-    address: body.address?.trim() || "",
-    maps: body.maps?.trim() || null,
-    message: body.message?.trim() || "",
-    contact: body.contact?.trim() || null,
-    template: body.template || "Elegant Gold",
-    plan: body.plan || "starter",
-    cover_photo_url: body.coverPhotoUrl?.trim() || null,
-    gallery_urls: Array.isArray(body.galleryUrls) ? body.galleryUrls : [],
-    events: Array.isArray(body.events) ? body.events : [],
-    dress_code: body.dressCode?.trim() || null,
-    travel_info: body.travelInfo?.trim() || null,
-    music_url: body.musicUrl?.trim() || null,
-    shagun_upi: body.shagunUpi?.trim() || null,
-    registry_url: body.registryUrl?.trim() || null,
-    layout_type: body.layoutType || "classic",
+    address,
+    maps,
+    message,
+    contact,
+    template,
+    plan,
+    cover_photo_url: coverPhotoUrl,
+    gallery_urls: galleryUrls,
+    events,
+    dress_code: dressCode,
+    travel_info: travelInfo,
+    music_url: musicUrl,
+    shagun_upi: shagunUpi,
+    registry_url: registryUrl,
+    layout_type: layoutType,
     expires_at: expiresAt,
   };
 
   const payloadToInsert: Record<string, unknown> = { ...fullPayload };
   let insertRes = await supabase.from("invitations").insert(payloadToInsert).select("id, slug").single();
 
-  // If Supabase table is missing any newly added columns (PGRST204 or 42703),
-  // dynamically extract the missing column name from the error message and retry
   let attempts = 0;
   while (insertRes.error && (insertRes.error.code === "PGRST204" || insertRes.error.code === "42703") && attempts < 10) {
     attempts++;
@@ -156,7 +213,6 @@ export async function POST(request: Request) {
       delete payloadToInsert[missingColMatch[1]];
       insertRes = await supabase.from("invitations").insert(payloadToInsert).select("id, slug").single();
     } else {
-      // Fallback: keep only the core guaranteed columns
       const coreKeys = ["slug", "event_type", "first_name", "second_name", "age", "date", "time", "venue", "address", "maps", "message", "template", "plan", "expires_at"];
       Object.keys(payloadToInsert).forEach((k) => {
         if (!coreKeys.includes(k)) delete payloadToInsert[k];
@@ -169,7 +225,6 @@ export async function POST(request: Request) {
   const { data, error } = insertRes;
 
   if (error || !data) {
-    console.warn("Supabase insert failed, saving to localStore fallback:", error?.message);
     const fallbackRecord = {
       id: crypto.randomUUID(),
       owner_id: ownerId || "local-user",
@@ -178,10 +233,9 @@ export async function POST(request: Request) {
       ...fullPayload,
     };
     localStore.saveInvitation(fallbackRecord as unknown as ExtendedInvitationRecord);
-    return NextResponse.json({ id: fallbackRecord.id, slug });
+    return NextResponse.json({ id: fallbackRecord.id, slug }, { headers: rateLimit.headers });
   }
 
-  // Dual-write to localStore so custom fields (contact, events, cover photo) are preserved even if Supabase table has a legacy schema
   const localRecord = {
     id: data.id,
     created_at: new Date().toISOString(),
@@ -191,5 +245,5 @@ export async function POST(request: Request) {
   };
   localStore.saveInvitation(localRecord as unknown as ExtendedInvitationRecord);
 
-  return NextResponse.json({ id: data.id, slug: data.slug });
+  return NextResponse.json({ id: data.id, slug: data.slug }, { headers: rateLimit.headers });
 }

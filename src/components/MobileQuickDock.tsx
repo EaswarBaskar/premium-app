@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, Gift, Heart, MapPin } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { sanitizeUrl } from "@/lib/sanitize";
 import styles from "./MobileQuickDock.module.css";
 
 export interface MobileQuickDockProps {
@@ -69,9 +70,9 @@ export default function MobileQuickDock({
               </button>
 
               <a
-                href={mapsUrl}
+                href={sanitizeUrl(mapsUrl, "https://maps.google.com") || "https://maps.google.com"}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className={styles.dockBtn}
                 aria-label="Get Directions to Venue"
               >

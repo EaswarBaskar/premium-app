@@ -10,6 +10,7 @@ import {
 import styles from "./MagazineEditorialLayout.module.css";
 import LuxuryTimeline from "@/components/LuxuryTimeline";
 import CountdownPanel from "@/components/CountdownPanel";
+import { sanitizeUrl } from "@/lib/sanitize";
 import { Invite } from "@/app/invite/[slug]/InviteClient";
 
 export interface MagazineEditorialLayoutProps {
@@ -174,9 +175,9 @@ export default function MagazineEditorialLayout({
           <div style={{ fontSize: "13px", color: "#666" }}>{invite.address}</div>
           <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
             <a
-              href={invite.maps || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${invite.venue}, ${invite.address}`)}`}
+              href={sanitizeUrl(invite.maps) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${invite.venue}, ${invite.address}`)}`}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className={styles.outlineBtn}
               style={{ fontSize: "11px", padding: "8px 18px" }}
             >

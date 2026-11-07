@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { localStore, type ExtendedInvitationRecord } from "@/lib/local-store";
 import { verifyAdminAuth } from "@/lib/admin-auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sanitizeSlug } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -42,8 +44,14 @@ type RawAdminRsvp = {
 };
 
 export async function GET(request: Request) {
+  const ip = getClientIp(request);
+  const rateLimit = checkRateLimit(`admin-overview-get:${ip}`, { windowMs: 60 * 1000, max: 60 });
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429, headers: rateLimit.headers });
+  }
+
   const isAuthed = await verifyAdminAuth(request);
-  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
+  if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401, headers: rateLimit.headers });
   const supabase = getSupabaseAdmin();
 
   let invitations: RawAdminInvitation[] = [];
@@ -180,7 +188,8 @@ export async function DELETE(request: Request) {
   const isAuthed = await verifyAdminAuth(request);
   if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
   const { searchParams } = new URL(request.url);
-  const slug = searchParams.get("slug");
+  const rawSlug = searchParams.get("slug");
+  const slug = rawSlug ? sanitizeSlug(rawSlug) : null;
   if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
 
   const supabase = getSupabaseAdmin();
@@ -199,7 +208,8 @@ export async function PATCH(request: Request) {
   const isAuthed = await verifyAdminAuth(request);
   if (!isAuthed) return NextResponse.json({ error: "Unauthorized. Admin passcode required." }, { status: 401 });
   const body = (await request.json().catch(() => ({}))) as { slug?: string; action?: string; extraDays?: number };
-  const { slug, action = "extend", extraDays = 7 } = body;
+  const { slug: rawSlug, action = "extend", extraDays = 7 } = body;
+  const slug = rawSlug ? sanitizeSlug(rawSlug) : null;
   if (!slug) return NextResponse.json({ error: "Slug required." }, { status: 400 });
 
   if (action !== "extend") return NextResponse.json({ success: true });

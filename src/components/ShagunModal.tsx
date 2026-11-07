@@ -4,6 +4,7 @@ import { useId, useMemo, useState } from "react";
 import Image from "next/image";
 import { Check, Copy, ExternalLink, Gift, Sparkles, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { sanitizeUrl } from "@/lib/sanitize";
 import styles from "./ShagunModal.module.css";
 
 export interface ShagunModalProps {
@@ -209,12 +210,12 @@ export default function ShagunModal({
               <Sparkles size={15} /> Pay ₹{finalAmount.toLocaleString("en-IN")} via Any UPI App →
             </a>
 
-            {registryUrl && (
+            {sanitizeUrl(registryUrl) && (
               <div style={{ marginTop: "14px", textAlign: "center" }}>
                 <a
-                  href={registryUrl}
+                  href={sanitizeUrl(registryUrl)!}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   style={{
                     fontSize: "12px",
                     color: "var(--accent, #b4945b)",

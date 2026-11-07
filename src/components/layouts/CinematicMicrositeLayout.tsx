@@ -13,6 +13,7 @@ import {
 import styles from "./CinematicMicrositeLayout.module.css";
 import LuxuryTimeline from "@/components/LuxuryTimeline";
 import CountdownPanel from "@/components/CountdownPanel";
+import { sanitizeUrl } from "@/lib/sanitize";
 import { Invite } from "@/app/invite/[slug]/InviteClient";
 
 export interface CinematicLayoutProps {
@@ -209,7 +210,7 @@ export default function CinematicMicrositeLayout({
             <div className={styles.travelContent}>
               <h3>Resort &amp; Hotel Accommodations</h3>
               <p>Arranged rooms and suites are reserved for out-of-station guests at the heritage pavilion. Complimentary check-in begins at 12:00 PM.</p>
-              <a href={invite.maps || "https://maps.google.com"} target="_blank" rel="noreferrer" className={styles.travelAction}>
+              <a href={sanitizeUrl(invite.maps, "https://maps.google.com") || "https://maps.google.com"} target="_blank" rel="noopener noreferrer" className={styles.travelAction}>
                 <MapPin size={14} /> View Hotel Location &amp; Directions →
               </a>
             </div>
